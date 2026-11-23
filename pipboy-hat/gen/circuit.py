@@ -17,7 +17,7 @@ from common import g  # noqa: E402
 from project import write_project  # noqa: E402
 from sch import Hierarchy, Schematic  # noqa: E402
 
-from sheets import display, pi_header, power  # noqa: E402
+from sheets import display, inputs, pi_header, power  # noqa: E402
 
 PROJECT = "pipboy-hat"
 BOARD = "Pip-Boy HAT"
@@ -30,13 +30,15 @@ SHEETS = [
      "J1 Pi header, bottom side. R10, R11 I2C pull-ups and\nU2 ID EEPROM, not fitted. H1 to H8 holes."),
     ("Display and backlight", "display.kicad_sch", "A4", display.draw, (g(20), g(76)),
      "J2 socket for the DS1 ILI9341 module, R24, C1, C2.\nQ1, Q2 backlight switch on TFT_BL, R20 default on."),
+    ("Keys and dial", "inputs.kicad_sch", "A4", inputs.draw, (g(100), g(76)),
+     "SW1 to SW6 keys, SW7 dial with push, R40 to R48,\nC40 to C48. J5 front panel header, not fitted."),
 ]
 
 
 # Sheets not drawn yet. While any is pending, the nets that J1 sends to them end
 # on one pin, so ERC would flag their labels as isolated. The project then
 # ignores that one rule. The last sheet empties this list and the rule is back.
-PENDING = ['Keys and dial', 'Audio', 'Clock', 'Serial and test points']
+PENDING = ['Audio', 'Clock', 'Serial and test points']
 
 
 def build() -> Hierarchy:
