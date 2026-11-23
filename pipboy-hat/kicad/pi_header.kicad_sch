@@ -4310,8 +4310,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "91e34bc0-ed2e-5810-9e19-f79f5d15a1d8")
-		(property "Reference" "#PWR01"
+		(uuid "204cbbb2-aa2c-5bf8-b539-6a5d24e0148c")
+		(property "Reference" "#PWR05"
 			(at 49.53 43.18 90)
 			(hide yes)
 			(show_name no)
@@ -4368,12 +4368,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5a2e1d8f-2ace-5589-8539-385dbf7e0d62")
+			(uuid "c2b90cec-96f9-5301-a8d6-629d0d6f8b77")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR01")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -4389,8 +4389,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "ee96138f-1be5-5d49-8737-8f0800d1f785")
-		(property "Reference" "#PWR02"
+		(uuid "b1365b06-8e01-5c74-95a6-8025ec4f3c57")
+		(property "Reference" "#PWR06"
 			(at 69.85 43.18 90)
 			(hide yes)
 			(show_name no)
@@ -4447,12 +4447,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "dc7dc2ad-3a9b-56da-9c80-11f22c29c13e")
+			(uuid "df6029f9-387c-513c-a9a7-6463b4814a4f")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR02")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -4468,8 +4468,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "6fe0eb48-a3b1-5e9c-8013-ed8285dfe74d")
-		(property "Reference" "#PWR03"
+		(uuid "0168922f-e365-5c6e-81ce-d975205b1fba")
+		(property "Reference" "#PWR07"
 			(at 69.85 45.72 90)
 			(hide yes)
 			(show_name no)
@@ -4526,12 +4526,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a753e391-8afb-5554-8759-fb7c6b6e09bc")
+			(uuid "06b38c66-228b-5009-a633-f1ed966af743")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR03")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -4547,8 +4547,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "cf73920e-4a93-594b-a051-e516403927be")
-		(property "Reference" "#PWR04"
+		(uuid "bacba91e-044b-507b-bf04-d1c537e325f1")
+		(property "Reference" "#PWR08"
 			(at 69.85 48.26 90)
 			(hide yes)
 			(show_name no)
@@ -4605,12 +4605,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "360020f1-e4b2-5de6-b4b4-c108191521ca")
+			(uuid "a4ebf8e3-2230-5873-9ba6-3952b47ef1e1")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR04")
+					(reference "#PWR08")
 					(unit 1)
 				)
 			)
@@ -4626,8 +4626,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "204cbbb2-aa2c-5bf8-b539-6a5d24e0148c")
-		(property "Reference" "#PWR05"
+		(uuid "aff8413f-bc4e-53fa-85d2-add386d72e39")
+		(property "Reference" "#PWR09"
 			(at 49.53 53.34 90)
 			(hide yes)
 			(show_name no)
@@ -4684,12 +4684,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c2b90cec-96f9-5301-a8d6-629d0d6f8b77")
+			(uuid "84de8427-1cae-5c42-9123-c549f6cd706f")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR05")
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -4705,8 +4705,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "b1365b06-8e01-5c74-95a6-8025ec4f3c57")
-		(property "Reference" "#PWR06"
+		(uuid "4a421bac-b977-56ff-a8fa-1173a61a632e")
+		(property "Reference" "#PWR10"
 			(at 69.85 58.42 90)
 			(hide yes)
 			(show_name no)
@@ -4763,12 +4763,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "df6029f9-387c-513c-a9a7-6463b4814a4f")
+			(uuid "05602e75-fc79-581d-9b3b-57e7f9f10405")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR06")
+					(reference "#PWR10")
 					(unit 1)
 				)
 			)
@@ -4784,8 +4784,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "0168922f-e365-5c6e-81ce-d975205b1fba")
-		(property "Reference" "#PWR07"
+		(uuid "34abd7c7-ddbd-56c5-8022-dc3b6a47dfb9")
+		(property "Reference" "#PWR11"
 			(at 49.53 63.5 90)
 			(hide yes)
 			(show_name no)
@@ -4842,12 +4842,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "06b38c66-228b-5009-a633-f1ed966af743")
+			(uuid "0d512019-df79-5f52-aca2-2a3b8eed8e50")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR07")
+					(reference "#PWR11")
 					(unit 1)
 				)
 			)
@@ -4863,8 +4863,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "bacba91e-044b-507b-bf04-d1c537e325f1")
-		(property "Reference" "#PWR08"
+		(uuid "333d53e1-9be2-58bd-8525-5e71eb8c8f56")
+		(property "Reference" "#PWR12"
 			(at 69.85 66.04 90)
 			(hide yes)
 			(show_name no)
@@ -4921,12 +4921,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a4ebf8e3-2230-5873-9ba6-3952b47ef1e1")
+			(uuid "91b894e3-be6f-5908-bac0-90ba12055f61")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR08")
+					(reference "#PWR12")
 					(unit 1)
 				)
 			)
@@ -4942,8 +4942,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "aff8413f-bc4e-53fa-85d2-add386d72e39")
-		(property "Reference" "#PWR09"
+		(uuid "8fc716a2-f481-5680-8c5b-0fab2fdd8803")
+		(property "Reference" "#PWR13"
 			(at 49.53 73.66 90)
 			(hide yes)
 			(show_name no)
@@ -5000,12 +5000,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "84de8427-1cae-5c42-9123-c549f6cd706f")
+			(uuid "e5cff746-ab28-5410-bc11-daab4bca946a")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR09")
+					(reference "#PWR13")
 					(unit 1)
 				)
 			)
@@ -5021,8 +5021,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "4a421bac-b977-56ff-a8fa-1173a61a632e")
-		(property "Reference" "#PWR10"
+		(uuid "2da9204d-0475-59ba-8b37-68ccd0ba2174")
+		(property "Reference" "#PWR14"
 			(at 69.85 78.74 90)
 			(hide yes)
 			(show_name no)
@@ -5079,12 +5079,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "05602e75-fc79-581d-9b3b-57e7f9f10405")
+			(uuid "1690ec6e-301f-590d-b582-fa8500378d3a")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR10")
+					(reference "#PWR14")
 					(unit 1)
 				)
 			)
@@ -5100,8 +5100,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "34abd7c7-ddbd-56c5-8022-dc3b6a47dfb9")
-		(property "Reference" "#PWR11"
+		(uuid "0d0fcbc8-61a4-53a6-9e99-d5ae33287388")
+		(property "Reference" "#PWR15"
 			(at 69.85 83.82 90)
 			(hide yes)
 			(show_name no)
@@ -5158,12 +5158,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0d512019-df79-5f52-aca2-2a3b8eed8e50")
+			(uuid "f59724af-dc0e-5216-bb82-6ee6cb6f346b")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR11")
+					(reference "#PWR15")
 					(unit 1)
 				)
 			)
@@ -5179,8 +5179,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "333d53e1-9be2-58bd-8525-5e71eb8c8f56")
-		(property "Reference" "#PWR12"
+		(uuid "2a64be47-9f8a-5425-9aaa-7fde98e836b6")
+		(property "Reference" "#PWR16"
 			(at 49.53 91.44 90)
 			(hide yes)
 			(show_name no)
@@ -5237,12 +5237,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "91b894e3-be6f-5908-bac0-90ba12055f61")
+			(uuid "a84f9667-0387-5682-8bfd-0e0ccc171548")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR12")
+					(reference "#PWR16")
 					(unit 1)
 				)
 			)
@@ -5258,8 +5258,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "8fc716a2-f481-5680-8c5b-0fab2fdd8803")
-		(property "Reference" "#PWR13"
+		(uuid "38493a49-d7f8-5efc-98ef-78a4c3ac7d49")
+		(property "Reference" "#PWR17"
 			(at 71.12 123.19 0)
 			(hide yes)
 			(show_name no)
@@ -5314,12 +5314,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e5cff746-ab28-5410-bc11-daab4bca946a")
+			(uuid "3be422e3-8854-5bcb-8357-98ea21b68d68")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR13")
+					(reference "#PWR17")
 					(unit 1)
 				)
 			)
@@ -5412,8 +5412,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "2da9204d-0475-59ba-8b37-68ccd0ba2174")
-		(property "Reference" "#PWR14"
+		(uuid "5e2a7eda-5f8a-5da6-9456-9492a5391b42")
+		(property "Reference" "#PWR18"
 			(at 83.82 123.19 0)
 			(hide yes)
 			(show_name no)
@@ -5468,12 +5468,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1690ec6e-301f-590d-b582-fa8500378d3a")
+			(uuid "49df86ff-0832-56e2-bc2f-2eb36120617b")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR14")
+					(reference "#PWR18")
 					(unit 1)
 				)
 			)
@@ -5566,8 +5566,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "0d0fcbc8-61a4-53a6-9e99-d5ae33287388")
-		(property "Reference" "#PWR15"
+		(uuid "bb4886d7-e07e-5e75-aa63-94f1019bf78c")
+		(property "Reference" "#PWR19"
 			(at 96.52 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -5622,12 +5622,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f59724af-dc0e-5216-bb82-6ee6cb6f346b")
+			(uuid "1a948351-08a2-5672-827f-9276963c8664")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR15")
+					(reference "#PWR19")
 					(unit 1)
 				)
 			)
@@ -5801,8 +5801,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "2a64be47-9f8a-5425-9aaa-7fde98e836b6")
-		(property "Reference" "#PWR16"
+		(uuid "5313612b-fb63-5c61-9dec-c694e3cfa8f1")
+		(property "Reference" "#PWR20"
 			(at 129.54 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -5857,12 +5857,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a84f9667-0387-5682-8bfd-0e0ccc171548")
+			(uuid "c3ff1684-acbc-562d-baa5-c039784d3c8a")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR16")
+					(reference "#PWR20")
 					(unit 1)
 				)
 			)
@@ -5959,8 +5959,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "38493a49-d7f8-5efc-98ef-78a4c3ac7d49")
-		(property "Reference" "#PWR17"
+		(uuid "58d8f9f2-bf6e-5541-af8a-6d18b1077188")
+		(property "Reference" "#PWR21"
 			(at 157.48 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -6015,12 +6015,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3be422e3-8854-5bcb-8357-98ea21b68d68")
+			(uuid "244af153-d222-5526-bb68-01dbfdad6f91")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR17")
+					(reference "#PWR21")
 					(unit 1)
 				)
 			)
@@ -6135,8 +6135,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "5e2a7eda-5f8a-5da6-9456-9492a5391b42")
-		(property "Reference" "#PWR18"
+		(uuid "9f8b0319-da95-5e5c-b3f7-38e67617937e")
+		(property "Reference" "#PWR22"
 			(at 148.59 139.7 0)
 			(hide yes)
 			(show_name no)
@@ -6191,12 +6191,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "49df86ff-0832-56e2-bc2f-2eb36120617b")
+			(uuid "60556672-5bef-59bc-bfdb-8a45433964f3")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR18")
+					(reference "#PWR22")
 					(unit 1)
 				)
 			)
@@ -6212,8 +6212,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "bb4886d7-e07e-5e75-aa63-94f1019bf78c")
-		(property "Reference" "#PWR19"
+		(uuid "6b28376d-03c9-5a0c-aa70-6dd718baece4")
+		(property "Reference" "#PWR23"
 			(at 162.56 120.65 0)
 			(hide yes)
 			(show_name no)
@@ -6268,12 +6268,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1a948351-08a2-5672-827f-9276963c8664")
+			(uuid "11b37a39-9057-50c8-90e5-172e61529106")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR19")
+					(reference "#PWR23")
 					(unit 1)
 				)
 			)
@@ -6289,8 +6289,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "5313612b-fb63-5c61-9dec-c694e3cfa8f1")
-		(property "Reference" "#PWR20"
+		(uuid "80a5bed1-2beb-5f37-823a-a767ed0df363")
+		(property "Reference" "#PWR24"
 			(at 162.56 143.51 0)
 			(hide yes)
 			(show_name no)
@@ -6345,12 +6345,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c3ff1684-acbc-562d-baa5-c039784d3c8a")
+			(uuid "cc966c9e-df20-5a84-9a21-118f0f3d5785")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR20")
+					(reference "#PWR24")
 					(unit 1)
 				)
 			)
@@ -6447,8 +6447,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "58d8f9f2-bf6e-5541-af8a-6d18b1077188")
-		(property "Reference" "#PWR21"
+		(uuid "a80824dd-f0b7-593d-8635-58b0f085a326")
+		(property "Reference" "#PWR25"
 			(at 177.8 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -6503,12 +6503,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "244af153-d222-5526-bb68-01dbfdad6f91")
+			(uuid "f9ee0001-ffd2-5c92-934c-e59280044e3d")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR21")
+					(reference "#PWR25")
 					(unit 1)
 				)
 			)
@@ -6605,8 +6605,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "9f8b0319-da95-5e5c-b3f7-38e67617937e")
-		(property "Reference" "#PWR22"
+		(uuid "26148305-222d-5a20-adda-78443753febc")
+		(property "Reference" "#PWR26"
 			(at 187.96 120.65 0)
 			(hide yes)
 			(show_name no)
@@ -6661,12 +6661,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "60556672-5bef-59bc-bfdb-8a45433964f3")
+			(uuid "2a7de9a3-c33e-5abc-8c65-aaccdfd44eba")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR22")
+					(reference "#PWR26")
 					(unit 1)
 				)
 			)
@@ -6763,8 +6763,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "6b28376d-03c9-5a0c-aa70-6dd718baece4")
-		(property "Reference" "#PWR23"
+		(uuid "1b0d09e8-0e91-5c47-9afb-b1480df7c760")
+		(property "Reference" "#PWR27"
 			(at 132.08 161.29 0)
 			(hide yes)
 			(show_name no)
@@ -6819,12 +6819,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "11b37a39-9057-50c8-90e5-172e61529106")
+			(uuid "0f19ecbd-7ac8-54e5-90b3-11ffcd85abc0")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR23")
+					(reference "#PWR27")
 					(unit 1)
 				)
 			)
@@ -6840,8 +6840,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "80a5bed1-2beb-5f37-823a-a767ed0df363")
-		(property "Reference" "#PWR24"
+		(uuid "41323962-16dd-5988-801f-97ef1d4e983f")
+		(property "Reference" "#PWR28"
 			(at 132.08 173.99 0)
 			(hide yes)
 			(show_name no)
@@ -6896,12 +6896,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "cc966c9e-df20-5a84-9a21-118f0f3d5785")
+			(uuid "465efa9f-d76a-5231-ade2-a557f7560049")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR24")
+					(reference "#PWR28")
 					(unit 1)
 				)
 			)
@@ -6998,8 +6998,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "a80824dd-f0b7-593d-8635-58b0f085a326")
-		(property "Reference" "#PWR25"
+		(uuid "14051d15-7c20-56f7-8831-67f6981e9964")
+		(property "Reference" "#PWR29"
 			(at 149.86 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -7054,12 +7054,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f9ee0001-ffd2-5c92-934c-e59280044e3d")
+			(uuid "52b3d412-5e10-5368-8906-737aeaac2ee5")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR25")
+					(reference "#PWR29")
 					(unit 1)
 				)
 			)
@@ -7156,8 +7156,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "26148305-222d-5a20-adda-78443753febc")
-		(property "Reference" "#PWR26"
+		(uuid "b4b2658f-801a-54ca-875a-8fb0f334d7ef")
+		(property "Reference" "#PWR30"
 			(at 172.72 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -7212,12 +7212,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2a7de9a3-c33e-5abc-8c65-aaccdfd44eba")
+			(uuid "7ba165ca-8b4e-5e5f-9b9f-169a9d692224")
 		)
 		(instances
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/98a74808-39d3-52ff-a5e2-3f98eeec9142"
-					(reference "#PWR26")
+					(reference "#PWR30")
 					(unit 1)
 				)
 			)
