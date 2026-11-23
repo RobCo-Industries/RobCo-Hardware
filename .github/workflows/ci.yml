@@ -96,9 +96,15 @@ jobs:
         run: tools/build.sh pins toy
       - name: DRC
         run: tools/build.sh drc toy
+      - name: Toy 2 checks, schematic only
+        run: tools/build.sh check toy2
+      - name: Terminal controller checks
+        run: tools/build.sh check terminal-controller
       - name: Schematic PDF, SVG, netlist and BOM
         if: always()
-        run: tools/build.sh docs toy
+        run: |
+          tools/build.sh docs toy
+          tools/build.sh docs toy2
       - name: Gerbers and drill
         if: always()
         run: tools/build.sh fab toy
@@ -114,6 +120,11 @@ jobs:
             build/toy/*.log
             build/toy/svg/
             build/toy/fab/
+            build/toy2/*.pdf
+            build/toy2/*.csv
+            build/toy2/*.net
+            build/toy2/*.rpt
+            build/toy2/svg/
           if-no-files-found: warn
 
   render:
@@ -122,7 +133,10 @@ jobs:
     needs: tests
     runs-on: ubuntu-24.04
     container:
-      image: kicad/kicad:10.0
+      # The -full image adds the stock 3D models, 3.2 GB, in
+      # /usr/share/kicad/3dmodels. kicad/kicad:10.0 has none, so its renders
+      # show bare pads. The render step warns for each model it cannot find.
+      image: kicad/kicad:10.0-full
       options: --user root
     env:
       HOME: /tmp/home

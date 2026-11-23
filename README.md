@@ -2,7 +2,17 @@
 
 Status: proposals. Nothing here is built, tested or validated on hardware.
 
-This repository holds the board designs for the RobCo suite. Two boards are planned: a terminal controller HAT and a Pip-Boy HAT for the Raspberry Pi. Neither exists yet. The only board today is `toy/`, a 3-pin header, a resistor and an LED. It proves the toolchain from generator to renders.
+This repository holds the board designs for the RobCo suite. Two boards are planned: a terminal controller HAT and a Pip-Boy HAT for the Raspberry Pi. Neither exists yet.
+
+## Boards
+
+| Folder | Board | Status |
+|---|---|---|
+| `toy/` | Toolchain test: a 3-pin header, a resistor and an LED | Test bed. Schematic, routed board, renders. |
+| `toy2/` | Hierarchy test: an expander, a clock and eight LED channels on two sheets | Test bed. Schematic only. |
+| `terminal-controller/` | Terminal controller HAT | Specification; schematic not started. |
+
+The terminal controller spec is in [terminal-controller/spec/SPEC.md](terminal-controller/spec/SPEC.md), with its bring-up checklist in [BRINGUP.md](terminal-controller/spec/BRINGUP.md) and its header map in [pins.yaml](terminal-controller/spec/pins.yaml).
 
 ## Safety
 
@@ -31,11 +41,16 @@ Every output goes to `build/<board>/`. Run `tools/build.sh` with no command for 
 - the committed KiCad files differ from a fresh generation,
 - ERC finds any violation,
 - a header pin in the netlist differs from `spec/pins.yaml`, or `pins.yaml` gives a GPIO another use than the software,
+- the pin table in `spec/SPEC.md` differs from the one `tools/gen_pin_table.py` writes from `pins.yaml`,
 - DRC finds a violation, on a board whose `board.env` says `ROUTED=yes`. On other boards DRC only writes a report.
+
+A board with no board file yet is checked as a schematic. `check` runs the regen-diff, ERC and the pin checks, and prints a line for each step it skips. A board with no generator yet gets the pin checks only. When the owner routes a board, `board.env` says `OWNER_ROUTED=yes`. The committed board file is then the source: `gen` and the regen-diff cover the schematic and project files only.
 
 ## Where the PDFs and renders come from
 
-Nobody commits them. CI builds them on every push and pull request and keeps them as run artifacts: `toy-outputs` holds the schematic PDF, SVG, netlist, BOM, reports and fab files, and `toy-renders` holds the 3D pictures. Locally, `tools/build.sh out` writes the same files.
+Nobody commits them. CI builds them on every push and pull request and keeps them as run artifacts: `toy-outputs` holds the schematic PDFs, SVGs, netlists, BOMs and reports of both toys and the fab files of `toy/`, and `toy-renders` holds the 3D pictures. Locally, `tools/build.sh out` writes the same files.
+
+The render job runs in `kicad/kicad:10.0-full`, the image with the stock 3D models. `kicad/kicad:10.0` has none. Before it renders, `tools/check_models.py` lists every model the board file references and prints a `::warning::` line for each one it cannot find, with the count.
 
 ## Layout
 
@@ -47,6 +62,9 @@ toy/       the toolchain test board
   spec/    pins.yaml
   gen/     circuit.py writes the schematic, board.py writes the board
   kicad/   generated KiCad files, committed
+toy2/      the hierarchy test, same shape, no board file
+terminal-controller/
+  spec/    SPEC.md, BRINGUP.md, pins.yaml
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions and [LICENSE.md](LICENSE.md) for the licences.
