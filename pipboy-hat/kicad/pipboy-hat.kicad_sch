@@ -119,6 +119,59 @@
 		)
 		(uuid "0a52bc1b-36b9-5c61-92bf-213702ad1535")
 	)
+	(sheet
+		(at 25.4 96.52)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "bd71cbe0-9b7a-5c3f-9ac7-2356ae70dfdc")
+		(property "Sheetname" "Display and backlight"
+			(at 25.4 95.8084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "display.kicad_sch"
+			(at 25.4 114.8984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "pipboy-hat"
+				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602"
+					(page "4")
+				)
+			)
+		)
+	)
+	(text "J2 socket for the DS1 ILI9341 module, R24, C1, C2.\nQ1, Q2 backlight switch on TFT_BL, R20 default on."
+		(exclude_from_sim no)
+		(at 26.67 102.87 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "df9e2e30-8fb8-520f-9144-b9df50307bda")
+	)
 	(text "Pip-Boy HAT for the Raspberry Pi Zero, Zero W and Zero 2 W"
 		(exclude_from_sim no)
 		(at 25.4 27.94 0)
@@ -143,7 +196,7 @@
 		)
 		(uuid "1ce9909d-970f-5b6b-bf8b-806375c6c5c2")
 	)
-	(text "Not drawn yet: Display and backlight, Keys and dial, Audio, Clock, Serial and test points."
+	(text "Not drawn yet: Keys and dial, Audio, Clock, Serial and test points."
 		(exclude_from_sim no)
 		(at 25.4 185.42 0)
 		(effects
@@ -152,7 +205,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "65980627-2960-5e06-910c-b051bd3145f0")
+		(uuid "1c7ae4ba-045d-5783-bca7-25fd921d0666")
 	)
 	(sheet_instances
 		(path "/"
