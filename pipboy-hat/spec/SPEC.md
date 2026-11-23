@@ -44,7 +44,7 @@ Software references:
    |      |   0x68 + Y1    socket, 14 pin  backlight  3.3 V only  filter     1 kOhm
    |      |   + BT1        DS1 ILI9341     switch                    |         |
    |      |                  ^   ^           |                       v         v
-   |      +------------------+   +-----------+ TFT_LED            C31, RV1   SW1-SW6 keys
+   |      +------------------+   +-----------+ TFT_LED           C31 R31 RV1 SW1-SW6 keys
    |      |                    VCC        LED                        |      SW7 dial + push
    |      +--> U2 ID EEPROM, not fitted                              v      J5 panel header
    |                                                            M1 PAM8302A    (not fitted)
@@ -218,7 +218,7 @@ Pin: GPIO 19, header pin 35. It is not the default. `PIPOS.CFG` must say `tft_ba
 
 Operation: `TFT_BL` high turns Q2 on. Q2 pulls Q1's base down through R22. Q1 feeds `+3V3` to the module's LED pin. `TFT_BL` low turns both off, and R23 holds Q1 off.
 
-Backlight current: the module's LED pin feeds four white LEDs in parallel through a resistor on the module (typical, check). Design on 100 mA (assumed). Bring-up step 6 measures it.
+Backlight current: the module's LED pin feeds four white LEDs in parallel through a resistor on the module (typical, check). Design on 100 mA (assumed). With about 3.1 V at the LED pin, the current depends strongly on the LEDs' forward voltage, about 2.9 V to 3.2 V for white LEDs (typical, check). It may be well under 100 mA and the screen dim. Some modules instead drive an on-module transistor from the LED pin. Then the pin draws a few mA and the module lights the LEDs from VCC. Bring-up step 6 measures the current and shows which case applies. A later revision could feed the LED pin from `+5V` through a series resistor, sized from that measurement.
 
 Q1 drive. Q2 saturated pulls `BL_PB` to 0.1 V (assumed). Q1's base-emitter drop is about 0.8 V at 100 mA (typical, check). R22 carries (3.3 - 0.8 - 0.1) / 470 = 5.1 mA. R23 takes 0.8 V / 10 kOhm = 0.08 mA. Q1 gets 5.0 mA of base current, a forced gain of 100 / 5 = 20. A BC327-25 has a gain of 160 or more at 100 mA (from memory, to verify), so the margin is 8. Q1 then drops about 0.2 V (typical, check), and dissipates 0.2 V x 0.1 A = 20 mW. The module sees about 3.1 V. The backlight is a little dimmer than on a direct 3.3 V feed.
 
@@ -290,7 +290,9 @@ Series resistors: R40 to R48 limit current to 3.3 V / 1 kOhm = 3.3 mA if a cable
 
 Debounce: the software samples every pin at 100 Hz and debounces keys over 20 ms (Pip-OS `HARDWARE.md`). The keys need no hardware filter. C40 to C46 are footprints for a noisy panel cable: with one fitted, the line rises through the 50 kOhm pull-up with a time constant of 50 kOhm x 100 nF = 5 ms, inside the 20 ms window.
 
-Dial filter: C47 and C48 are fitted. A press discharges them through 1 kOhm: 1 kOhm x 10 nF = 10 us. A release recharges them through the pull-up: 50 kOhm x 10 nF = 0.5 ms, and the line crosses the input high level within about 1 ms. The decoder samples every 10 ms. Each A or B state must last one sample, so the software follows at most 100 transitions per second, 25 detents per second, about one turn per second of a 24-detent dial. The filter adds 1 ms against those 10 ms, so it does not lower that limit. It removes contact bounce shorter than about 0.5 ms (assumed) between samples. A faster spin loses steps in the software, not in the filter.
+Dial filter: C47 and C48 are fitted. The 10 nF with the pull-up slows only rising edges. A release recharges them through the pull-up: 50 kOhm x 10 nF = 0.5 ms. A press discharges them through 1 kOhm: 1 kOhm x 10 nF = 10 us, so falling edges stay fast. The filter masks bounce that opens the contact for less than about 0.4 ms: the line does not reach the input high level in that time. Longer bounce passes. The decoder tolerates bounce on one channel anyway: it moves one state forward and back.
+
+Dial speed: the decoder samples every 10 ms, so each A or B state must last at least 10 ms. The four states of a real encoder are not equal in length (assumed, check the encoder's phase tolerance). The shortest one sets the limit. At 100 Hz sampling the safe limit is about 12 detents per second, half a turn per second of a 24-detent dial, not the 25 detents per second that equal states would give. A missed state shifts the detent phase until power-off, which is worse than a lost step: every later click may then count at the wrong point. The working limit is about 12 detents per second. The filter's 0.5 ms does not lower it. A faster dial needs a faster tick or an edge interrupt in the software, see the open items.
 
 ESD: the keys sit behind plastic caps. J5 leads to a panel inside the same case. The 1 kOhm resistors and the Pi's pad clamps are the only protection. A TVS array was rejected to keep the part count low on keys behind plastic caps. A panel exposed to touch should add its own protection.
 
@@ -321,7 +323,8 @@ Choice: the same filter and the same PAM8302A module as the terminal controller,
 | R30 | 270 Ohm | `AUDIO_PWM`, GPIO 18, header pin 12, to `AUD_F` |
 | C30 | 33 nF film or C0G | `AUD_F` to `GND` |
 | C31 | 10 uF, 16 V electrolytic or film | `AUD_F` to `AUD_DC`, DC block |
-| RV1 | 10 kOhm trimmer, through-hole | Ends `AUD_DC` and `GND`, wiper `AUD_IN` |
+| R31 | 51 kOhm | `AUD_DC` to `AUD_T`, sets RV1's range |
+| RV1 | 10 kOhm trimmer, through-hole | Ends `AUD_T` and `GND`, wiper `AUD_IN` |
 | M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected, outputs `SPK_P` and `SPK_N` |
 | C32 | 100 nF | M1 Vin to `GND` |
 | C33 | 47 uF, 16 V electrolytic | `+5V` to `GND`, near M1 |
@@ -334,6 +337,7 @@ Filter: the terminal controller arithmetic applies unchanged. f = 1 / (2 x pi x 
 Where it differs from the terminal controller:
 
 - No jack and no source jumper. Every supported Zero has its PWM on GPIO 18.
+- R31 sits above RV1, so the working point falls near mid-travel. See "Trimmer range" below.
 - RV1 is a ceiling, not a volume knob. Software volume exists: `[audio] volume` in `PIPOS.CFG`, 0 to 100, and Deitrix has a Volume row on its RADIO tab. RV1 sets the loudest level once, so volume 100 does not clip the amplifier or overload a small speaker or a power bank.
 - A smaller speaker: 8 Ohm only, no 4 Ohm. 8 Ohm halves the peak current.
 
@@ -342,6 +346,10 @@ Why the PAM8302A module: the chip comes only in small packages that are hard to 
 Power: set RV1 so a full-volume square wave gives at most 2 V peak on the speaker, 2 V x 2 V / 8 Ohm = 0.5 W. The amplifier then draws 0.5 W / 0.85 / 5 V = 118 mA from `+5V` (efficiency 85 %, typical, check). Budget 150 mA. Unlimited, a clipped square wave in bridge mode at 5 V could put 5 V x 5 V / 8 Ohm = 3.1 W into the speaker and draw 3.1 / 0.85 / 5 = 0.74 A. That is why RV1 stays. Idle current about 4 mA (typical, check). SD stays open: the module pulls it high (typical, check the module), and a pin to shut it down would save 20 mW at most.
 
 The PAM8302A drives the speaker in bridge mode (typical, check). Neither speaker wire is ground.
+
+Trimmer range: the module's gain is about 24 dB, 15.8 times (from memory, to verify). 2 V peak at the speaker needs 2 V / 15.8 = 0.127 V peak at A+. The filtered PWM is about 1.1 Vrms, 1.56 V peak. RV1 alone would sit at 0.127 / 1.56 = 8 % of its travel, too close to the end to set well. R31 divides first. For the working point at mid-travel, the top of RV1 must sit at 2 x 0.127 = 0.254 V. 1.56 V x 10 kOhm / (R31 + 10 kOhm) = 0.254 V gives R31 = 51.4 kOhm. R31 = 51 kOhm (E24) puts 1.56 x 10 / 61 = 0.256 V at the top of RV1. The working point is at 0.127 / 0.256 = 50 % of the travel. Full travel gives 0.256 V x 15.8 = 4.0 V peak, so RV1 still reaches the clipping level.
+
+Input impedance: the module's input impedance loads the wiper. This spec assumes about 10 kOhm (assumed, to verify on the module). At mid-travel the wiper's source resistance is about (51 + 5) kOhm in parallel with 5 kOhm = 4.6 kOhm. A 10 kOhm load then gives 0.127 x 10 / 14.6 = 0.087 V. The working point moves up to about 60 % of the travel. That is still inside the range. C31 into the 61 kOhm chain gives a corner of 1 / (2 x pi x 61 kOhm x 10 uF) = 0.26 Hz.
 
 ### 4.6 Clock
 
@@ -582,7 +590,8 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 | `BTN_UP_SW` to `BTN_BACK_SW`, `DIAL_A_SW`, `DIAL_B_SW`, `DIAL_PUSH_SW` | R40 to R48 to SW1 to SW7 and J5 |
 | `AUDIO_PWM` | GPIO 18 to R30 |
 | `AUD_F` | R30, C30, C31 |
-| `AUD_DC` | C31 to RV1 |
+| `AUD_DC` | C31 to R31 |
+| `AUD_T` | R31 to RV1 top |
 | `AUD_IN` | RV1 wiper to M1 A+, TP6 |
 | `SPK_P`, `SPK_N` | M1 outputs to J6 |
 | `UART_TX`, `UART_RX` | GPIO 14 and 15 to J4 |
@@ -657,6 +666,7 @@ The owner must decide with the case:
 | R23 | 1 | 10 kOhm | Axial | Q1 base to emitter |
 | R24 | 1 | 33 Ohm | Axial | SPI clock |
 | R30 | 1 | 270 Ohm | Axial | Audio filter |
+| R31 | 1 | 51 kOhm | Axial | Above RV1, sets its range |
 | R40 to R48 | 9 | 1 kOhm | Axial | Input series |
 | RV1 | 1 | 10 kOhm trimmer | THT | Audio level ceiling |
 | C1 | 1 | 10 uF 10 V ceramic | THT | Display VCC |
@@ -743,7 +753,7 @@ Every assumption in this spec, to check before the schematic step or at bring-up
 - Module size about 86 by 50 mm, its M3 corner holes and their positions: to verify.
 - The module's 3.3 V regulator and its bypass pad: to verify.
 - The module's logic at 3.3 V with no level shifter: to verify.
-- Backlight current 100 mA at 3.3 V: assumed, measured in bring-up step 6.
+- Backlight current 100 mA at 3.3 V: assumed, measured in bring-up step 6. It may be far lower at 3.1 V, or the LED pin may drive an on-module transistor. A later revision could feed it from `+5V` through a resistor.
 - Module SD slot height about 2.5 mm and on the module's back: to verify.
 - 2.8 inch active area about 57.6 by 43.2 mm: to verify.
 - Header heights: 8.5 mm female, 11 mm board spacing: assumed.
@@ -772,14 +782,16 @@ Every assumption in this spec, to check before the schematic step or at bring-up
 - Power bank output limit 2.1 A to 2.4 A and auto-off below 50 mA to 100 mA: assumed.
 - PAM8302A module pinout, SD pulled high on the module, efficiency 85 %, idle current 4 mA, absolute maximum about 6 V, lowest supply about 2 V, bridge output: typical, check the module and chip data sheet.
 - PAM8302A package not hand-solderable: typical, check.
-- Filtered PWM level about 1.1 Vrms: from the terminal controller, to verify at bring-up.
+- Filtered PWM level about 1.1 Vrms, 1.56 V peak: from the terminal controller, to verify at bring-up.
+- PAM8302A module gain about 24 dB and input impedance about 10 kOhm, which set R31 = 51 kOhm and the RV1 working point near 50 % to 60 %: from memory and assumed, to verify.
 - DS1338 pinout, 6 pF crystal with no capacitors, VBAT grounded with no cell, battery current under 1 uA: typical, check.
 - CR1220 capacity about 35 mAh and holder size: typical, check.
 - HAT EEPROM pull-ups 3.9 kOhm and WP pull-up 1 kOhm: from memory of the HAT design guide, check it.
 - Omron B3F-4055 as a 12 mm switch: from memory, to verify.
 - PEC11R-4215F-S0024: 24 detents, 24 pulses, push switch, pin order: from memory, to verify.
-- Contact bounce of the dial under 0.5 ms between samples: assumed.
-- Software dial limit of 25 detents per second at 100 Hz sampling: derived from Pip-OS `HARDWARE.md`.
+- Dial bounce: the filter masks openings under about 0.4 ms; the decoder tolerates one-channel bounce: assumed.
+- Dial working limit about 12 detents per second at 100 Hz sampling, from unequal state lengths: derived from Pip-OS `HARDWARE.md`, phase tolerance of the encoder assumed.
+- Software: sample the dial with a faster tick or an edge interrupt, so a fast spin cannot miss a state and shift the detent phase. Open item for Pip-OS.
 - Trace capacitance 20 pF on SPI clock: assumed.
 - The `[display]` keys and defaults come from an unmerged Pip-OS branch: check them once it merges.
 - Outline 130 by 62 mm, key strip position, Pi orientation: the owner decides with the case.
