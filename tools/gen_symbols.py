@@ -34,7 +34,8 @@ POWER = "Power rail symbol, own net name. Not a part."
 # name: (stock lib, stock symbol, fields, {pin number: new pin name}[, options])
 # Options: "numbers" {old pin number: new pin number}, for a package whose pads
 # differ from the stock symbol; "pin_names": True shows pin names that the
-# stock symbol hides; "status": the Status field, PROPOSAL when absent.
+# stock symbol hides; "body_right": the x of the right edge of the body, to
+# widen it for the pin names; "status": the Status field, PROPOSAL when absent.
 SYMBOLS = {
     "PCA9554": (
         "Interface_Expansion", "TCA9554DW",
@@ -118,7 +119,7 @@ SYMBOLS = {
             "ki_keywords": "PAM8302 amplifier class-D module breakout",
         },
         {"1": "VIN", "2": "GND", "3": "SD", "4": "A+", "5": "A-", "6": "OUT+", "7": "OUT-"},
-        {"pin_names": True},
+        {"pin_names": True, "body_right": 10.16},
     ),
     "V_PROT": (
         "power", "+5V",
@@ -172,6 +173,9 @@ def own_symbol(libs: SymbolLibs, name: str) -> list:
         if names is not None:
             node[node.index(names)] = [Sym("pin_names"), [Sym("offset"), 1.016]]
     numbers = opts.get("numbers", {})
+    if "body_right" in opts:
+        body = sexp.children(sexp.children(node, "symbol")[0], "rectangle")[0]
+        sexp.child(body, "end")[1] = opts["body_right"]
     for unit in sexp.children(node, "symbol"):
         unit[1] = name + unit[1][len(stock):]
         for pin in sexp.children(unit, "pin"):

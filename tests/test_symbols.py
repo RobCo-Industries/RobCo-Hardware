@@ -66,6 +66,8 @@ def test_pam8302a_module_pins_are_named_and_shown():
     sym = _sym("PAM8302A_Module")
     assert _pins(sym) == {"1": "VIN", "2": "GND", "3": "SD", "4": "A+", "5": "A-", "6": "OUT+", "7": "OUT-"}
     assert sexp.child(sexp.child(sym, "pin_names"), "hide") is None
+    body = sexp.children(sexp.children(sym, "symbol")[0], "rectangle")[0]
+    assert float(sexp.child(body, "end")[1]) == 10.16
 
 
 def test_own_power_symbols_name_their_rail():

@@ -225,6 +225,59 @@
 		)
 		(uuid "35e99e12-f58a-57d2-9ff0-9a0055c11eb5")
 	)
+	(sheet
+		(at 101.6 127)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "32c5f51c-3c83-56d8-bd97-d620f3e62b83")
+		(property "Sheetname" "Audio"
+			(at 101.6 126.2884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "audio.kicad_sch"
+			(at 101.6 145.3784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b"
+					(page "6")
+				)
+			)
+		)
+	)
+	(text "AUDIO_PWM filter R30, C30 or jack J10, JP9 select.\nRV1 level, M1 PAM8302A module, J8 speaker."
+		(exclude_from_sim no)
+		(at 102.87 133.35 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "69d7d158-55ae-50c4-b02f-293cff4a67b4")
+	)
 	(text "Terminal controller HAT for the Raspberry Pi"
 		(exclude_from_sim no)
 		(at 25.4 30.48 0)
@@ -249,7 +302,7 @@
 		)
 		(uuid "334bf423-38bd-5296-a1fc-7ebfac9984bf")
 	)
-	(text "Not drawn yet: Audio, Headers."
+	(text "Not drawn yet: Headers."
 		(exclude_from_sim no)
 		(at 25.4 139.7 0)
 		(effects
@@ -258,7 +311,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "565c317f-2914-5ecd-bb38-0d4c2f00475c")
+		(uuid "6bd7cf04-793f-5017-890e-287da67729ab")
 	)
 	(sheet_instances
 		(path "/"

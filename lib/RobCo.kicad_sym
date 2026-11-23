@@ -669,7 +669,7 @@
 		(symbol "PAM8302A_Module_1_1"
 			(rectangle
 				(start -1.27 8.89)
-				(end 1.27 -8.89)
+				(end 10.16 -8.89)
 				(stroke
 					(width 0.254)
 					(type default)
