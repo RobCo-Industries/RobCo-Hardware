@@ -53,7 +53,7 @@ Software references point to files in the RobCo-Core and UOS repositories. "BOAR
     |     +---+-- JP1 (Pi 5 V or terminal) --+             |
     |                                        |             |
    J2 load supply -> F1 polyfuse -> D1 reverse diode -> V_PROT -> Q1 -> V_SW
-                                                  (sensor supply)    (load rail)
+                                       F2 -> +V_S sensor supply        (load rail)
 ```
 
 ## 3. The 40-pin header map
@@ -144,6 +144,18 @@ D2 clamps spikes on the load rail. A 26 V standoff lets a 24 V supply run below 
 Pi 5 V for loads, JP1 at 2-3: the Pi's 5 V rail comes from its USB input. On the Pi 3 the input passes a polyfuse (typical, check). Budget at most 300 mA (assumed) for loads from the Pi 5 V. That covers two or three small 5 V relay coils at 70 to 90 mA each (typical, check the relay). Relay switching causes dips that can reset the Pi. Use the external supply for door strikes, lamps and anything above 300 mA.
 
 The `3V3` rail comes from the Pi's regulator. This board draws a few mA from it: two expanders, the clock, the pull-ups. No regulator is on the board.
+
+Shorts on the supplies the board offers to the outside:
+
+| Outward supply | Where | What limits a short | Enough? |
+|---|---|---|---|
+| `+V_S` sensor supply | J4 `+V` | F2, its own polyfuse, hold 200 mA. See [the input stage](#48-input-stage). | Yes |
+| `V_SW` load rail | J3 `+V`, two positions | F1, hold 1.1 A, trip about 2.2 A (typical, check). F1, D1 and Q1 carry the fault until F1 trips. | Yes, see below |
+| `3V3` | J5 pin 12 | R59, 100 Ohm: 3.3 V / 100 Ohm = 33 mA | Yes |
+| `5V` | No header pin carries it. J6 pin 3 stays open. JP1 pin 3 is a jumper, not a terminal. | Not offered | Not applicable |
+| Free pins | J7 | J7 has GPIO and ground only, no supply pin | Not applicable |
+
+`V_SW` short: the fault current runs through F1, D1 and Q1. F1 trips within seconds at 2.2 A or more (typical, check the trip-time curve). Until then D1 dissipates about 2.2 A x 0.5 V = 1.1 W and Q1 about 2.2 A x 2.2 A x 0.1 Ohm = 0.48 W. Both are short-term loads for a DO-201 and a TO-220. After the trip, F1 holds the fault current to tens of mA and dissipates its own trip power. A strong supply can push a larger first pulse. Check Q1's safe operating area for the supply you use. With JP1 at 2-3 the same fault draws up to 2.2 A from the Pi 5 V, which resets the Pi. The reset disarms Q1 and ends the fault.
 
 ### 4.2 I2C bus, expanders and clock
 
@@ -337,10 +349,11 @@ Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its 
 | J5 | 1x12 pin header, 2.54 mm | As above |
 | R40 to R48 | 1 kOhm | In series between each Pi pin and its J5 pin |
 | R50 to R58 | 10 kOhm, not fitted | Each J5 signal pin to `3V3` |
+| R59 | 100 Ohm | `3V3` to J5 pin 12 |
 
 R40 to R48 limit current if a cable fault puts a pin on a rail: 3.3 V / 1 kOhm = 3.3 mA. They also form a small filter with cable capacitance. With the internal pull-up of about 50 kOhm (typical, check), a pressed button reads 3.3 V x 1 / (50 + 1) = 0.065 V. That is a clean low.
 
-R50 to R58 are for the BCM2711, where input.md says `gpio_set_pull()` fails. The BCM2711 is not supported (BOARD_SUPPORT.md, section "Supported boards"), so they stay empty. J5 pin 12 feeds an optional LED on the panel and nothing else.
+R50 to R58 are for the BCM2711, where input.md says `gpio_set_pull()` fails. The BCM2711 is not supported (BOARD_SUPPORT.md, section "Supported boards"), so they stay empty. J5 pin 12 feeds an optional LED on the panel and nothing else. R59 limits a short on that pin to 3.3 V / 100 Ohm = 33 mA and 33 mA x 3.3 V = 0.11 W, inside the 1/4 W rating. A panel LED of 2.0 V (typical, check) gets (3.3 - 2.0) / 100 = 13 mA. Add a resistor on the panel for less.
 
 ### 4.7 Serial console
 
@@ -377,7 +390,8 @@ Door contacts and motion sensors in a prop often run on 12 V and sit on long cab
 | C10, C11 | 100 nF | U2 area decoupling and `3V3` near the pull-ups |
 | C40 to C47 | 10 nF, not fitted | `XINn` to `GND`, optional filter |
 | JP10 | 2-pin header with shunt | `IN_COM` to `GND`. Silkscreen "COM-GND". |
-| R78 | 100 Ohm, 0.5 W | `V_PROT` to `+V_S` |
+| F2 | Radial polyfuse, hold 200 mA or more, trip 400 mA or less, 30 V or more | `V_PROT` to `+V_S` |
+| R78 | Retired, not on the board | Was a 100 Ohm series resistor in place of F2. The designator stays unused. |
 | J4 | 10-way screw terminal, 3.5 mm pitch | `IN0` to `IN7`, `IN_COM`, `+V_S` |
 
 Nets: each opto cathode goes to `IN_COM`. Each opto collector goes to `XINn`, which is U2 pin Pn. Each opto emitter goes to `GND`. The LTV-847 pin order is anode and cathode pairs on pins 1 to 8, emitter and collector pairs on pins 9 to 16, in reverse order (typical, check).
@@ -386,7 +400,32 @@ Silkscreen on J4: `X1.0` to `X1.7`, `COM`, `+V`.
 
 A signal on `INn`, positive against `IN_COM`, lights the opto LED. The transistor pulls `XINn` low. So the expander reads **0 when the input is active**.
 
-`+V_S` is `V_PROT` through R78. It powers sensors and dry contacts, and it stays live when the arm switch is off, so sensors work while outputs are disarmed. R78 limits a short on the field cable to 24 V / 100 Ohm = 240 mA for a moment, and F1 then trips. Check R78's surge rating.
+`+V_S` is `V_PROT` through F2. It powers sensors and dry contacts, and it stays live when the arm switch is off, so sensors work while outputs are disarmed.
+
+Sensor supply load, worst case at 24 V:
+
+- Eight inputs at their highest LED current. The supply is at most 24 V + 5 % = 25.2 V (assumed tolerance). D1 drops at least 0.3 V (typical, check). The LED drops at least 1.0 V (typical, check). Each input draws (25.2 - 0.3 - 1.0) / 2200 = 10.9 mA. Eight draw 87 mA.
+- Powered sensors: 50 mA (assumed). A motion detector draws 10 to 25 mA (assumed, check the sensor). 50 mA covers two of them, or one with a small indicator lamp.
+- Total: 87 + 50 = 137 mA.
+
+F2 requirements:
+
+- Hold at least 200 mA. A polyfuse holds less when warm, about 80 % at 50 C (typical, check the derating table). 137 mA / 0.8 = 171 mA, so 200 mA.
+- Trip at most 400 mA.
+- Rated at least 30 V. 60 V gives room above D2's clamp voltage.
+- Resistance after a trip at most 8 Ohm, because the input stage counts its drop.
+- Part family: radial PPTC resettable fuse. Example, check: Bourns MF-R020 (200 mA hold, 400 mA trip, 60 V, typical, check).
+
+What happens in a sustained short from `+V_S` to `IN_COM` with JP10 fitted:
+
+- First moment: the current is limited by the supply, F1, D1 and F2's own resistance. F2 alone allows at most 24 V / 1.8 Ohm = 13 A (1.8 Ohm minimum resistance, typical, check). A bench or plug-in supply limits it well below that. F1 may trip as well. Both reset.
+- F2 heats and trips. At 1 A or more that takes well under a few seconds (typical, check the trip-time curve).
+- Tripped: F2 holds a high resistance and dissipates about 0.5 W in its own body (typical, check). The current is then about 0.5 W / 24 V = 21 mA at 24 V and 0.5 W / 4.5 V = 0.11 A at 5 V. The power goes into F2, not into the cable or the board. It stays so for as long as the short lasts.
+- At 5 V the short still trips F2: 4.5 V / 8 Ohm = 0.56 A, above the 400 mA trip.
+- Remove the short. F2 cools and resets within a minute or so (typical, check).
+- A partial short below 200 mA does not trip F2. F2 then dissipates at most 0.2 A x 0.2 A x 8 Ohm = 0.32 W. The heat sits in the fault, outside the board.
+
+R78 is retired. A small series resistor is not a protection device: in a short it takes the full fault power. The old 100 Ohm part would have dissipated 24 V x 24 V / 100 Ohm = 5.76 W against its 0.5 W rating. F2 needs no series resistor.
 
 Optocoupler arithmetic, LED forward voltage 1.2 V (typical, check):
 
@@ -514,6 +553,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | LED0 to LED7 | 8 | Red, 3 mm, high efficiency | THT | |
 | LED8 | 1 | Green, 3 mm | THT | Armed indicator |
 | F1 | 1 | Polyfuse, 1.1 A hold, 30 V or more | Radial | |
+| F2 | 1 | Polyfuse, 200 mA hold or more, 400 mA trip or less, 30 V or more, example Bourns MF-R020 | Radial | Example, check |
 | Y1 | 1 | 32.768 kHz, 6 pF load | Cylindrical THT | Check the load capacitance |
 | BT1 | 1 | CR2032 holder | THT | Cell not included |
 | RN1 | 1 | 10 kOhm x 8, bussed | SIP-9 | Pin 1 common |
@@ -528,8 +568,8 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | R31, R32 | 2 | 1 kOhm | Axial | |
 | R40 to R48 | 9 | 1 kOhm | Axial | |
 | R50 to R58 | 9 | 10 kOhm | Axial | Not fitted |
+| R59 | 1 | 100 Ohm | Axial | J5 pin 12 limit |
 | R60 to R67 | 8 | 2.2 kOhm, 0.5 W | Axial | 1 kOhm for 5 V sensors |
-| R78 | 1 | 100 Ohm, 0.5 W | Axial | |
 | R80, R81 | 2 | Per HAT specification | Axial or 0805 | Not fitted |
 | RV1 | 1 | 10 kOhm trimmer | THT | |
 | C1, C9 | 2 | 100 uF 35 V electrolytic | Radial | |
@@ -624,7 +664,7 @@ Placement:
 - Put J2, J3 and J4 on the long edge opposite the 40-pin header and on the short edge away from the Pi's USB and Ethernet ports. Check the Pi 3 port side against the drawing.
 - At 3.5 mm pitch, 22 terminal positions need 77 mm of edge. Split them across two edges, or use pluggable terminal blocks. Check the fit early.
 - Put U4, RN1 and the LEDs next to J3. Put U5, U6 and their resistors next to J4.
-- Put Q1, D1, D2, D4, F1 and C1 next to J2.
+- Put Q1, D1, D2, D4, F1 and C1 next to J2. Put F2 next to J4.
 - Put Y1 within 5 mm of U3 pins 1 and 2. No traces under Y1 or between Y1 and U3 on either layer. A ground pour under the crystal area connected only at U3 GND is common practice (typical, check the DS1338 layout note).
 - Put BT1 away from U4, Q1, D1 and M1, which run warm.
 - Put M1 and J8 away from the I2C lines and the crystal.
@@ -678,6 +718,9 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 - LTV-847 pin order: check.
 - PAM8302A module pinout and footprint: check the module you buy.
 - PAM8302A chip package: check whether a hand-solderable version exists.
+- F2 hold, trip, minimum resistance, tripped power and trip time: typical, check the data sheet of the part you buy.
+- Sensor allowance on `+V_S`: 50 mA assumed. Larger sensors need their own supply with JP10 removed.
+- F1 trip current near 2.2 A and Q1 safe operating area in a `V_SW` short: check.
 - Pi 5 V budget for loads through JP1: 300 mA assumed. Check the Pi model's input fuse and supply.
 - Terminal count against the 65 mm and 56 mm edges: check the fit.
 - HAT EEPROM pull-up values and WP wiring: take from the HAT specification.
