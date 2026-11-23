@@ -34,7 +34,7 @@ pins:
     net: +5V
     use: power
     source: power
-    connects: 5V rail: F1 from J3, D1, M1, TP2
+    connects: 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, TP2
     status: used
   - pin: 3
     name: GPIO2

@@ -64,7 +64,7 @@ Sources: BOARD_SUPPORT.md, section "Pins", with its audio table, the input examp
 | Pin | Pi function | Net | Software use (source) | This board connects | Status |
 |---|---|---|---|---|---|
 | 1 | 3V3 | `+3V3` | Power | 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1 | used |
-| 2 | 5V | `+5V` | Power | 5V rail: F1 from J3, D1, M1, TP2 | used |
+| 2 | 5V | `+5V` | Power | 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, TP2 | used |
 | 3 | GPIO 2, SDA1 | `I2C_SDA` | I2C SDA (BOARD_SUPPORT.md Pins) | I2C SDA to U1, TP4 | used |
 | 4 | 5V | `+5V` | Power | Joined to pin 2 | used |
 | 5 | GPIO 3, SCL1 | `I2C_SCL` | I2C SCL (BOARD_SUPPORT.md Pins) | I2C SCL to U1, TP5 | used |
