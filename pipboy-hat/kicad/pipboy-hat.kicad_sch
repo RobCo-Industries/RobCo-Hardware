@@ -225,6 +225,59 @@
 		)
 		(uuid "a9934281-3097-5d77-b22a-e8163317d67e")
 	)
+	(sheet
+		(at 25.4 127)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "b2085096-e9ae-5be8-b7f4-e61d34da90dc")
+		(property "Sheetname" "Audio"
+			(at 25.4 126.2884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "audio.kicad_sch"
+			(at 25.4 145.3784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "pipboy-hat"
+				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602"
+					(page "6")
+				)
+			)
+		)
+	)
+	(text "AUDIO_PWM filter R30, C30, C31, R31, RV1 ceiling.\nM1 PAM8302A module, J6 speaker header, LS1."
+		(exclude_from_sim no)
+		(at 26.67 133.35 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f61ec964-7b58-50e1-a1bb-8da3037332ed")
+	)
 	(text "Pip-Boy HAT for the Raspberry Pi Zero, Zero W and Zero 2 W"
 		(exclude_from_sim no)
 		(at 25.4 27.94 0)
@@ -249,7 +302,7 @@
 		)
 		(uuid "1ce9909d-970f-5b6b-bf8b-806375c6c5c2")
 	)
-	(text "Not drawn yet: Audio, Clock, Serial and test points."
+	(text "Not drawn yet: Clock, Serial and test points."
 		(exclude_from_sim no)
 		(at 25.4 185.42 0)
 		(effects
@@ -258,7 +311,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "eb6fef3e-95eb-5e48-8030-9c41749beec4")
+		(uuid "761a119d-7f45-5bc0-8856-cde1f108d1f3")
 	)
 	(sheet_instances
 		(path "/"
