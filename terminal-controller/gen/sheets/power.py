@@ -29,8 +29,8 @@ def supply(s: Schematic) -> None:
     s.label_at("V_EXT", (g(26), g(24)))
     s.power(j2, "2", "GND", stub=g(2), then=[(0, g(4))])
     s.power(jp1, "3", "+5V", stub=g(4), then=[(0, g(-4))])
-    f1 = s.symbol("Device:Polyfuse", "F1", "1.1 A hold, 30 V", (g(54), y), rot=90, footprint=NO_FOOTPRINT,
-                  description="Radial PPTC fuse, 1.1 A hold, trip about 2.2 A, 30 V or more", **H_FIELDS)
+    f1 = s.symbol("Device:Polyfuse", "F1", "1.1 A hold, 60 V", (g(54), y), rot=90, footprint=NO_FOOTPRINT,
+                  description="Radial PPTC fuse, 1.1 A hold, trip about 2.2 A, 60 V or more", **H_FIELDS)
     pin2 = jp1.pin("2")
     s.wire(pin2, (pin2[0], y), f1.pin("1"))
     s.label_at("V_IN", (g(44), y))
@@ -66,16 +66,16 @@ def supply(s: Schematic) -> None:
             "300 mA at most (assumed). Only one source reaches V_IN.\n"
             "D1 blocks a reversed supply. D2 clamps spikes on V_PROT;\n"
             "its 26 V standoff stays above 24 V + 5 % = 25.2 V. It clamps\n"
-            "near 42 V at its rated pulse (to verify): D1, D4 and Q1 are\n"
-            "rated 60 V, C1 and C9 50 V.\n"
+            "near 42 V at its rated pulse (to verify): D1, D4, Q1,\n"
+            "F1 and F2 are rated 60 V, C1 and C9 50 V.\n"
             "F1 limits a short on V_SW. Footprints of F1, F2: none in the\n"
             "stock library, to add in the board step.", (g(14), g(63)))
 
 
 def sensor_supply(s: Schematic) -> None:
     s.frame("Sensor supply", (g(156), g(12)), (g(224), g(52)))
-    f2 = s.symbol("Device:Polyfuse", "F2", "200 mA hold, 30 V", (g(184), g(28)), rot=90, footprint=NO_FOOTPRINT,
-                  description="Radial PPTC fuse, hold 200 mA or more, trip 400 mA or less, 30 V or more, "
+    f2 = s.symbol("Device:Polyfuse", "F2", "200 mA hold, 60 V", (g(184), g(28)), rot=90, footprint=NO_FOOTPRINT,
+                  description="Radial PPTC fuse, hold 200 mA or more, trip 400 mA or less, 60 V or more, "
                               "example Bourns MF-R020", **H_FIELDS)
     s.power(f2, "1", "V_PROT", stub=g(4), then=[(0, g(-2))])
     s.power(f2, "2", "+V_S", stub=g(4), then=[(0, g(-2))])

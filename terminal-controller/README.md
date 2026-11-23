@@ -52,7 +52,7 @@ The sheets mark these "to verify". Check each one against the data sheet of the 
 
 No stock footprint fits these parts. The board step must add them to `lib/RobCo.pretty`:
 
-- F1 and F2: radial PPTC fuses of the MF-R series. The stock library has the MF-RG and MF-RHT series only.
+- F1 and F2: radial PPTC fuses rated 60 V or more, such as the Littelfuse RXEF110 and the Bourns MF-R020 (from memory, to verify). The stock library has the MF-RG and MF-RHT series only.
 - M1: the PAM8302A module, with the pin header and hole spacing of the module bought.
 
 ### Other choices on the sheets

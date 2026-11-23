@@ -3872,7 +3872,7 @@
 		)
 		(uuid "2ea93dc0-b320-5a61-82e0-ba80ff664768")
 	)
-	(text "LOW VOLTAGE ONLY: 5 V to 24 V DC. No mains on any terminal.\nJP1 1-2: J2 feeds the loads. JP1 2-3: the Pi 5 V feeds them,\n300 mA at most (assumed). Only one source reaches V_IN.\nD1 blocks a reversed supply. D2 clamps spikes on V_PROT;\nits 26 V standoff stays above 24 V + 5 % = 25.2 V. It clamps\nnear 42 V at its rated pulse (to verify): D1, D4 and Q1 are\nrated 60 V, C1 and C9 50 V.\nF1 limits a short on V_SW. Footprints of F1, F2: none in the\nstock library, to add in the board step."
+	(text "LOW VOLTAGE ONLY: 5 V to 24 V DC. No mains on any terminal.\nJP1 1-2: J2 feeds the loads. JP1 2-3: the Pi 5 V feeds them,\n300 mA at most (assumed). Only one source reaches V_IN.\nD1 blocks a reversed supply. D2 clamps spikes on V_PROT;\nits 26 V standoff stays above 24 V + 5 % = 25.2 V. It clamps\nnear 42 V at its rated pulse (to verify): D1, D4, Q1,\nF1 and F2 are rated 60 V, C1 and C9 50 V.\nF1 limits a short on V_SW. Footprints of F1, F2: none in the\nstock library, to add in the board step."
 		(exclude_from_sim no)
 		(at 17.78 80.01 0)
 		(effects
@@ -3881,7 +3881,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "bc403883-724c-59bf-893c-7b65510c5243")
+		(uuid "970ce239-938c-53c8-8226-97a9a512853f")
 	)
 	(rectangle
 		(start 198.12 15.24)
@@ -4841,7 +4841,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1.1 A hold, 30 V"
+		(property "Value" "1.1 A hold, 60 V"
 			(at 72.39 49.53 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4874,7 +4874,7 @@
 				)
 			)
 		)
-		(property "Description" "Radial PPTC fuse, 1.1 A hold, trip about 2.2 A, 30 V or more"
+		(property "Description" "Radial PPTC fuse, 1.1 A hold, trip about 2.2 A, 60 V or more"
 			(at 68.58 45.72 0)
 			(hide yes)
 			(show_name no)
@@ -5786,7 +5786,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "200 mA hold, 30 V"
+		(property "Value" "200 mA hold, 60 V"
 			(at 237.49 39.37 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5819,7 +5819,7 @@
 				)
 			)
 		)
-		(property "Description" "Radial PPTC fuse, hold 200 mA or more, trip 400 mA or less, 30 V or more, example Bourns MF-R020"
+		(property "Description" "Radial PPTC fuse, hold 200 mA or more, trip 400 mA or less, 60 V or more, example Bourns MF-R020"
 			(at 233.68 35.56 0)
 			(hide yes)
 			(show_name no)

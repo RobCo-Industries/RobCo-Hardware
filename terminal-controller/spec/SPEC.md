@@ -131,7 +131,7 @@ Nets: `+3V3` from header pins 1 and 17. `+5V` from header pins 2 and 4. `GND` fr
 |---|---|---|
 | J2 | 2-way screw terminal, 3.5 mm pitch | Pin 1 `V_EXT`, pin 2 `GND`. Silkscreen "LOAD + 5-24 V DC" and "-". |
 | JP1 | 3-pin header with shunt | Pin 1 `V_EXT`, pin 2 `V_IN`, pin 3 `+5V`. Shunt 1-2: terminal supply. Shunt 2-3: Pi 5 V. Silkscreen "EXT / PI5V". |
-| F1 | Radial polyfuse, 1.1 A hold, 30 V or more | `V_IN` to `V_FUSED` |
+| F1 | Radial polyfuse, 1.1 A hold, 60 V or more | `V_IN` to `V_FUSED` |
 | D1 | Schottky diode 3 A, 60 V, SB360 class, DO-201AD | Anode `V_FUSED`, cathode `V_PROT` |
 | D2 | TVS diode, 600 W, unidirectional, about 26 V standoff, DO-15 | Cathode `V_PROT`, anode `GND` |
 | C1 | 100 uF, 50 V electrolytic, radial, 8 mm diameter | `V_PROT` to `GND` |
@@ -145,7 +145,9 @@ Reverse polarity: D1 blocks a reversed supply. Its drop is about 0.55 V at 1 A a
 
 D2 clamps spikes on the load rail. A 26 V standoff lets a 24 V supply run below the clamp. A 24 V supply can sit at 24 V + 5 % = 25.2 V, which is still below 26 V. Check the standoff of the exact part.
 
-At its rated pulse such a TVS clamps near 42 V (typical, check: from memory, to verify). Every part on the rails it protects is rated above that: D1 and D4 at 60 V, Q1 at 60 V or more, C1 and C9 at 50 V, the ULN2803A at 50 V, F2 at 60 V.
+At its rated pulse such a TVS clamps near 42 V (typical, check: from memory, to verify). Every part on the rails it protects is rated above that: D1 and D4 at 60 V, Q1 at 60 V or more, C1 and C9 at 50 V, the ULN2803A at 50 V, F1 and F2 at 60 V or more.
+
+A tripped fuse sees the difference between its two sides. With a short on its far side that is the whole rail, so each fuse is rated 60 V to leave room above the clamp.
 
 Pi 5 V for loads, JP1 at 2-3: the Pi's 5 V rail comes from its USB input. On the Pi 3 the input passes a polyfuse (typical, check). Budget at most 300 mA (assumed) for loads from the Pi 5 V. That covers two or three small 5 V relay coils at 70 to 90 mA each (typical, check the relay). Relay switching causes dips that can reset the Pi. Use the external supply for door strikes, lamps and anything above 300 mA.
 
@@ -416,7 +418,7 @@ Door contacts and motion sensors in a prop often run on 12 V and sit on long cab
 | C11 | 100 nF | `+3V3` to `GND` at the R70 to R77 pull-ups |
 | C40 to C47 | 10 nF, not fitted | `X1.n` to `GND`, optional filter |
 | JP10 | 2-pin header with shunt | `IN_COM` to `GND`. Silkscreen "COM-GND". |
-| F2 | Radial polyfuse, hold 200 mA or more, trip 400 mA or less, 30 V or more | `V_PROT` to `+V_S` |
+| F2 | Radial polyfuse, hold 200 mA or more, trip 400 mA or less, 60 V or more | `V_PROT` to `+V_S` |
 | R78 | Retired, not on the board | Was a 100 Ohm series resistor in place of F2. The designator stays unused. |
 | J4 | 10-way screw terminal, 3.5 mm pitch | `IN0` to `IN7`, `IN_COM`, `+V_S` |
 
@@ -438,9 +440,9 @@ F2 requirements:
 
 - Hold at least 200 mA. A polyfuse holds less when warm, about 80 % at 50 C (typical, check the derating table). 137 mA / 0.8 = 171 mA, so 200 mA.
 - Trip at most 400 mA.
-- Rated at least 30 V. 60 V gives room above D2's clamp voltage.
+- Rated 60 V or more, above D2's clamp voltage. See [section 4.1](#41-power).
 - Resistance after a trip at most 8 Ohm, because the input stage counts its drop.
-- Part family: radial PPTC resettable fuse. Example, check: Bourns MF-R020 (200 mA hold, 400 mA trip, 60 V, typical, check).
+- Part family: radial PPTC resettable fuse. Example from memory, to verify: Bourns MF-R020 (200 mA hold, 400 mA trip, 60 V).
 
 What happens in a sustained short from `+V_S` to `IN_COM` with JP10 fitted:
 
@@ -625,8 +627,8 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | D10 to D17 | 8 | 1N4148 | DO-35 | |
 | LED0 to LED7 | 8 | Red, 3 mm, high efficiency | THT | |
 | LED8 | 1 | Green, 3 mm | THT | Armed indicator |
-| F1 | 1 | Polyfuse, 1.1 A hold, 30 V or more | Radial | |
-| F2 | 1 | Polyfuse, 200 mA hold or more, 400 mA trip or less, 30 V or more, example Bourns MF-R020 | Radial | Example, check |
+| F1 | 1 | Polyfuse, 1.1 A hold, 60 V or more, example Littelfuse RXEF110 | Radial | Example from memory, to verify. Bourns MF-R110 is rated 30 V: do not use it. |
+| F2 | 1 | Polyfuse, 200 mA hold or more, 400 mA trip or less, 60 V or more, example Bourns MF-R020 | Radial | Example from memory, to verify |
 | Y1 | 1 | 32.768 kHz, 6 pF load | Cylindrical THT | Check the load capacitance |
 | BT1 | 1 | CR2032 holder | THT | Cell not included |
 | RN1 | 1 | 10 kOhm x 8, bussed | SIP-9 | Pin 1 common |
@@ -799,6 +801,8 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 - PAM8302A module pinout and footprint: check the module you buy.
 - PAM8302A chip package: check whether a hand-solderable version exists.
 - F2 hold, trip, minimum resistance, tripped power and trip time: typical, check the data sheet of the part you buy.
+- F1 and F2 example parts, RXEF110 and MF-R020, and their ratings: from memory, to verify.
+- Q2, the 2N3904, is rated 40 V collector to emitter (from memory, to verify). With Q2 off its collector sits near `V_PROT` through R20 and R21, so a clamp near 42 V exceeds that rating. R20 limits the current to 0.4 mA. Decide whether to use a 60 V NPN.
 - Sensor allowance on `+V_S`: 50 mA assumed. Larger sensors need their own supply with JP10 removed.
 - F1 trip current near 2.2 A and Q1 safe operating area in a `V_SW` short: check.
 - Pi 5 V budget for loads through JP1: 300 mA assumed. Check the Pi model's input fuse and supply.

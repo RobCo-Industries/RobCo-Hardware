@@ -265,11 +265,14 @@ def test_ratings_stand_above_the_surge_clamp():
     comps = parts()
     for ref in ("C1", "C9"):
         assert _volts(comps[ref].value) >= 50, f"{ref}: {comps[ref].value}"
-    assert _volts(comps["Q1"].value) >= 60, comps["Q1"].value
+    for ref in ("Q1", "F1", "F2"):
+        assert _volts(comps[ref].value) >= 60, f"{ref}: {comps[ref].value}"
     for ref in ("D1", "D4"):
         assert comps[ref].value == "SB360", f"{ref}: {comps[ref].value}"
     rows = {r: row["value"] for row in spec_bom() for r in row["refs"]}
     assert "60 V" in rows["D1"] and "60 V" in rows["Q1"] and "50 V" in rows["C1"], rows["D1"]
+    for ref in ("F1", "F2"):
+        assert _volts(rows[ref]) >= 60, f"{ref}: {rows[ref]}"
 
 
 def test_arm_gate_resistor_and_turn_on_capacitor():
