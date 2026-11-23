@@ -1,0 +1,342 @@
+# Header map of the Pip-Boy HAT. One entry per pin of J1, the Pi header.
+# Source: SPEC.md section 3, which tools/gen_pin_table.py writes from this file.
+# Fields: pin, name (Pi pin name), function (Pi function as the spec writes it),
+# net (net on this board; NC is not connected), use (the software's use, in the
+# words of RobCo-Core docs/spec/BOARD_SUPPORT.md), source (where that use comes
+# from), connects (what the pin reaches on this board), status.
+# tools/check_pins.py reads this file. Keep to this simple YAML shape.
+#
+# No source is ignored. Every GPIO that BOARD_SUPPORT.md lists has its
+# software use here, so the board runs with an unedited configuration:
+# - Pins: I2C on GPIO 2 and 3, PL011 on GPIO 14 and 15, SPI0 on GPIO 7 to 11.
+# - Audio channel 1 on GPIO 18, the Zero's PWM pin.
+# - Input example: six buttons and the dial with its push.
+# - SPI display: CS on CE0, D/C on GPIO 25, RESET on GPIO 4. GPIO 8 to 11 keep
+#   their SPI0 names, which the check accepts as well as the TFT names.
+# GPIO 19 switches the backlight. No software table names it, so the check
+# does not cover it. It is not a default: PIPOS.CFG must set tft_backlight = 19.
+# Without that line the pull-up R20 keeps the backlight on.
+board: pipboy-hat
+connector: J1
+header: pi40
+pins:
+  - pin: 1
+    name: 3V3
+    function: 3V3
+    net: +3V3
+    use: power
+    source: power
+    connects: 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1
+    status: used
+  - pin: 2
+    name: 5V
+    function: 5V
+    net: +5V
+    use: power
+    source: power
+    connects: 5V rail: F1 from J3, D1, M1, TP2
+    status: used
+  - pin: 3
+    name: GPIO2
+    function: GPIO 2, SDA1
+    net: I2C_SDA
+    use: I2C SDA
+    source: BOARD_SUPPORT.md Pins
+    connects: I2C SDA to U1, TP4
+    status: used
+  - pin: 4
+    name: 5V
+    function: 5V
+    net: +5V
+    use: power
+    source: power
+    connects: Joined to pin 2
+    status: used
+  - pin: 5
+    name: GPIO3
+    function: GPIO 3, SCL1
+    net: I2C_SCL
+    use: I2C SCL
+    source: BOARD_SUPPORT.md Pins
+    connects: I2C SCL to U1, TP5
+    status: used
+  - pin: 6
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 7
+    name: GPIO4
+    function: GPIO 4
+    net: TFT_RESET
+    use: TFT RESET
+    source: BOARD_SUPPORT.md SPI display, TFT_CONFIG_DEFAULT
+    connects: J2 pin 4, RESET
+    status: used
+  - pin: 8
+    name: GPIO14
+    function: GPIO 14, TXD
+    net: UART_TX
+    use: PL011 TXD
+    source: BOARD_SUPPORT.md UART policy and Pins
+    connects: J4 pin 5
+    status: used
+  - pin: 9
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 10
+    name: GPIO15
+    function: GPIO 15, RXD
+    net: UART_RX
+    use: PL011 RXD
+    source: BOARD_SUPPORT.md UART policy and Pins
+    connects: J4 pin 4
+    status: used
+  - pin: 11
+    name: GPIO17
+    function: GPIO 17
+    net: BTN_LEFT
+    use: LEFT
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW3 and J5 pin 4 through R42, 1 kOhm
+    status: used
+  - pin: 12
+    name: GPIO18
+    function: GPIO 18
+    net: AUDIO_PWM
+    use: Audio channel 1
+    source: BOARD_SUPPORT.md Pins, audio table: Pi Zero at ALT5
+    connects: Audio filter R30, C30
+    status: used
+  - pin: 13
+    name: GPIO27
+    function: GPIO 27
+    net: BTN_BACK
+    use: BACK
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW6 and J5 pin 7 through R45, 1 kOhm
+    status: used
+  - pin: 14
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 15
+    name: GPIO22
+    function: GPIO 22
+    net: BTN_RIGHT
+    use: RIGHT
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW4 and J5 pin 5 through R43, 1 kOhm
+    status: used
+  - pin: 16
+    name: GPIO23
+    function: GPIO 23
+    net: DIAL_A
+    use: Dial A
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW7 A and J5 pin 8 through R46, 1 kOhm, C47
+    status: used
+  - pin: 17
+    name: 3V3
+    function: 3V3
+    net: +3V3
+    use: power
+    source: power
+    connects: Joined to pin 1
+    status: used
+  - pin: 18
+    name: GPIO24
+    function: GPIO 24
+    net: DIAL_B
+    use: Dial B
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW7 B and J5 pin 9 through R47, 1 kOhm, C48
+    status: used
+  - pin: 19
+    name: GPIO10
+    function: GPIO 10, MOSI
+    net: SPI_MOSI
+    use: SPI0 MOSI
+    source: BOARD_SUPPORT.md Pins
+    connects: J2 pin 6, SDI
+    status: used
+  - pin: 20
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 21
+    name: GPIO9
+    function: GPIO 9, MISO
+    net: SPI_MISO
+    use: SPI0 MISO
+    source: BOARD_SUPPORT.md Pins
+    connects: J2 pin 9, SDO, for tft_read_id()
+    status: used
+  - pin: 22
+    name: GPIO25
+    function: GPIO 25
+    net: TFT_DC
+    use: TFT D/C
+    source: BOARD_SUPPORT.md SPI display, TFT_CONFIG_DEFAULT
+    connects: J2 pin 5, D/C
+    status: used
+  - pin: 23
+    name: GPIO11
+    function: GPIO 11, SCLK
+    net: SPI_SCLK
+    use: SPI0 SCLK
+    source: BOARD_SUPPORT.md Pins
+    connects: J2 pin 7, SCK, through R24, 33 Ohm
+    status: used
+  - pin: 24
+    name: GPIO8
+    function: GPIO 8, CE0
+    net: TFT_CS
+    use: SPI0 CE0
+    source: BOARD_SUPPORT.md Pins
+    connects: J2 pin 3, CS
+    status: used
+  - pin: 25
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 26
+    name: GPIO7
+    function: GPIO 7, CE1
+    net: NC
+    use: SPI0 CE1
+    source: BOARD_SUPPORT.md Pins
+    connects: Not connected. Reserved for a second SPI device.
+    status: free on board, refused
+  - pin: 27
+    name: ID_SD
+    function: ID_SD, GPIO 0
+    net: ID_SD
+    use: ID EEPROM
+    source: BOARD_SUPPORT.md Pins; avoided by the input example
+    connects: U2 SDA footprint, not fitted
+    status: optional
+  - pin: 28
+    name: ID_SC
+    function: ID_SC, GPIO 1
+    net: ID_SC
+    use: ID EEPROM
+    source: BOARD_SUPPORT.md Pins; avoided by the input example
+    connects: U2 SCL footprint, not fitted
+    status: optional
+  - pin: 29
+    name: GPIO5
+    function: GPIO 5
+    net: BTN_UP
+    use: UP
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW1 and J5 pin 2 through R40, 1 kOhm
+    status: used
+  - pin: 30
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 31
+    name: GPIO6
+    function: GPIO 6
+    net: BTN_DOWN
+    use: DOWN
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW2 and J5 pin 3 through R41, 1 kOhm
+    status: used
+  - pin: 32
+    name: GPIO12
+    function: GPIO 12
+    net: NC
+    use: free
+    source: avoided by the input example, BOARD_SUPPORT.md Pins; PWM at ALT0
+    connects: Not connected
+    status: free
+  - pin: 33
+    name: GPIO13
+    function: GPIO 13
+    net: NC
+    use: free
+    source: avoided by the input example, BOARD_SUPPORT.md Pins; PWM at ALT0
+    connects: Not connected
+    status: free
+  - pin: 34
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 35
+    name: GPIO19
+    function: GPIO 19
+    net: TFT_BL
+    use: TFT backlight
+    source: this board; not a default: PIPOS.CFG tft_backlight = 19
+    connects: R20 pull-up and R21 to the Q2 base, backlight switch
+    status: used
+  - pin: 36
+    name: GPIO16
+    function: GPIO 16
+    net: DIAL_PUSH
+    use: Dial push
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW7 push and J5 pin 10 through R48, 1 kOhm
+    status: used
+  - pin: 37
+    name: GPIO26
+    function: GPIO 26
+    net: BTN_SELECT
+    use: SELECT
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: SW5 and J5 pin 6 through R44, 1 kOhm
+    status: used
+  - pin: 38
+    name: GPIO20
+    function: GPIO 20
+    net: NC
+    use: free
+    source: avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: Not connected
+    status: free
+  - pin: 39
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 40
+    name: GPIO21
+    function: GPIO 21
+    net: NC
+    use: free
+    source: avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: Not connected
+    status: free
