@@ -12,14 +12,20 @@ FILES = {
     "toy2": ["toy2.kicad_sch", "controller.kicad_sch", "outputs.kicad_sch", "toy2.kicad_pro",
              "sym-lib-table", "fp-lib-table"],
 }
-CASES = [(board, name) for board, names in FILES.items() for name in names]
 
 
 def _load_circuit(board):
-    spec = importlib.util.spec_from_file_location(f"{board}_circuit", os.path.join(ROOT, board, "gen", "circuit.py"))
+    spec = importlib.util.spec_from_file_location(f"{board}_circuit".replace("-", "_"),
+                                                  os.path.join(ROOT, board, "gen", "circuit.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+FILES["terminal-controller"] = (["terminal-controller.kicad_sch"]
+                                + [row[1] for row in _load_circuit("terminal-controller").SHEETS]
+                                + ["terminal-controller.kicad_pro", "sym-lib-table", "fp-lib-table"])
+CASES = [(board, name) for board, names in FILES.items() for name in names]
 
 
 @pytest.mark.parametrize("board,name", CASES)

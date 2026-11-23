@@ -6,9 +6,12 @@
 # from), connects (what the pin reaches on this board), status.
 # tools/check_pins.py reads this file. Keep to this simple YAML shape.
 #
-# No ignore_sources. Each GPIO that BOARD_SUPPORT.md lists has that use here:
-# - Input example: the board brings all nine input lines to J5 as the example
-#   maps them, the six buttons and the three dial lines. Nothing to ignore.
+# ignore_sources skips the input example for GPIO 16, 23 and 24 only. The
+# example uses them for the dial (Dial push, Dial A, Dial B). UOS has six
+# buttons and no dial, so this board carries no dial: the three pins go to the
+# free-pin header J7. Every other GPIO that BOARD_SUPPORT.md lists has that use
+# here:
+# - Input example: the six buttons reach J5 as the example maps them.
 # - SPI0 on GPIO 7 to 11: not connected on this board, but the use stays the
 #   software's, so a later SPI device keeps the pins. The net is NC.
 # - Audio channel 1 on GPIO 18: the audio filter input.
@@ -16,9 +19,14 @@
 # Audio and Input tables: the SPI display table in BOARD_SUPPORT.md puts the
 # ILI9341 D/C on GPIO 25 and RESET on GPIO 4. This board uses GPIO 25 for ARM
 # and brings GPIO 4 to J7, so a panel on the default TFT pins cannot share it.
+# That display belongs to the Pip-Boy board, not to the terminal, so GPIO 25
+# stays ARM. An SPI display added to this board later must not use the default
+# D/C pin, GPIO 25, or the default reset pin, GPIO 4: toggling GPIO 25 would
+# switch the load rail V_SW.
 board: terminal-controller
 connector: J1
 header: pi40
+ignore_sources: [Input example:GPIO16, Input example:GPIO23, Input example:GPIO24]
 pins:
   - pin: 1
     name: 3V3
@@ -106,7 +114,7 @@ pins:
     net: BTN_LEFT
     use: LEFT
     source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 LEFT via R
+    connects: J5 pin 4 (LEFT) through R42, 1 kOhm
     status: used
   - pin: 12
     name: GPIO18
@@ -122,7 +130,7 @@ pins:
     net: BTN_BACK
     use: BACK
     source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 BACK via R
+    connects: J5 pin 7 (BACK) through R45, 1 kOhm
     status: used
   - pin: 14
     name: GND
@@ -138,16 +146,16 @@ pins:
     net: BTN_RIGHT
     use: RIGHT
     source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 RIGHT via R
+    connects: J5 pin 5 (RIGHT) through R43, 1 kOhm
     status: used
   - pin: 16
     name: GPIO23
     function: GPIO 23
-    net: DIAL_A
-    use: Dial A
-    source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 DIAL_A via R
-    status: used
+    net: GPIO23
+    use: free
+    source: no dial on this board; the input example uses it for the dial, ignored
+    connects: J7 free-pin header
+    status: free
   - pin: 17
     name: 3V3
     function: 3V3
@@ -159,11 +167,11 @@ pins:
   - pin: 18
     name: GPIO24
     function: GPIO 24
-    net: DIAL_B
-    use: Dial B
-    source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 DIAL_B via R
-    status: used
+    net: GPIO24
+    use: free
+    source: no dial on this board; the input example uses it for the dial, ignored
+    connects: J7 free-pin header
+    status: free
   - pin: 19
     name: GPIO10
     function: GPIO 10, MOSI
@@ -194,7 +202,7 @@ pins:
     net: ARM
     use: ARM device in UOS DEVICES.CFG
     source: UOS dev.md, free pin
-    connects: ARM signal to Q2
+    connects: R22 to the Q2 base, arm switch
     status: used
   - pin: 23
     name: GPIO11
@@ -250,7 +258,7 @@ pins:
     net: BTN_UP
     use: UP
     source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 UP via R
+    connects: J5 pin 2 (UP) through R40, 1 kOhm
     status: used
   - pin: 30
     name: GND
@@ -266,7 +274,7 @@ pins:
     net: BTN_DOWN
     use: DOWN
     source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 DOWN via R
+    connects: J5 pin 3 (DOWN) through R41, 1 kOhm
     status: used
   - pin: 32
     name: GPIO12
@@ -303,18 +311,18 @@ pins:
   - pin: 36
     name: GPIO16
     function: GPIO 16
-    net: DIAL_PUSH
-    use: Dial push
-    source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 DIAL_PUSH via R
-    status: used
+    net: GPIO16
+    use: free
+    source: no dial on this board; the input example uses it for the dial, ignored
+    connects: J7 free-pin header
+    status: free
   - pin: 37
     name: GPIO26
     function: GPIO 26
     net: BTN_SELECT
     use: SELECT
     source: BOARD_SUPPORT.md Pins, input example
-    connects: J5 SELECT via R
+    connects: J5 pin 6 (SELECT) through R44, 1 kOhm
     status: used
   - pin: 38
     name: GPIO20

@@ -19,6 +19,8 @@ Each board has the same shape:
 - `gen/circuit.py` writes the schematic and the project files. `gen/board.py` writes the board with `pcbnew`.
 - `kicad/` holds the generated files. Commit them. Do not edit them by hand until the owner routes the board. From then on the routed board file is the source.
 - `board.env` may set `ROUTED=yes`. DRC then fails CI on any violation. It may also set `OWNER_ROUTED=yes` once the owner routes the board in KiCad. The routed board file is then the source, and the regen-diff skips it.
+- `pins.yaml` may list `ignore_sources`: a source table name skips that table, and `Input example:GPIO16` skips it for one pin. Write the reason in the file.
+- `board.env` may set `NETTEST=tests/test_<board>.py`, the board's netlist tests. `tools/build.sh check` runs that file with the exported netlist in `ROBCO_NETLIST`.
 - `spec/SPEC.md` may hold the header pin table between `<!-- pin-table:start -->` and `<!-- pin-table:end -->`. Edit `pins.yaml`, then run `tools/gen_pin_table.py spec/pins.yaml spec/SPEC.md`. `check` fails when the two differ.
 
 ## Conventions
@@ -45,7 +47,11 @@ A board with several blocks uses `Hierarchy` from `tools/sch.py`. See `toy2/gen/
 - Mark every pin left open on purpose with `no_connect()`.
 - Put a `frame()` with a title around each group of parts on a sheet.
 - Draw a channel that repeats, such as eight outputs, once in a function and place it with `repeat()`. Put the index in the reference and net names: `R1{i}`, `X0.{i}`.
-- Mirror a symbol with `mirror="y"` when its pins would face away from what they connect to. KiCad then right-justifies its fields.
+- Mirror a symbol with `mirror="y"` when its pins would face away from what they connect to. KiCad then right-justifies its fields. It does the same for a symbol turned 90 or 180 degrees: give the end of the text as the field position.
+- Place each unit of a multi-unit part with `unit=`, such as one channel of a quad optocoupler.
+- Mark a part that is not fitted with `dnp=True`. It stays in the netlist and the BOM.
+- A rail with no stock power symbol gets an own one in `lib/RobCo.kicad_sym`, passed through `power_libs`.
+- KiCad draws a multi-line note above its anchor: give the bottom left corner of the last line.
 - KiCad needs these items for a hierarchy written by a script, and the writer emits them: a `sheet` node with its UUID, `Sheetname` and `Sheetfile` fields and an `instances` block with the page number; `sheet_instances` in the root file only; and an instance path `/<root uuid>/<sheet uuid>` on every symbol of a block, so references stay annotated.
 
 ## Add a symbol

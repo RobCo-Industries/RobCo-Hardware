@@ -11,8 +11,13 @@ import sexp
 
 
 class Component:
-    def __init__(self, ref: str, value: str, footprint: str, uuid: str, sheet_names: str, sheet_uuids: str):
+    def __init__(self, ref: str, value: str, footprint: str, uuid: str, sheet_names: str, sheet_uuids: str,
+                 part: str = "", dnp: bool = False):
         self.ref = ref
+        self.part = part
+        """The library symbol, as lib:name."""
+        self.dnp = dnp
+        """True for a part marked "do not populate"."""
         self.value = value
         self.footprint = footprint
         self.uuid = uuid
@@ -53,6 +58,8 @@ def parse(text: str) -> Netlist:
     for c in sexp.children(comps, "comp"):
         ref = sexp.value(c, "ref")
         sp = sexp.child(c, "sheetpath") or []
+        src = sexp.child(c, "libsource") or []
+        props = [sexp.value(p, "name") for p in sexp.children(c, "property")]
         nl.components[ref] = Component(
             ref,
             sexp.value(c, "value", ""),
@@ -60,6 +67,8 @@ def parse(text: str) -> Netlist:
             sexp.value(c, "tstamps", ""),
             sexp.value(sp, "names", "/"),
             sexp.value(sp, "tstamps", "/"),
+            f"{sexp.value(src, 'lib', '')}:{sexp.value(src, 'part', '')}",
+            "dnp" in props,
         )
     nets = sexp.child(tree, "nets") or []
     for n in sexp.children(nets, "net"):

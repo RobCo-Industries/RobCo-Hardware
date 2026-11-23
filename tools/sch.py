@@ -118,11 +118,17 @@ def _flatten(parent: list, child: list, pname: str, cname: str) -> list:
     return out
 
 
-def lib_pins(sym: list) -> Dict[str, Tuple[float, float, float]]:
-    """Return {pin number: (x, y, angle)} in library coordinates (y up)."""
+def lib_pins(sym: list, unit: Optional[int] = None) -> Dict[str, Tuple[float, float, float]]:
+    """Return {pin number: (x, y, angle)} in library coordinates (y up).
+
+    With `unit`, only the pins of that unit and of the common unit 0.
+    """
     pins: Dict[str, Tuple[float, float, float]] = {}
-    for unit in sexp.children(sym, "symbol"):
-        for p in sexp.children(unit, "pin"):
+    for sub in sexp.children(sym, "symbol"):
+        if unit is not None and int(sub[1].rsplit("_", 2)[-2]) not in (0, unit):
+            continue
+        unit_node = sub
+        for p in sexp.children(unit_node, "pin"):
             at = sexp.child(p, "at")
             num = sexp.value(p, "number")
             pins[num] = (float(at[1]), float(at[2]), float(at[3]))
@@ -216,6 +222,7 @@ class Schematic:
         libs: Optional[SymbolLibs] = None,
         sheet: Optional[str] = None,
         shared: Optional[dict] = None,
+        power_libs: Optional[Dict[str, str]] = None,
     ):
         self.project = project
         self.sheet = sheet
@@ -232,6 +239,10 @@ class Schematic:
         self.instance_path = f"/{self.root}"
         # Reference and power symbol counters, shared by every sheet of a design.
         self.shared = shared if shared is not None else {"refs": set(), "power": 0, "flag": 0}
+        self.shared.setdefault("units", set())
+        self.shared.setdefault("parts", {})
+        # Rails whose power symbol is not in the stock "power" library: {net: library}.
+        self.power_libs = power_libs or {}
         self.lib_symbols: Dict[str, list] = {}
         self.items: List[list] = []
         self.symbols: List[list] = []
@@ -262,6 +273,8 @@ class Schematic:
         hide_ref: bool = False,
         in_bom: bool = True,
         mirror: str = "",
+        unit: int = 1,
+        dnp: bool = False,
     ) -> Placed:
         """Place a symbol.
 
@@ -271,15 +284,40 @@ class Schematic:
         "x" (flip top and bottom) or "y" (flip left and right), applied after
         the rotation, as KiCad does. On a symbol mirrored left to right KiCad
         right-justifies the fields, so `ref_at` then marks the end of the text.
+
+        `unit` places one unit of a multi-unit part, such as one channel of a
+        quad optocoupler. Each unit of a reference is placed once, from the
+        same library symbol with the same value, footprint and fitting. `dnp`
+        marks a part that is not fitted: it stays in the netlist and the BOM
+        with KiCad's "do not populate" flag.
         """
-        if ref in self.refs or ref in self.shared["refs"]:
-            raise ValueError(f"duplicate reference {ref}")
+        # Every unit of one reference is one component to KiCad, on any sheet.
+        # It must come from one library symbol with one value, footprint and
+        # fitting, and each unit is placed once.
+        here = f"sheet {self.sheet or 'root'}"
+        first = self.shared["parts"].get(ref)
+        if first is not None:
+            there = f"sheet {first['sheet'] or 'root'}"
+            both = f"{there} ({first['lib_id']}) and {here} ({lib_id})"
+            if first["lib_id"] != lib_id:
+                raise ValueError(f"{ref} uses two library symbols: {both}")
+            if (ref, unit) in self.shared["units"]:
+                raise ValueError(f"duplicate reference {ref}" + (f" unit {unit}" if unit != 1 else "")
+                                 + f": {both}")
+            mine = {"value": value, "footprint": footprint, "dnp": dnp, "in_bom": in_bom}
+            for key, val in mine.items():
+                if first[key] != val:
+                    raise ValueError(f"{ref} units differ in {key}, {first[key]!r} and {val!r}: {both}. "
+                                     "All units of a reference must match.")
         if mirror not in ("", "x", "y"):
             raise ValueError(f"mirror must be '', 'x' or 'y', got {mirror!r}")
         check_grid(f"{ref} position", *at)
         if lib_id not in self.lib_symbols:
             self.lib_symbols[lib_id] = self.libs.get(lib_id)
-        pins = lib_pins(self.lib_symbols[lib_id])
+        units = {int(s[1].rsplit("_", 2)[-2]) for s in sexp.children(self.lib_symbols[lib_id], "symbol")}
+        if unit not in units and not (unit == 1 and units <= {0, 1}):
+            raise ValueError(f"{ref} on {here}: {lib_id} has no unit {unit}")
+        pins = lib_pins(self.lib_symbols[lib_id], unit if max(units) > 1 else None)
         placed = Placed(self, lib_id, ref, at, rot, pins, mirror)
         for num in pins:
             check_grid(f"{ref} pin {num}", *placed.pin(num))
@@ -301,14 +339,14 @@ class Schematic:
         if mirror:
             node.append([Sym("mirror"), Sym(mirror)])
         node += [
-            [Sym("unit"), 1],
+            [Sym("unit"), unit],
             [Sym("body_style"), 1],
             [Sym("exclude_from_sim"), Sym("no")],
             [Sym("in_bom"), _yes(in_bom)],
             [Sym("on_board"), _yes(in_bom)],
             [Sym("in_pos_files"), _yes(in_bom)],
-            [Sym("dnp"), Sym("no")],
-            [Sym("uuid"), self.uuid("symbol", ref)],
+            [Sym("dnp"), _yes(dnp)],
+            [Sym("uuid"), self.uuid("symbol", ref) if unit == 1 else self.uuid("symbol", ref, unit)],
             self._prop("Reference", ref, (x + ra[0], y + ra[1]), hide=hide_ref,
                        left=not lib_fields, angle=text_angle),
             self._prop("Value", value, (x + va[0], y + va[1]), left=not lib_fields, angle=text_angle),
@@ -321,8 +359,11 @@ class Schematic:
         # The instance path is filled in at output time: a Hierarchy may set
         # instance_path after the symbols are placed.
         self.symbols.append(node)
-        self.refs[ref] = placed
+        self.refs[ref if unit == 1 else f"{ref}:{unit}"] = placed
         self.shared["refs"].add(ref)
+        self.shared["units"].add((ref, unit))
+        self.shared["parts"].setdefault(ref, {"lib_id": lib_id, "sheet": self.sheet, "value": value,
+                                              "footprint": footprint, "dnp": dnp, "in_bom": in_bom})
         return placed
 
     def _prop(self, name: str, value: str, at: Point, hide: bool = False, left: bool = False,
@@ -393,6 +434,22 @@ class Schematic:
             ]
         )
 
+    def label_at(self, net: str, at: Point, direction: str = "right") -> None:
+        """A local net label whose connection point is `at`, text running `direction`."""
+        check_grid(f"label {net}", *at)
+        angle = 180 if direction == "left" else 0
+        justify = [Sym("justify"), Sym("right" if angle == 180 else "left"), Sym("bottom")]
+        self.items.append(
+            [
+                Sym("label"),
+                net,
+                [Sym("at"), _r(at[0]), _r(at[1]), angle],
+                [Sym("fields_autoplaced"), Sym("yes")],
+                [Sym("effects"), _font(), justify],
+                [Sym("uuid"), self.uuid("label_at", net, _r(at[0]), _r(at[1]))],
+            ]
+        )
+
     def power(self, part: Placed, pin: str, net: str, stub: float = 2 * GRID, then=()) -> None:
         """Connect a pin to a rail with a wire stub and a power symbol.
 
@@ -401,11 +458,16 @@ class Schematic:
         end, _ = self._stub(part, pin, stub, then)
         self.power_symbol(net, end)
 
-    def power_symbol(self, net: str, at: Point, rot: int = 0) -> Placed:
+    def power_symbol(self, net: str, at: Point, rot: int = 0, value_at: Optional[Point] = None) -> Placed:
+        """A power symbol. `value_at` places the rail name, left-justified, as an
+        offset from `at`: use it on a symbol turned sideways, where the library
+        position would put the name on the symbol."""
         self.shared["power"] += 1
         ref = f"#PWR{self.shared['power']:02d}"
-        return self.symbol(f"power:{net}", ref, net, at, rot=rot, hide_ref=True, ref_at="lib",
-                           in_bom=False, description=f"Power symbol for the {net} rail")
+        lib = self.power_libs.get(net, "power")
+        fields = {"ref_at": "lib"} if value_at is None else {"ref_at": (0, 0), "value_at": value_at}
+        return self.symbol(f"{lib}:{net}", ref, net, at, rot=rot, hide_ref=True,
+                           in_bom=False, description=f"Power symbol for the {net} rail", **fields)
 
     def power_flag(self, net: str, at: Point) -> None:
         """Mark a rail as driven, so ERC knows a source feeds it.
@@ -564,13 +626,14 @@ class Schematic:
 
     def _with_instance(self, node: list) -> list:
         ref = next(p[2] for p in sexp.children(node, "property") if p[1] == "Reference")
+        unit = sexp.value(node, "unit")
         return node + [
             [
                 Sym("instances"),
                 [
                     Sym("project"),
                     self.project,
-                    [Sym("path"), self.instance_path, [Sym("reference"), ref], [Sym("unit"), 1]],
+                    [Sym("path"), self.instance_path, [Sym("reference"), ref], [Sym("unit"), unit]],
                 ],
             ]
         ]
@@ -651,18 +714,19 @@ class Hierarchy:
 
     def __init__(self, project: str, board: str, date: str, rev: str,
                  comments: Optional[List[str]] = None, libs: Optional[SymbolLibs] = None,
-                 paper: str = "A4"):
+                 paper: str = "A4", power_libs: Optional[Dict[str, str]] = None):
         self.project = project
         self.board = board
         self.date = date
         self.rev = rev
         self.libs = libs or SymbolLibs()
         self.paper = paper
-        self.shared: dict = {"refs": set(), "power": 0, "flag": 0}
+        self.shared: dict = {"refs": set(), "units": set(), "parts": {}, "power": 0, "flag": 0}
+        self.power_libs = power_libs or {}
         self.comments = comments or []
         self.root = Schematic(project, title=board, date=date, rev=rev,
                               comments=[PROPOSAL] + self.comments, libs=self.libs,
-                              paper=paper, shared=self.shared)
+                              paper=paper, shared=self.shared, power_libs=self.power_libs)
         self.sheets: List[Tuple[str, str, Schematic]] = []
 
     def sheet(self, name: str, file: str, at: Point, size: Point = (g(30), g(12)),
@@ -681,7 +745,8 @@ class Hierarchy:
         sheet_uuid = self.root.uuid("sheet", name)
         child = Schematic(self.project, title=f"{name}", date=self.date, rev=self.rev,
                           comments=[self.board, PROPOSAL] + self.comments, libs=self.libs,
-                          paper=paper or self.paper, sheet=name, shared=self.shared)
+                          paper=paper or self.paper, sheet=name, shared=self.shared,
+                          power_libs=self.power_libs)
         child.instance_path = f"/{self.root.root}/{sheet_uuid}"
         x, y = at
         w, h = size

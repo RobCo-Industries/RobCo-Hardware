@@ -65,6 +65,47 @@ def test_references_and_power_numbers_are_unique_across_sheets():
     assert refs == ["#PWR01", "#PWR02"]
 
 
+OPTO = (g(10), g(10))
+
+
+def test_units_of_one_reference_use_one_symbol_across_sheets():
+    h, a, b = _hier()
+    a.symbol("Isolator:LTV-847", "U5", "LTV-847", OPTO, unit=1)
+    with pytest.raises(ValueError, match=r"U5 uses two library symbols: sheet Power \(Isolator:LTV-847\) "
+                                         r"and sheet Outputs \(Isolator:PC847\)"):
+        b.symbol("Isolator:PC847", "U5", "PC847", OPTO, unit=2)
+    b.symbol("Isolator:LTV-847", "U5", "LTV-847", OPTO, unit=2)
+
+
+@pytest.mark.parametrize("field, kw", [
+    ("value", {"value": "LTV-846"}),
+    ("footprint", {"footprint": "Package_DIP:DIP-16_W10.16mm"}),
+    ("dnp", {"dnp": True}),
+])
+def test_units_of_one_reference_match_in_value_footprint_and_fitting(field, kw):
+    h, a, b = _hier()
+    base = {"value": "LTV-847", "footprint": "Package_DIP:DIP-16_W7.62mm"}
+    a.symbol("Isolator:LTV-847", "U5", base["value"], OPTO, unit=1, footprint=base["footprint"])
+    args = {**base, **kw}
+    with pytest.raises(ValueError, match=rf"U5 units differ in {field}.*sheet Power .*sheet Outputs "
+                                         r"\(Isolator:LTV-847\)\. All units of a reference must match"):
+        b.symbol("Isolator:LTV-847", "U5", args.pop("value"), OPTO, unit=2, **args)
+
+
+def test_unit_the_symbol_lacks_fails_with_its_sheet():
+    h, a, b = _hier()
+    with pytest.raises(ValueError, match="U5 on sheet Outputs: Isolator:LTV-847 has no unit 5"):
+        b.symbol("Isolator:LTV-847", "U5", "LTV-847", OPTO, unit=5)
+
+
+def test_single_unit_symbol_twice_across_sheets_names_both():
+    h, a, b = _hier()
+    a.symbol("Device:R", "R1", "1k", OPTO)
+    with pytest.raises(ValueError, match=r"duplicate reference R1: sheet Power \(Device:R\) "
+                                         r"and sheet Outputs \(Device:R\)"):
+        b.symbol("Device:R", "R1", "1k", OPTO)
+
+
 def test_duplicate_sheet_fails():
     h, _, _ = _hier()
     with pytest.raises(ValueError, match="duplicate sheet name"):
@@ -164,3 +205,48 @@ def test_mirror_moves_pins(mirror, rot, want, out):
 def test_bad_mirror_fails():
     with pytest.raises(ValueError, match="mirror"):
         _sch().symbol("Device:R", "R1", "1k", (g(10), g(10)), mirror="z")
+
+
+def test_units_of_a_part_are_placed_once_each():
+    s = _sch()
+    u1 = s.symbol("Isolator:LTV-847", "U5", "LTV-847", (g(10), g(10)), unit=1)
+    u2 = s.symbol("Isolator:LTV-847", "U5", "LTV-847", (g(30), g(10)), unit=2)
+    assert sorted(u1._pins) == sorted(["1", "2", "15", "16"])
+    assert sorted(u2._pins) == sorted(["3", "4", "13", "14"])
+    with pytest.raises(ValueError, match="duplicate reference U5 unit 2"):
+        s.symbol("Isolator:LTV-847", "U5", "LTV-847", (g(50), g(10)), unit=2)
+    with pytest.raises(ValueError, match="has no unit 5"):
+        s.symbol("Isolator:LTV-847", "U6", "LTV-847", (g(50), g(10)), unit=5)
+    tree = sexp.parse(s.text_out())
+    syms = sexp.children(tree, "symbol")
+    assert [str(sexp.value(x, "unit")) for x in syms] == ["1", "2"]
+    paths = [sexp.child(sexp.child(sexp.child(x, "instances"), "project"), "path") for x in syms]
+    assert [str(sexp.value(p, "unit")) for p in paths] == ["1", "2"]
+    assert sexp.value(syms[0], "uuid") != sexp.value(syms[1], "uuid")
+
+
+def test_dnp_flag():
+    s = _sch()
+    s.symbol("Device:R", "R1", "4k7", (g(10), g(10)), dnp=True)
+    s.symbol("Device:R", "R2", "4k7", (g(20), g(10)))
+    syms = sexp.children(sexp.parse(s.text_out()), "symbol")
+    assert [str(sexp.value(x, "dnp")) for x in syms] == ["yes", "no"]
+
+
+def test_label_at_and_own_power_library():
+    s = _sch(power_libs={"V_SW": "RobCo"})
+    s.label_at("ARM_G", (g(10), g(10)), "left")
+    s.power_symbol("V_SW", (g(20), g(20)))
+    s.power_symbol("GND", (g(30), g(20)))
+    labels = _items(s, "label")
+    assert labels[0][1] == "ARM_G" and sexp.child(labels[0], "at")[3] == 180
+    assert sorted(s.lib_symbols) == ["RobCo:V_SW", "power:GND"]
+
+
+def test_power_symbol_value_position():
+    s = _sch()
+    p = s.power_symbol("GND", (g(10), g(10)), rot=270, value_at=(g(3), 0))
+    node = next(n for n in s.symbols if sexp.value(n, "lib_id") == "power:GND")
+    val = next(x for x in sexp.children(node, "property") if x[1] == "Value")
+    assert [float(v) for v in sexp.child(val, "at")[1:3]] == [g(13), g(10)]
+    assert p.ref.startswith("#PWR")

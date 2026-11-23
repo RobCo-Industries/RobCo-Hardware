@@ -17,6 +17,16 @@ def test_components(toy):
     assert r1.value == "1k"
     assert r1.footprint == "Resistor_SMD:R_0805_2012Metric"
     assert r1.path == "/" + r1.uuid
+    assert r1.part == "Device:R"
+    assert r1.dnp is False
+
+
+def test_dnp_property():
+    text = open(os.path.join(FIXTURES, "toy.net"), encoding="utf-8").read()
+    text = text.replace('(ref "R1")', '(ref "R1")\n\t\t\t(property (name "dnp"))', 1)
+    nl = netlist.parse(text)
+    assert nl.components["R1"].dnp is True
+    assert nl.components["D1"].dnp is False
 
 
 def test_nets(toy):

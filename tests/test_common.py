@@ -30,3 +30,13 @@ def test_grid_helpers():
     check_grid("ok", 0, 1.27, 63.5)
     with pytest.raises(GridError, match="not on the 1.27 mm grid"):
         check_grid("label", 2.0)
+
+
+def test_kicad_pro_erc_severities():
+    import json
+
+    import project
+
+    assert "erc" not in json.loads(project.kicad_pro("b"))
+    data = json.loads(project.kicad_pro("b", erc_severities={"isolated_pin_label": "ignore"}))
+    assert data["erc"] == {"rule_severities": {"isolated_pin_label": "ignore"}}

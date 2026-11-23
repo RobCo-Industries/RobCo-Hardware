@@ -10,6 +10,7 @@
 #   erc     only ERC
 #   pins    only the pin check
 #   pintable  only the check that the pin table in spec/SPEC.md matches pins.yaml
+#   nettest the board's netlist tests, the file NETTEST in board.env names
 #   drc     only DRC
 #   docs    schematic PDF and SVG, netlist, BOM
 #   render  3D renders: top, bottom, isometric
@@ -22,7 +23,10 @@
 # Variables, all optional:
 #   KICAD_CLI            path to kicad-cli
 #   KICAD_PY             a Python that can import pcbnew
-#   ROBCO_BOARD_SUPPORT  path to RobCo-Core docs/spec/BOARD_SUPPORT.md, or "skip"
+#   ROBCO_BOARD_SUPPORT  path to RobCo-Core docs/spec/BOARD_SUPPORT.md, or "skip".
+#                        Unset, the script looks for a RobCo-Core clone next to
+#                        this repository, then two levels up, which finds it
+#                        from a worktree under .worktrees/.
 #   KICAD10_SYMBOL_DIR, KICAD10_FOOTPRINT_DIR, KICAD10_3DMODEL_DIR
 #                        stock library folders; found from known places if unset
 #
@@ -32,6 +36,8 @@
 #   OWNER_ROUTED=yes  the owner routed the board in KiCad: the committed board
 #                     file is the source. gen and regen then cover the
 #                     schematic and project files only, never the board file.
+#   NETTEST=tests/x.py  netlist tests, run with ROBCO_NETLIST set to the
+#                     exported netlist; check fails when one fails.
 # A board with no board file yet is checked as a schematic: regen, ERC and pin
 # checks run, DRC and renders are skipped with a line that says so.
 #
@@ -73,11 +79,13 @@ for kind in symbols footprints 3dmodels; do
 done
 
 if [ -z "${ROBCO_BOARD_SUPPORT:-}" ]; then
-  ROBCO_BOARD_SUPPORT="$(first_existing "$REPO/../RobCo-Core/docs/spec/BOARD_SUPPORT.md" || echo "")"
+  ROBCO_BOARD_SUPPORT="$(first_existing "$REPO/../RobCo-Core/docs/spec/BOARD_SUPPORT.md" \
+    "$REPO/../../RobCo-Core/docs/spec/BOARD_SUPPORT.md" || echo "")"
 fi
 
 ROUTED=no
 OWNER_ROUTED=no
+NETTEST=""
 if [ -f "$BDIR/board.env" ]; then
   # shellcheck disable=SC1090,SC1091
   . "$BDIR/board.env"
@@ -183,6 +191,17 @@ cmd_pintable() {
   "$KICAD_PY" "$REPO/tools/gen_pin_table.py" --check "$BDIR/spec/pins.yaml" "$doc"
 }
 
+# Netlist tests of a board, named by NETTEST in board.env, run on the exported netlist.
+cmd_nettest() {
+  [ -n "$NETTEST" ] || { say "no netlist tests for $BOARD"; return 0; }
+  local t="$NETTEST"
+  case "$t" in /*) ;; *) t="$REPO/$t" ;; esac
+  [ -f "$t" ] || die "NETTEST file not found: $NETTEST"
+  [ -f "$(sch)" ] || { say "no schematic yet: netlist tests skipped"; return 0; }
+  netlist
+  ROBCO_NETLIST="$OUT/$BOARD.net" "$KICAD_PY" "$t" || die "netlist tests failed"
+}
+
 cmd_drc() {
   mkdir -p "$OUT"
   local pcbfile
@@ -209,6 +228,7 @@ cmd_check() {
   fi
   cmd_pins
   cmd_pintable
+  cmd_nettest
   cmd_drc
 }
 
@@ -260,6 +280,7 @@ case "$CMD" in
   erc) cmd_erc ;;
   pins) cmd_pins ;;
   pintable) cmd_pintable ;;
+  nettest) cmd_nettest ;;
   drc) cmd_drc ;;
   check) cmd_check ;;
   docs) cmd_docs ;;
@@ -267,5 +288,5 @@ case "$CMD" in
   fab) cmd_fab ;;
   out) cmd_docs; cmd_render; cmd_fab ;;
   test) cmd_test ;;
-  *) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,45p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

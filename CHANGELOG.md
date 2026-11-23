@@ -16,3 +16,12 @@
 - Add `toy2/`, a two-sheet schematic that tests the hierarchy tools.
 - Check boards that have no board file yet, and boards that the owner routed.
 - Render in `kicad/kicad:10.0-full`, which has the 3D models, and warn on each missing model.
+- Find RobCo-Core two levels up, so the checks run from a worktree.
+- Move the dial pins GPIO 16, 23 and 24 of the terminal controller to its free-pin header. The pin check skips the input example for those three pins only.
+- Place one unit of a multi-unit part, mark parts not fitted, draw local labels at a point, and use own rail symbols.
+- Add own symbols: a TO-220 P-MOSFET, a DO-15 TVS, the PAM8302A module and the rails `V_PROT`, `V_SW` and `+V_S`.
+- Draw the terminal controller schematic on six sheets. ERC is clean with no waiver.
+- Add netlist tests for the terminal controller: BOM against the spec, address straps, driver pull-downs, expander lines, `ARM`, rails and I2C. `tools/build.sh check` runs them.
+- Fix terminal controller review findings: 60 V diodes and Q1, 50 V reservoir capacitors above the TVS clamp; R20 at 100 kOhm and the real gate drive at 5 V; WP, ID_SD and ID_SC pull-ups; footprints for C13 and a VBAT jumper; notes on GPIO 25, back-fed loads, arming inrush and audio level.
+- Refuse units of one reference that use different library symbols, or differ in value, footprint or fitting, across all sheets.
+- Rate the terminal controller fuses F1 and F2 at 60 V or more, above the TVS clamp.

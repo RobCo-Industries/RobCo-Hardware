@@ -28,18 +28,18 @@ Software references point to files in the RobCo-Core and UOS repositories. "BOAR
 - Expander 1 reads 8 optocoupler inputs for 5 V to 24 V field signals and dry contacts.
 - A DS1338 clock with a crystal and a CR2032 cell sits on the same I2C bus, at `0x68`.
 - A class-D amplifier module plays the Pi's PWM audio through a low-pass filter and a volume trimmer.
-- A header carries the 6 operator buttons and the dial.
+- A header carries the 6 operator buttons. The board has no dial: UOS has six buttons and none.
 - A 6-pin header carries the PL011 serial console at 3.3 V.
-- A 2x6 header carries the 6 Pi pins that stay free, each beside a ground.
+- A 2x9 header carries the 9 Pi pins that stay free, each beside a ground.
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
 ```
                          Raspberry Pi 40-pin header (J1)
-   3V3   5V   GPIO2/3 (I2C)  GPIO14/15  GPIO18  buttons  GPIO25  free pins
+  +3V3  +5V   GPIO2/3 (I2C)  GPIO14/15  GPIO18  buttons  GPIO25  free pins
     |     |        |            |          |       |        |        |
     |     |   +----+-----+---+  |          |       |        |        +--> J7 free-pin header
-    |     |   |          |   |  +--> J6 serial (FTDI order, 3.3 V only)  (4,12,13,19,20,21)
-    |     |   v          v   v             |       +--> J5 buttons and dial
+    |     |   |          |   |  +--> J6 serial (FTDI order, 3.3 V only)  (4,12,13,16,19,20,21,23,24)
+    |     |   v          v   v             |       +--> J5 buttons
     |     |  U1 PCA9554 U2 PCA9554 U3 DS1338 |              |
     |     |  0x20       0x21       0x68 + Y1 + BT1         |
     |     |   |          ^                   v             v
@@ -75,33 +75,33 @@ Sources: BOARD_SUPPORT.md, sections "UART policy" and "Pins" (including the butt
 | 8 | GPIO 14, TXD | `UART_TX` | PL011 TXD (BOARD_SUPPORT.md UART policy and Pins) | J6 pin 5 | used |
 | 9 | GND | `GND` | Ground | GND | used |
 | 10 | GPIO 15, RXD | `UART_RX` | PL011 RXD (BOARD_SUPPORT.md UART policy and Pins) | J6 pin 4 | used |
-| 11 | GPIO 17 | `BTN_LEFT` | LEFT (BOARD_SUPPORT.md Pins, input example) | J5 LEFT via R | used |
+| 11 | GPIO 17 | `BTN_LEFT` | LEFT (BOARD_SUPPORT.md Pins, input example) | J5 pin 4 (LEFT) through R42, 1 kOhm | used |
 | 12 | GPIO 18 | `AUDIO_PWM` | Audio channel 1 (BOARD_SUPPORT.md Pins, audio table: Pi Zero at ALT5) | Audio filter input | used |
-| 13 | GPIO 27 | `BTN_BACK` | BACK (BOARD_SUPPORT.md Pins, input example) | J5 BACK via R | used |
+| 13 | GPIO 27 | `BTN_BACK` | BACK (BOARD_SUPPORT.md Pins, input example) | J5 pin 7 (BACK) through R45, 1 kOhm | used |
 | 14 | GND | `GND` | Ground | GND | used |
-| 15 | GPIO 22 | `BTN_RIGHT` | RIGHT (BOARD_SUPPORT.md Pins, input example) | J5 RIGHT via R | used |
-| 16 | GPIO 23 | `DIAL_A` | Dial A (BOARD_SUPPORT.md Pins, input example) | J5 DIAL_A via R | used |
+| 15 | GPIO 22 | `BTN_RIGHT` | RIGHT (BOARD_SUPPORT.md Pins, input example) | J5 pin 5 (RIGHT) through R43, 1 kOhm | used |
+| 16 | GPIO 23 | `GPIO23` | free (no dial on this board; the input example uses it for the dial, ignored) | J7 free-pin header | free |
 | 17 | 3V3 | `+3V3` | Power | Joined to pin 1 | used |
-| 18 | GPIO 24 | `DIAL_B` | Dial B (BOARD_SUPPORT.md Pins, input example) | J5 DIAL_B via R | used |
+| 18 | GPIO 24 | `GPIO24` | free (no dial on this board; the input example uses it for the dial, ignored) | J7 free-pin header | free |
 | 19 | GPIO 10, MOSI | not connected | SPI0 MOSI (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 20 | GND | `GND` | Ground | GND | used |
 | 21 | GPIO 9, MISO | not connected | SPI0 MISO (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
-| 22 | GPIO 25 | `ARM` | ARM device in UOS DEVICES.CFG (UOS dev.md, free pin) | ARM signal to Q2 | used |
+| 22 | GPIO 25 | `ARM` | ARM device in UOS DEVICES.CFG (UOS dev.md, free pin) | R22 to the Q2 base, arm switch | used |
 | 23 | GPIO 11, SCLK | not connected | SPI0 SCLK (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 24 | GPIO 8, CE0 | not connected | SPI0 CE0 (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 25 | GND | `GND` | Ground | GND | used |
 | 26 | GPIO 7, CE1 | not connected | SPI0 CE1 (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 27 | ID_SD, GPIO 0 | `ID_SD` | ID EEPROM (BOARD_SUPPORT.md Pins; avoided by the input example) | U7 SDA footprint, not fitted | optional |
 | 28 | ID_SC, GPIO 1 | `ID_SC` | ID EEPROM (BOARD_SUPPORT.md Pins; avoided by the input example) | U7 SCL footprint, not fitted | optional |
-| 29 | GPIO 5 | `BTN_UP` | UP (BOARD_SUPPORT.md Pins, input example) | J5 UP via R | used |
+| 29 | GPIO 5 | `BTN_UP` | UP (BOARD_SUPPORT.md Pins, input example) | J5 pin 2 (UP) through R40, 1 kOhm | used |
 | 30 | GND | `GND` | Ground | GND | used |
-| 31 | GPIO 6 | `BTN_DOWN` | DOWN (BOARD_SUPPORT.md Pins, input example) | J5 DOWN via R | used |
+| 31 | GPIO 6 | `BTN_DOWN` | DOWN (BOARD_SUPPORT.md Pins, input example) | J5 pin 3 (DOWN) through R41, 1 kOhm | used |
 | 32 | GPIO 12 | `GPIO12` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
 | 33 | GPIO 13 | `GPIO13` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
 | 34 | GND | `GND` | Ground | GND | used |
 | 35 | GPIO 19 | `GPIO19` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
-| 36 | GPIO 16 | `DIAL_PUSH` | Dial push (BOARD_SUPPORT.md Pins, input example) | J5 DIAL_PUSH via R | used |
-| 37 | GPIO 26 | `BTN_SELECT` | SELECT (BOARD_SUPPORT.md Pins, input example) | J5 SELECT via R | used |
+| 36 | GPIO 16 | `GPIO16` | free (no dial on this board; the input example uses it for the dial, ignored) | J7 free-pin header | free |
+| 37 | GPIO 26 | `BTN_SELECT` | SELECT (BOARD_SUPPORT.md Pins, input example) | J5 pin 6 (SELECT) through R44, 1 kOhm | used |
 | 38 | GPIO 20 | `GPIO20` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
 | 39 | GND | `GND` | Ground | GND | used |
 | 40 | GPIO 21 | `GPIO21` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
@@ -113,37 +113,45 @@ Notes on the map:
 - The button pins are the mapping of `examples/input/robco_config.h`. BOARD_SUPPORT.md, section "Pins", calls it "an example, not a library default". UOS `dev.md` refuses the same pins, so the board follows them.
 - On the Pi 1, 2 and 3, PWM audio uses GPIO 40, 41 and 45 (BOARD_SUPPORT.md, section "Pins"). Those pins are not on the header. They feed the Pi's analogue jack. See [the audio block](#45-audio).
 - On the Zero, GPIO 12 and 13 at ALT0 can also carry two PWM channels (audio.md, section `audio.h`). If you use them for stereo, they leave the free-pin header.
-- GPIO 25 is free in UOS `dev.md`. This board uses it for the arm switch. The free pins left are 4, 12, 13, 19, 20 and 21.
+- GPIO 25 is free in UOS `dev.md`. This board uses it for the arm switch.
+- GPIO 25 is also the default D/C pin of the SPI display driver in RobCo-Core, and GPIO 4 its default reset pin (BOARD_SUPPORT.md, SPI display table). That display belongs to the Pip-Boy board, not to this one, so GPIO 25 stays ARM.
+- SPI0 stays free for a later SPI device. An SPI display added to this board must not use the default D/C pin 25 or reset pin 4. Toggling GPIO 25 would switch the load rail `V_SW`.
+- The input example maps a dial to GPIO 16, 23 and 24. UOS has six buttons and no dial, so this board has no dial. Those three pins go to the free-pin header. `pins.yaml` tells the pin check to skip the input example for these three pins only.
+- The free pins are 4, 12, 13, 16, 19, 20, 21, 23 and 24.
 
 ## 4. Circuit blocks
 
-Net names are in capitals. Every resistor is 1/4 W metal film, 1 %, through-hole, unless the row says otherwise. Every 100 nF capacitor is ceramic X7R, 50 V, 2.54 mm or 5.08 mm lead pitch.
+Net names are in capitals and match the schematic: the rails `+3V3`, `+5V`, `GND`, `V_PROT`, `V_SW` and `+V_S`; the expander lines `X0.0` to `X0.7` and `X1.0` to `X1.7`; `ARM`, `AUDIO_PWM`, `I2C_SDA`, `I2C_SCL`, `UART_TX`, `UART_RX` and the button nets `BTN_UP` and so on. Every resistor is 1/4 W metal film, 1 %, through-hole, unless the row says otherwise. Every 100 nF capacitor is ceramic X7R, 50 V, 2.54 mm or 5.08 mm lead pitch.
 
 ### 4.1 Power
 
-Nets: `3V3` from header pins 1 and 17. `5V` from header pins 2 and 4. `GND` from every header ground pin. `V_IN`, `V_FUSED`, `V_PROT`, `V_SW` on the load side.
+Nets: `+3V3` from header pins 1 and 17. `+5V` from header pins 2 and 4. `GND` from every header ground pin. `V_EXT`, `V_IN`, `V_FUSED`, `V_PROT`, `V_SW` and `+V_S` on the load side.
 
 | Ref | Part | Connection |
 |---|---|---|
 | J2 | 2-way screw terminal, 3.5 mm pitch | Pin 1 `V_EXT`, pin 2 `GND`. Silkscreen "LOAD + 5-24 V DC" and "-". |
-| JP1 | 3-pin header with shunt | Pin 1 `V_EXT`, pin 2 `V_IN`, pin 3 `5V`. Shunt 1-2: terminal supply. Shunt 2-3: Pi 5 V. Silkscreen "EXT / PI5V". |
-| F1 | Radial polyfuse, 1.1 A hold, 30 V or more | `V_IN` to `V_FUSED` |
-| D1 | Schottky diode 3 A, 40 V, DO-201 | Anode `V_FUSED`, cathode `V_PROT` |
+| JP1 | 3-pin header with shunt | Pin 1 `V_EXT`, pin 2 `V_IN`, pin 3 `+5V`. Shunt 1-2: terminal supply. Shunt 2-3: Pi 5 V. Silkscreen "EXT / PI5V". |
+| F1 | Radial polyfuse, 1.1 A hold, 60 V or more | `V_IN` to `V_FUSED` |
+| D1 | Schottky diode 3 A, 60 V, SB360 class, DO-201AD | Anode `V_FUSED`, cathode `V_PROT` |
 | D2 | TVS diode, 600 W, unidirectional, about 26 V standoff, DO-15 | Cathode `V_PROT`, anode `GND` |
-| C1 | 100 uF, 35 V electrolytic, radial | `V_PROT` to `GND` |
+| C1 | 100 uF, 50 V electrolytic, radial, 8 mm diameter | `V_PROT` to `GND` |
 | C2 | 100 nF | `V_PROT` to `GND` |
-| C3 | 10 uF, 10 V ceramic or tantalum | `3V3` to `GND`, near U1 |
-| C4 | 47 uF, 10 V electrolytic | `5V` to `GND`, near M1 |
+| C3 | 10 uF, 10 V ceramic, radial | `+3V3` to `GND`, near U1. Ceramic, not tantalum: no polarity to get wrong. |
+| C4 | 47 uF, 10 V electrolytic | `+5V` to `GND`, near M1 |
 
 The 3-pin jumper makes it impossible to tie the terminal supply to the Pi's 5 V. Only one source reaches `V_IN`.
 
-Reverse polarity: D1 blocks a reversed supply. Its drop is about 0.5 V at 1 A (typical, check). At the 1 A total budget it dissipates 1 A x 0.5 V = 0.5 W. A DO-201 Schottky handles that in free air (typical, check). A P-channel MOSFET would drop less. It is left out to keep the part count low.
+Reverse polarity: D1 blocks a reversed supply. Its drop is about 0.55 V at 1 A and 0.35 V to 0.5 V under 0.2 A (typical, check: from memory of the SB360 class, to verify). At the 1 A total budget it dissipates 1 A x 0.55 V = 0.55 W. A DO-201 Schottky handles that in free air (typical, check). A P-channel MOSFET would drop less. It is left out to keep the part count low.
 
 D2 clamps spikes on the load rail. A 26 V standoff lets a 24 V supply run below the clamp. A 24 V supply can sit at 24 V + 5 % = 25.2 V, which is still below 26 V. Check the standoff of the exact part.
 
+At its rated pulse such a TVS clamps near 42 V (typical, check: from memory, to verify). Every part on the rails it protects is rated above that: D1 and D4 at 60 V, Q1 at 60 V or more, Q2 at 160 V, C1 and C9 at 50 V, the ULN2803A at 50 V, F1 and F2 at 60 V or more.
+
+A tripped fuse sees the difference between its two sides. With a short on its far side that is the whole rail, so each fuse is rated 60 V to leave room above the clamp.
+
 Pi 5 V for loads, JP1 at 2-3: the Pi's 5 V rail comes from its USB input. On the Pi 3 the input passes a polyfuse (typical, check). Budget at most 300 mA (assumed) for loads from the Pi 5 V. That covers two or three small 5 V relay coils at 70 to 90 mA each (typical, check the relay). Relay switching causes dips that can reset the Pi. Use the external supply for door strikes, lamps and anything above 300 mA.
 
-The `3V3` rail comes from the Pi's regulator. This board draws a few mA from it: two expanders, the clock, the pull-ups. No regulator is on the board.
+The `+3V3` rail comes from the Pi's regulator. This board draws a few mA from it: two expanders, the clock, the pull-ups. No regulator is on the board.
 
 Shorts on the supplies the board offers to the outside:
 
@@ -151,34 +159,34 @@ Shorts on the supplies the board offers to the outside:
 |---|---|---|---|
 | `+V_S` sensor supply | J4 `+V` | F2, its own polyfuse, hold 200 mA. See [the input stage](#48-input-stage). | Yes |
 | `V_SW` load rail | J3 `+V`, two positions | F1, hold 1.1 A, trip about 2.2 A (typical, check). F1, D1 and Q1 carry the fault until F1 trips. | Yes, see below |
-| `3V3` | J5 pin 12 | R59, 100 Ohm: 3.3 V / 100 Ohm = 33 mA | Yes |
-| `5V` | No header pin carries it. J6 pin 3 stays open. JP1 pin 3 is a jumper, not a terminal. | Not offered | Not applicable |
+| `+3V3` | J5 pin 9 | R59, 100 Ohm: 3.3 V / 100 Ohm = 33 mA | Yes |
+| `+5V` | No header pin carries it. J6 pin 3 stays open. JP1 pin 3 is a jumper, not a terminal. | Not offered | Not applicable |
 | Free pins | J7 | J7 has GPIO and ground only, no supply pin | Not applicable |
 
-`V_SW` short: the fault current runs through F1, D1 and Q1. F1 trips within seconds at 2.2 A or more (typical, check the trip-time curve). Until then D1 dissipates about 2.2 A x 0.5 V = 1.1 W and Q1 about 2.2 A x 2.2 A x 0.1 Ohm = 0.48 W. Both are short-term loads for a DO-201 and a TO-220. After the trip, F1 holds the fault current to tens of mA and dissipates its own trip power. A strong supply can push a larger first pulse. Check Q1's safe operating area for the supply you use. With JP1 at 2-3 the same fault draws up to 2.2 A from the Pi 5 V, which resets the Pi. The reset disarms Q1 and ends the fault.
+`V_SW` short: the fault current runs through F1, D1 and Q1. F1 trips within seconds at 2.2 A or more (typical, check the trip-time curve). Until then D1 dissipates about 2.2 A x 0.65 V = 1.4 W (0.65 V at 2.2 A, typical, check) and Q1 about 2.2 A x 2.2 A x 0.1 Ohm = 0.48 W. Both are short-term loads for a DO-201 and a TO-220. After the trip, F1 holds the fault current to tens of mA and dissipates its own trip power. A strong supply can push a larger first pulse. Check Q1's safe operating area for the supply you use. With JP1 at 2-3 the same fault draws up to 2.2 A from the Pi 5 V, which resets the Pi. The reset disarms Q1 and ends the fault.
 
 ### 4.2 I2C bus, expanders and clock
 
 The Pi has fixed 1.8 kOhm pull-ups on GPIO 2 and 3 (BOARD_SUPPORT.md, section "Pins"; buses.md). The board adds none. R1 and R2 are footprints only, not fitted.
 
-Arithmetic: with 1.8 kOhm to 3.3 V, a low line sinks 3.3 V / 1.8 kOhm = 1.83 mA. The I2C standard-mode limit is 3 mA per device (known). Adding 4.7 kOhm in parallel gives 1.30 kOhm and 2.54 mA, closer to the limit for no gain on a short bus. That is why R1 and R2 stay empty. buses.md also says: "Do not add pull-ups to 5 V." Every chip on this bus runs from `3V3`.
+Arithmetic: with 1.8 kOhm to 3.3 V, a low line sinks 3.3 V / 1.8 kOhm = 1.83 mA. The I2C standard-mode limit is 3 mA per device (known). Adding 4.7 kOhm in parallel gives 1.30 kOhm and 2.54 mA, closer to the limit for no gain on a short bus. That is why R1 and R2 stay empty. buses.md also says: "Do not add pull-ups to 5 V." Every chip on this bus runs from `+3V3`.
 
 | Ref | Part | Connection |
 |---|---|---|
-| R1, R2 | 4.7 kOhm, not fitted | `SDA` and `SCL` to `3V3` |
+| R1, R2 | 4.7 kOhm, not fitted | `I2C_SDA` and `I2C_SCL` to `+3V3` |
 | U1 | PCA9554, SOIC-16 | Expander 0, outputs |
 | U2 | PCA9554, SOIC-16 | Expander 1, inputs |
 | C5, C6 | 100 nF | U1 VDD and U2 VDD to `GND`, within 3 mm of the pin |
 | JP2 to JP7 | 3-pad solder jumpers | Address pins, see below |
-| R3 | 10 kOhm | `XINT` to `3V3` |
+| R3 | 10 kOhm | `XINT` to `+3V3` |
 | J9 | 2-pin header | Pin 1 `XINT`, pin 2 `GND`. Not tied to a Pi pin. |
-| TP4, TP5 | Test points | `SDA`, `SCL` |
+| TP4, TP5 | Test points | `I2C_SDA`, `I2C_SCL` |
 
 PCA9554 SOIC-16 pins (typical, check the data sheet): 1 A0, 2 A1, 3 A2, 4 to 7 P0 to P3, 8 VSS, 9 to 12 P4 to P7, 13 INT, 14 SCL, 15 SDA, 16 VDD.
 
-U1 and U2: VDD to `3V3`, VSS to `GND`, SDA to `SDA`, SCL to `SCL`, INT to `XINT`. INT is open-drain (typical, check), so both share R3.
+U1 and U2: VDD to `+3V3`, VSS to `GND`, SDA to `I2C_SDA`, SCL to `I2C_SCL`, INT to `XINT`. INT is open-drain (typical, check), so both share R3.
 
-Address: the PCA9554 address is `0100 A2 A1 A0` (typical, check), so `0x20` to `0x27`. Each address pin goes to the middle pad of a 3-pad jumper. One side pad is `GND`, the other `3V3`. Default traces, cut to change:
+Address: the PCA9554 address is `0100 A2 A1 A0` (typical, check), so `0x20` to `0x27`. Each address pin goes to the middle pad of a 3-pad jumper. One side pad is `GND`, the other `+3V3`. Default traces, cut to change:
 
 | Chip | A2 | A1 | A0 | Address |
 |---|---|---|---|---|
@@ -195,10 +203,13 @@ Clock:
 | Y1 | 32.768 kHz crystal, 6 pF load, cylindrical through-hole | U3 pins 1 and 2 |
 | BT1 | CR2032 holder, through-hole | Plus to `VBAT`, minus to `GND` |
 | C7 | 100 nF | U3 VCC to `GND` |
-| R4 | 10 kOhm, not fitted | `SQW` to `3V3` |
+| R4 | 10 kOhm, not fitted | `SQW` to `+3V3` |
 | TP8 | Test point | `SQW` |
+| JP12 | 2-pad solder jumper, open | `VBAT` to `GND` when closed. Close only with no cell in BT1. |
 
-DS1338 SOIC-8 pins (typical, check; same as the DS1307): 1 X1, 2 X2, 3 VBAT, 4 GND, 5 SDA, 6 SCL, 7 SQW/OUT, 8 VCC. Connect VCC to `3V3`, SDA and SCL to the bus, VBAT to BT1.
+DS1338 SOIC-8 pins (typical, check; same as the DS1307): 1 X1, 2 X2, 3 VBAT, 4 GND, 5 SDA, 6 SCL, 7 SQW/OUT, 8 VCC. Connect VCC to `+3V3`, SDA and SCL to the bus, VBAT to BT1.
+
+VBAT must not float. The DS1307 family asks for VBAT grounded when no battery is used (typical, check: from memory, to verify for the DS1338). Fit the cell before the first power-up. Without a cell, close JP12, a 2-pad solder jumper from `VBAT` to `GND`, open by default. A closed JP12 shorts a fitted cell: open it before you fit one.
 
 Why the DS1338: `include/robco/rtc.h` and buses.md, section `rtc.h`, read a DS1307, DS1338 or DS3231 at `0x68`. The DS1338 reports as `chip=0`, the DS1307 code path. The DS1307 needs 5 V, and buses.md says to use "a DS1338 with a 3.3 V supply". Buy the 3.3 V grade. The DS1338 exists in a 3.0 V and a 3.3 V grade (typical, check the suffix).
 
@@ -209,16 +220,18 @@ Crystal: the DS1338 expects a 6 pF load crystal with no external load capacitors
 | Ref | Part | Connection |
 |---|---|---|
 | U4 | ULN2803A, DIP-18 | Inputs from U1, outputs to J3 |
-| RN1 | 10 kOhm x 8 bussed network, SIP-9 | Pin 1 common to `GND`, pins 2 to 9 to `DRV0` to `DRV7` |
+| RN1 | 10 kOhm x 8 bussed network, SIP-9 | Pin 1 common to `GND`, pins 2 to 9 to `X0.0` to `X0.7` |
 | R10 to R17 | LED resistor, value from the table below | `V_SW` to the anode of LED0 to LED7 |
 | LED0 to LED7 | 3 mm red LED, through-hole | Cathode to `OUT0` to `OUT7` |
 | C8 | 100 nF | U4 pin 10 `COM` to `GND` |
-| C9 | 100 uF, 35 V electrolytic | `V_SW` to `GND`, near J3 |
+| C9 | 100 uF, 50 V electrolytic, 8 mm diameter | `V_SW` to `GND`, near J3 |
 | J3 | 10-way screw terminal, 3.5 mm pitch | `OUT0` to `OUT7`, then `V_SW`, `V_SW` |
 
-Nets: U1 P0 to P7 drive `DRV0` to `DRV7`. `DRVn` goes to U4 input pin n+1. U4 pin 9 to `GND`. U4 pin 10 `COM` to `V_SW`. U4 output pin 18-n is `OUTn` (ULN2803A pin 18 is output 1, known). `OUTn` goes to J3 position n+1.
+Nets: U1 P0 to P7 drive `X0.0` to `X0.7`. `X0.n` goes to U4 input pin n+1. U4 pin 9 to `GND`. U4 pin 10 `COM` to `V_SW`. U4 output pin 18-n is `OUTn` (ULN2803A pin 18 is output 1, known). `OUTn` goes to J3 position n+1.
 
 A load connects between a `V_SW` terminal and its `OUTn` terminal. The ULN2803A pulls `OUTn` to ground to turn the load on. The internal diode from each output to `COM` clamps the coil's flyback (known). Wire `COM` to the same rail as the loads, or the diodes do nothing.
+
+Loads take their supply from `V_SW`. A load on its own supply, higher than `V_SW`, feeds `V_SW` through the `COM` diodes of U4 and the body diode of Q1. That defeats the arm switch and also powers `+V_S`.
 
 Silkscreen on J3: `X0.0` to `X0.7`, then `+V`, `+V`. Beside each LED: `X0.n`.
 
@@ -239,7 +252,7 @@ Package heat: 8 channels at 200 mA dissipate 8 x 0.2 A x 1.1 V = 1.76 W. That ex
 
 Two channels can share one load to double the current (known for Darlington arrays). Drive both from the software at the same time. A typical 12 V door strike draws 250 to 500 mA (assumed). Drive door strikes through an external relay, or through two paralleled channels if the strike draws 400 mA or less.
 
-Input pull-down, RN1: at reset the expander pin is an input with a weak pull-up of about 100 kOhm to 3.3 V (typical, check). RN1 pulls `DRVn` down with 10 kOhm. The divider gives 3.3 V x 10 / (100 + 10) = 0.30 V. The ULN2803A first transistor needs about 0.6 V across its internal base-emitter resistor plus the second stage, about 1.4 V at the input pin, to conduct (typical, check). 0.30 V is well below. The load stays off.
+Input pull-down, RN1: at reset the expander pin is an input with a weak pull-up of about 100 kOhm to 3.3 V (typical, check). RN1 pulls `X0.n` down with 10 kOhm. The divider gives 3.3 V x 10 / (100 + 10) = 0.30 V. The ULN2803A first transistor needs about 0.6 V across its internal base-emitter resistor plus the second stage, about 1.4 V at the input pin, to conduct (typical, check). 0.30 V is well below. The load stays off.
 
 When the expander drives high, RN1 takes 3.3 V / 10 kOhm = 0.33 mA. The ULN2803A input takes about (3.3 V - 1.4 V) / 2.7 kOhm = 0.7 mA through its internal 2.7 kOhm (typical, check). The expander sources about 1 mA per pin, inside its rating (typical, check).
 
@@ -259,32 +272,47 @@ This stage cuts every load whenever the Pi is not running the software. See [the
 
 | Ref | Part | Connection |
 |---|---|---|
-| Q1 | P-channel MOSFET, 40 V or more, Vgs max 20 V, Rds(on) 0.1 Ohm or less specified at Vgs = -4.5 V, TO-220 | Source `V_PROT`, drain `V_SW`, gate `ARM_G` |
-| R20 | 10 kOhm | `V_PROT` to `ARM_G` |
+| Q1 | P-channel MOSFET, 60 V or more, gate threshold 2.5 V or less in magnitude, Vgs max 20 V, Rds(on) 0.1 Ohm or less specified at Vgs = -4.5 V or a lower drive, TO-220 | Source `V_PROT`, drain `V_SW`, gate `ARM_G` |
+| R20 | 100 kOhm | `V_PROT` to `ARM_G` |
 | D3 | 12 V zener, 500 mW, DO-35 | Cathode `V_PROT`, anode `ARM_G` |
 | R21 | 1 kOhm | `ARM_G` to Q2 collector |
-| Q2 | NPN, 2N3904, TO-92 | Emitter `GND`, base via R22 |
-| R22 | 4.7 kOhm | GPIO 25 (header pin 22) to Q2 base |
+| Q2 | NPN, 2N5551, 160 V, TO-92 | Emitter `GND`, base via R22 |
+| R22 | 4.7 kOhm | `ARM`, GPIO 25 on header pin 22, to the Q2 base |
 | R23 | 100 kOhm | Q2 base to `GND` |
-| D4 | Schottky 3 A, 40 V, DO-201 | Anode `GND`, cathode `V_SW` |
+| D4 | Schottky 3 A, 60 V, SB360 class, DO-201AD | Anode `GND`, cathode `V_SW` |
+| C13 | 47 nF ceramic, 50 V, not fitted | Q1 gate `ARM_G` to drain `V_SW` |
 | LED8 | 3 mm green LED | Anode via R24 from `V_SW`, cathode `GND` |
 | R24 | Same value as R10 for the supply | |
 | JP8 | 2-pin header, no shunt fitted | Shorts Q1 source to drain. Silkscreen "ARM BYPASS, TEST ONLY". |
 | TP7 | Test point | `V_SW` |
 
-Operation: GPIO 25 high turns Q2 on. Q2 pulls `ARM_G` down through R21. Q1 turns on and `V_SW` follows `V_PROT`. GPIO 25 low or floating leaves Q2 off. R20 holds Q1's gate at its source. `V_SW` is dead.
+Operation: `ARM` (GPIO 25) high turns Q2 on. Q2 pulls `ARM_G` down through R21. Q1 turns on and `V_SW` follows `V_PROT`. GPIO 25 low or floating leaves Q2 off. R20 holds Q1's gate at its source. `V_SW` is dead.
 
-Gate voltage with Q2 on, R20 and R21 as a divider:
+Gate voltage with Q2 on. R20 and R21 form a divider across `V_PROT` minus Q2's saturation voltage: Vgs = -(`V_PROT` - 0.2 V) x 100 / 101. `V_PROT` is the supply minus D1's drop. Q2 saturates at 0.2 V or less. The 2N5551 has a saturation voltage of 0.15 V at most at 10 mA with 1 mA of base current (from memory, to verify). Q2 runs with less base drive, so take 0.2 V. D3 clamps the result at -12 V.
 
-| `V_PROT` | Divider Vgs | After D3 clamp |
-|---|---|---|
-| 5 V | -5 x 10 / 11 = -4.5 V | -4.5 V |
-| 12 V | -10.9 V | -10.9 V |
-| 24 V | -21.8 V | -12 V |
+| Supply | D1 drop | `V_PROT` | Divider Vgs | After D3 clamp |
+|---|---|---|---|---|
+| 5 V, lowest 4.75 V, 0.5 A load | 0.5 V | 4.25 V | -(4.25 - 0.2) x 100 / 101 = -4.0 V | -4.0 V |
+| Pi 5 V through JP1, lowest 4.75 V (assumed), 0.3 A load | 0.45 V | 4.30 V | -(4.30 - 0.2) x 100 / 101 = -4.1 V | -4.1 V |
+| 12 V, lowest 11.4 V, 0.9 A load | 0.55 V | 10.85 V | -(10.85 - 0.2) x 100 / 101 = -10.5 V | -10.5 V |
+| 24 V, light load | 0.35 V | 23.65 V | -23.2 V | -12 V |
+| 25.2 V, highest, light load | 0.35 V | 24.85 V | -24.4 V | -12 V, -12.6 V at the zener's +5 % |
 
-The zener keeps Vgs below the 20 V limit at 24 V. Zener current at 24 V: (24 - 12) / 1 kOhm = 12 mA, minus 1.2 mA in R20. Zener power 12 V x 10.8 mA = 130 mW, inside 500 mW. Q2 collector current is 12 mA. Base current (3.3 - 0.7) / 4.7 kOhm = 0.55 mA. A 2N3904 has hFE 100 or more at 10 mA (typical, check), so it saturates with a margin of 4.
+The zener keeps Vgs below the 20 V limit. Worst case at 25.2 V, taken without D1's drop: R21 carries (25.2 - 12 - 0.2) / 1 kOhm = 13 mA. R20 takes 12 V / 100 kOhm = 0.12 mA. D3 carries 12.9 mA and dissipates 12 V x 12.9 mA = 155 mW, inside 500 mW. R21 dissipates 13 V x 13 mA = 169 mW, inside 1/4 W. Q2 collector current is 13 mA. Base current (3.3 - 0.7) / 4.7 kOhm = 0.55 mA. A 2N5551 has hFE 80 or more at 10 mA (from memory, to verify), so it saturates with a margin of 0.55 x 80 / 13 = 3.4. With a weak GPIO high of 3.0 V the base gets (3.0 - 0.7) / 4.7 kOhm = 0.49 mA. R23 takes 0.7 V / 100 kOhm = 0.007 mA. The margin is still 0.48 x 80 / 13 = 3.0. R22 and R23 stay as they are.
 
-At 5 V the gate sees only -4.5 V. Pick Q1 with Rds(on) specified at -4.5 V. Q1 loss at 0.9 A and 0.1 Ohm: 0.9 x 0.9 x 0.1 = 81 mW. No heat sink.
+ARM floating or low: R23 holds Q2 off. R20 ties the gate to the source. Leakage of Q2 and of Q1's gate, 1 uA at most together (assumed), drops 1 uA x 100 kOhm = 0.1 V across R20. That is far below any gate threshold. Q1 stays off.
+
+Turn-off: R20 alone discharges the gate. Take a gate charge of 60 nC at 12 V (assumed, check the part), about 5 nF in effect. The time constant is 100 kOhm x 5 nF = 0.5 ms. Q1 is off within about 2 ms. A Pi reset lasts far longer.
+
+Gate drive at a 5 V supply: Vgs is about -4.0 V, below the -4.5 V at which Q1's Rds(on) is specified. So Rds(on) is not guaranteed at 5 V. Worst case: with a threshold of 2.5 V at most, the gate has 4.0 - 2.5 = 1.5 V of overdrive against 2.0 V at -4.5 V. Rds(on) rises roughly as the inverse of the overdrive, to 0.1 Ohm x 2.0 / 1.5 = 0.13 Ohm. Design on 0.2 Ohm at -4.0 V (assumed, twice the specified value). The board then supports **0.5 A on `V_SW` at a 5 V supply**: Q1 drops 0.5 A x 0.2 Ohm = 0.1 V and dissipates 0.5 x 0.5 x 0.2 = 50 mW. From the Pi 5 V through JP1 the load stays at 300 mA or less, see [section 4.1](#41-power). BRINGUP.md measures the drop across Q1.
+
+At 12 V and 24 V the gate sees -10.5 V or more. Q1 loss at 0.9 A and 0.1 Ohm: 0.9 x 0.9 x 0.1 = 81 mW. No heat sink.
+
+Example part, from memory, to verify: Vishay SQP50P06-15L, a logic-level 60 V P-channel MOSFET in TO-220. Check its threshold, its Rds(on) at -4.5 V and its pin order before you buy.
+
+Arming inrush: when Q1 turns on, C9 charges through F1 and D1. With JP1 on the Pi 5 V this can dip the Pi's rail. C13, from gate to drain, not fitted, slows the turn-on. During turn-on the gate sits near its plateau, about 3.5 V below the source (assumed), and R21 carries (5 - 3.5 - 0.2) / 1 kOhm = 1.3 mA at 5 V. With 47 nF the drain rises at 1.3 mA / 47 nF = 28 V/ms, so C9 charges at 100 uF x 28 V/ms = 2.8 A for about 0.18 ms. With 10 nF the rate is 130 V/ms and the current about 13 A, which helps little. Fit 10 nF to 47 nF only if bring-up shows a dip. At 24 V the gate current is about 20 mA and C13 slows the turn-on much less.
+
+C13 against turn-off, 47 nF fitted, worst case at 24 V: the gate first moves from -12 V to the plateau through R20 with C13 added, 100 kOhm x 52 nF x ln(12 / 3.5) = 6.4 ms. Then R20 carries 3.5 V / 100 kOhm = 35 uA while the drain falls 24 V: 47 nF x 24 V / 35 uA = 32 ms. Q1 is off within about 40 ms. With 10 nF the same sum gives about 9 ms. Both are short against a Pi reboot. During the 32 ms Q1 is in its linear region: at 0.9 A and 24 V it takes about 0.5 x 24 V x 0.9 A x 32 ms = 0.35 J. Check Q1's safe operating area for that pulse.
 
 D4: when Q1 opens with coils energised, the coil current needs a path. The ULN2803A still conducts, so the current flows coil, output, ground, D4, back to `V_SW`. Without D4, `V_SW` would swing far below ground.
 
@@ -306,14 +334,14 @@ The board designs for GPIO 18, the header-only boards. A Pi with a jack feeds th
 
 | Ref | Part | Connection |
 |---|---|---|
-| R30 | 270 Ohm | Header pin 12, GPIO 18, to `AUD_F` |
+| R30 | 270 Ohm | `AUDIO_PWM`, header pin 12, GPIO 18, to `AUD_F` |
 | C30 | 33 nF film or C0G | `AUD_F` to `GND` |
 | J10 | 3.5 mm stereo jack, through-hole | Tip and ring through R31 and R32 to `AUD_J`, sleeve `GND` |
 | R31, R32 | 1 kOhm | Mix left and right into mono |
 | JP9 | 3-pin header with shunt | Pin 1 `AUD_F`, pin 2 `AUD_SEL`, pin 3 `AUD_J`. Silkscreen "GPIO18 / JACK". |
 | C31 | 10 uF, 16 V electrolytic or film | `AUD_SEL` to `AUD_DC`, DC block |
 | RV1 | 10 kOhm trimmer, log taper if available, through-hole | Ends `AUD_DC` and `GND`, wiper `AUD_IN` |
-| M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected or high, outputs to J8 |
+| M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected (the module pulls it high, typical, check the module), outputs to J8 |
 | C32 | 100 nF | M1 Vin to `GND` |
 | J8 | 2-way screw terminal | Speaker + and -. Silkscreen "SPK 4-8 Ohm. Do not ground either side." |
 
@@ -323,11 +351,11 @@ The PAM8302A drives the speaker in bridge mode (typical, check). Neither speaker
 
 Package: the PAM8302A chip comes in a small surface-mount package that is hard to hand-solder (typical, check: MSOP-8 or DFN). Use the breakout module. Take the module's pin order and hole spacing from the module you buy. A through-hole fallback is the LM386 in DIP-8. It is class AB, gives less power, and needs its own gain and output parts. This document does not design that fallback.
 
-Power: at 8 Ohm and 1 W the amplifier draws about 1 W / 5 V / 0.85 efficiency = 0.24 A from `5V` (typical efficiency, check). Budget it in the Pi supply.
+Power: at 8 Ohm and 1 W the amplifier draws about 1 W / 5 V / 0.85 efficiency = 0.24 A from `+5V` (typical efficiency, check). Budget it in the Pi supply.
 
-### 4.6 Buttons and dial
+### 4.6 Buttons
 
-Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its pin to ground and uses the internal pull-up." `input_gpio_add_button()` takes a `GPIO_PULL_*` code, and the example passes `GPIO_PULL_UP`. `input_gpio_add_dial()` sets pull-ups on both dial pins.
+Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its pin to ground and uses the internal pull-up." `input_gpio_add_button()` takes a `GPIO_PULL_*` code, and the example passes `GPIO_PULL_UP`.
 
 | J5 pin | Net | Pi pin | Header pin |
 |---|---|---|---|
@@ -338,22 +366,21 @@ Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its 
 | 5 | RIGHT | GPIO 22 | 15 |
 | 6 | SELECT | GPIO 26 | 37 |
 | 7 | BACK | GPIO 27 | 13 |
-| 8 | DIAL_A | GPIO 23 | 16 |
-| 9 | DIAL_B | GPIO 24 | 18 |
-| 10 | DIAL_PUSH | GPIO 16 | 36 |
-| 11 | GND | | |
-| 12 | 3V3 | | |
+| 8 | GND | | |
+| 9 | 3V3 | | |
 
 | Ref | Part | Connection |
 |---|---|---|
-| J5 | 1x12 pin header, 2.54 mm | As above |
-| R40 to R48 | 1 kOhm | In series between each Pi pin and its J5 pin |
-| R50 to R58 | 10 kOhm, not fitted | Each J5 signal pin to `3V3` |
-| R59 | 100 Ohm | `3V3` to J5 pin 12 |
+| J5 | 1x9 pin header, 2.54 mm | As above |
+| R40 to R45 | 1 kOhm | In series between each Pi pin and its J5 pin: R40 UP, R41 DOWN, R42 LEFT, R43 RIGHT, R44 SELECT, R45 BACK |
+| R50 to R55 | 10 kOhm, not fitted | Each J5 signal pin to `+3V3`, in the same order |
+| R59 | 100 Ohm | `+3V3` to J5 pin 9 |
 
-R40 to R48 limit current if a cable fault puts a pin on a rail: 3.3 V / 1 kOhm = 3.3 mA. They also form a small filter with cable capacitance. With the internal pull-up of about 50 kOhm (typical, check), a pressed button reads 3.3 V x 1 / (50 + 1) = 0.065 V. That is a clean low.
+R46 to R48 and R56 to R58 are retired. They served the dial. The designators stay unused.
 
-R50 to R58 are for the BCM2711, where input.md says `gpio_set_pull()` fails. The BCM2711 is not supported (BOARD_SUPPORT.md, section "Supported boards"), so they stay empty. J5 pin 12 feeds an optional LED on the panel and nothing else. R59 limits a short on that pin to 3.3 V / 100 Ohm = 33 mA and 33 mA x 3.3 V = 0.11 W, inside the 1/4 W rating. A panel LED of 2.0 V (typical, check) gets (3.3 - 2.0) / 100 = 13 mA. Add a resistor on the panel for less.
+R40 to R45 limit current if a cable fault puts a pin on a rail: 3.3 V / 1 kOhm = 3.3 mA. They also form a small filter with cable capacitance. With the internal pull-up of about 50 kOhm (typical, check), a pressed button reads 3.3 V x 1 / (50 + 1) = 0.065 V. That is a clean low.
+
+R50 to R55 are for the BCM2711, where input.md says `gpio_set_pull()` fails. The BCM2711 is not supported (BOARD_SUPPORT.md, section "Supported boards"), so they stay empty. J5 pin 9 feeds an optional LED on the panel and nothing else. R59 limits a short on that pin to 3.3 V / 100 Ohm = 33 mA and 33 mA x 3.3 V = 0.11 W, inside the 1/4 W rating. A panel LED of 2.0 V (typical, check) gets (3.3 - 2.0) / 100 = 13 mA. Add a resistor on the panel for less.
 
 ### 4.7 Serial console
 
@@ -386,26 +413,26 @@ Door contacts and motion sensors in a prop often run on 12 V and sit on long cab
 | U5, U6 | LTV-847 quad optocoupler, DIP-16 | Channels 0 to 3 and 4 to 7 |
 | R60 to R67 | 2.2 kOhm or 1 kOhm by field voltage, 0.5 W | J4 `INn` to opto anode n |
 | D10 to D17 | 1N4148, DO-35 | Across each opto LED, anode at the opto cathode |
-| R70 to R77 | 47 kOhm | `XINn` to `3V3` |
+| R70 to R77 | 47 kOhm | `X1.n` to `+3V3` |
 | C10 | Retired, not on the board | Duplicated C6 on U2 VDD. The designator stays unused. |
-| C11 | 100 nF | `3V3` to `GND` at the R70 to R77 pull-ups |
-| C40 to C47 | 10 nF, not fitted | `XINn` to `GND`, optional filter |
+| C11 | 100 nF | `+3V3` to `GND` at the R70 to R77 pull-ups |
+| C40 to C47 | 10 nF, not fitted | `X1.n` to `GND`, optional filter |
 | JP10 | 2-pin header with shunt | `IN_COM` to `GND`. Silkscreen "COM-GND". |
-| F2 | Radial polyfuse, hold 200 mA or more, trip 400 mA or less, 30 V or more | `V_PROT` to `+V_S` |
+| F2 | Radial polyfuse, hold 200 mA or more, trip 400 mA or less, 60 V or more | `V_PROT` to `+V_S` |
 | R78 | Retired, not on the board | Was a 100 Ohm series resistor in place of F2. The designator stays unused. |
 | J4 | 10-way screw terminal, 3.5 mm pitch | `IN0` to `IN7`, `IN_COM`, `+V_S` |
 
-Nets: each opto cathode goes to `IN_COM`. Each opto collector goes to `XINn`, which is U2 pin Pn. Each opto emitter goes to `GND`. The LTV-847 pin order is anode and cathode pairs on pins 1 to 8, emitter and collector pairs on pins 9 to 16, in reverse order (typical, check).
+Nets: each opto cathode goes to `IN_COM`. Each opto collector goes to `X1.n`, which is U2 pin Pn. Each opto emitter goes to `GND`. The LTV-847 pin order is anode and cathode pairs on pins 1 to 8, emitter and collector pairs on pins 9 to 16, in reverse order (typical, check).
 
 Silkscreen on J4: `X1.0` to `X1.7`, `COM`, `+V`.
 
-A signal on `INn`, positive against `IN_COM`, lights the opto LED. The transistor pulls `XINn` low. So the expander reads **0 when the input is active**.
+A signal on `INn`, positive against `IN_COM`, lights the opto LED. The transistor pulls `X1.n` low. So the expander reads **0 when the input is active**.
 
 `+V_S` is `V_PROT` through F2. It powers sensors and dry contacts, and it stays live when the arm switch is off, so sensors work while outputs are disarmed.
 
 Sensor supply load, worst case at 24 V:
 
-- Eight inputs at their highest LED current. The supply is at most 24 V + 5 % = 25.2 V (assumed tolerance). D1 drops at least 0.3 V (typical, check). The LED drops at least 1.0 V (typical, check). Each input draws (25.2 - 0.3 - 1.0) / 2200 = 10.9 mA. Eight draw 87 mA.
+- Eight inputs at their highest LED current. The supply is at most 24 V + 5 % = 25.2 V (assumed tolerance). D1 drops at least 0.35 V (typical, check). The LED drops at least 1.0 V (typical, check). Each input draws (25.2 - 0.35 - 1.0) / 2200 = 10.8 mA. Eight draw 87 mA.
 - Powered sensors: 50 mA (assumed). A motion detector draws 10 to 25 mA (assumed, check the sensor). 50 mA covers two of them, or one with a small indicator lamp.
 - Total: 87 + 50 = 137 mA.
 
@@ -413,9 +440,9 @@ F2 requirements:
 
 - Hold at least 200 mA. A polyfuse holds less when warm, about 80 % at 50 C (typical, check the derating table). 137 mA / 0.8 = 171 mA, so 200 mA.
 - Trip at most 400 mA.
-- Rated at least 30 V. 60 V gives room above D2's clamp voltage.
+- Rated 60 V or more, above D2's clamp voltage. See [section 4.1](#41-power).
 - Resistance after a trip at most 8 Ohm, because the input stage counts its drop.
-- Part family: radial PPTC resettable fuse. Example, check: Bourns MF-R020 (200 mA hold, 400 mA trip, 60 V, typical, check).
+- Part family: radial PPTC resettable fuse. Example from memory, to verify: Bourns MF-R020 (200 mA hold, 400 mA trip, 60 V).
 
 What happens in a sustained short from `+V_S` to `IN_COM` with JP10 fitted:
 
@@ -436,21 +463,21 @@ Values to fit:
 | 12 V | 2.2 kOhm | 47 kOhm |
 | 24 V | 2.2 kOhm | 47 kOhm |
 
-Mark the fitted input resistor on the board. Never put 24 V on 1 kOhm inputs: (25.2 - 0.3 - 1.0) / 1000 = 23.9 mA, and 23.9 mA x 23.9 V = 0.57 W, above the 0.5 W rating.
+Mark the fitted input resistor on the board. Never put 24 V on 1 kOhm inputs: (25.2 - 0.35 - 1.0) / 1000 = 23.9 mA, and 23.9 mA x 23.9 V = 0.57 W, above the 0.5 W rating.
 
 Figures used in the worst case:
 
 | Figure | Value | Confidence |
 |---|---|---|
 | Supply tolerance | plus or minus 5 % | assumed |
-| D1 drop at under 0.2 A | 0.3 V to 0.45 V | typical, check |
+| D1 drop at under 0.2 A | 0.35 V to 0.5 V | typical, check |
 | F2 resistance after a trip | 8 Ohm at most | assumed, a requirement on F2 |
 | Sensor load sharing F2 | 50 mA | assumed |
 | LED forward voltage | 1.0 V to 1.4 V | typical, check |
 | LTV-847 minimum transfer ratio | 50 % at 5 mA LED current, 5 V collector voltage | typical, check |
 | Derating below 5 mA LED current | x 0.5 | assumed |
 | Derating for age and temperature | x 0.7 | assumed |
-| `3V3` highest | 3.3 V + 5 % = 3.47 V | assumed |
+| `+3V3` highest | 3.3 V + 5 % = 3.47 V | assumed |
 | Opto low level at these currents | 0.4 V at most | assumed. The data sheet gives about 0.2 V at 20 mA and 1 mA collector current (typical, check). |
 | PCA9554 internal pull-up | 100 kOhm, 50 kOhm at least | typical, check; the minimum is assumed |
 | PCA9554 input low threshold at 3.3 V | 0.3 x 3.3 = 0.99 V | typical, check |
@@ -460,35 +487,35 @@ Figures used in the worst case:
 
 Worst-case transfer ratio: 50 % x 0.7 = 35 % at 5 mA or more. 50 % x 0.5 x 0.7 = 17.5 % below 5 mA.
 
-Current the transistor must sink to hold `XINn` at 0.4 V: through R70 to R77, (3.47 - 0.4) / 47 kOhm = 0.065 mA. Through the internal pull-up, (3.47 - 0.4) / 50 kOhm = 0.061 mA. Total 0.13 mA.
+Current the transistor must sink to hold `X1.n` at 0.4 V: through R70 to R77, (3.47 - 0.4) / 47 kOhm = 0.065 mA. Through the internal pull-up, (3.47 - 0.4) / 50 kOhm = 0.061 mA. Total 0.13 mA.
 
-Lowest `+V_S`: supply at -5 %, minus 0.45 V in D1, minus the drop in F2. The drop is (50 mA + n x LED current) x 8 Ohm, with n the number of active inputs. LED current: (`+V_S` - 1.4 V) / R60.
+Lowest `+V_S`: supply at -5 %, minus 0.5 V in D1, minus the drop in F2. The drop is (50 mA + n x LED current) x 8 Ohm, with n the number of active inputs. LED current: (`+V_S` - 1.4 V) / R60.
 
 | Field voltage | Active | Lowest `+V_S` | LED current | Collector current | Margin over 0.13 mA |
 |---|---|---|---|---|---|
-| 5 V, 1 kOhm | 1 | 4.75 - 0.45 - 52.5 mA x 8 Ohm = 3.88 V | (3.88 - 1.4) / 1000 = 2.48 mA | 2.48 x 0.175 = 0.43 mA | 3.4 |
-| 5 V, 1 kOhm | 8 | 4.75 - 0.45 - 68.8 mA x 8 Ohm = 3.75 V | (3.75 - 1.4) / 1000 = 2.35 mA | 2.35 x 0.175 = 0.41 mA | 3.2 |
-| 12 V, 2.2 kOhm | 1 | 11.4 - 0.45 - 54.1 mA x 8 Ohm = 10.52 V | (10.52 - 1.4) / 2200 = 4.14 mA | 4.14 x 0.175 = 0.72 mA | 5.7 |
-| 12 V, 2.2 kOhm | 8 | 11.4 - 0.45 - 82.3 mA x 8 Ohm = 10.29 V | (10.29 - 1.4) / 2200 = 4.04 mA | 4.04 x 0.175 = 0.71 mA | 5.6 |
-| 24 V, 2.2 kOhm | 1 | 22.8 - 0.45 - 59.3 mA x 8 Ohm = 21.88 V | (21.88 - 1.4) / 2200 = 9.31 mA | 9.31 x 0.35 = 3.26 mA | 25 |
-| 24 V, 2.2 kOhm | 8 | 22.8 - 0.45 - 122.6 mA x 8 Ohm = 21.37 V | (21.37 - 1.4) / 2200 = 9.08 mA | 9.08 x 0.35 = 3.18 mA | 25 |
+| 5 V, 1 kOhm | 1 | 4.75 - 0.5 - 52.4 mA x 8 Ohm = 3.83 V | (3.83 - 1.4) / 1000 = 2.43 mA | 2.43 x 0.175 = 0.43 mA | 3.3 |
+| 5 V, 1 kOhm | 8 | 4.75 - 0.5 - 68.4 mA x 8 Ohm = 3.70 V | (3.70 - 1.4) / 1000 = 2.30 mA | 2.30 x 0.175 = 0.40 mA | 3.1 |
+| 12 V, 2.2 kOhm | 1 | 11.4 - 0.5 - 54.1 mA x 8 Ohm = 10.47 V | (10.47 - 1.4) / 2200 = 4.12 mA | 4.12 x 0.175 = 0.72 mA | 5.5 |
+| 12 V, 2.2 kOhm | 8 | 11.4 - 0.5 - 82.2 mA x 8 Ohm = 10.24 V | (10.24 - 1.4) / 2200 = 4.02 mA | 4.02 x 0.175 = 0.70 mA | 5.4 |
+| 24 V, 2.2 kOhm | 1 | 22.8 - 0.5 - 59.3 mA x 8 Ohm = 21.83 V | (21.83 - 1.4) / 2200 = 9.28 mA | 9.28 x 0.35 = 3.25 mA | 25 |
+| 24 V, 2.2 kOhm | 8 | 22.8 - 0.5 - 122.4 mA x 8 Ohm = 21.32 V | (21.32 - 1.4) / 2200 = 9.05 mA | 9.05 x 0.35 = 3.17 mA | 24 |
 
-The margin is at least 3.2 at every voltage with all eight inputs active. The 2.2 kOhm parts at 5 V, with `+V_S` at its lowest of 3.82 V, would give (3.82 - 1.4) / 2200 = 1.1 mA and 1.1 x 0.175 = 0.19 mA, a margin of 1.5. That is why 5 V takes 1 kOhm.
+The margin is at least 3.1 at every voltage with all eight inputs active. The 2.2 kOhm parts at 5 V, with `+V_S` at its lowest of 3.78 V, would give (3.78 - 1.4) / 2200 = 1.1 mA and 1.1 x 0.175 = 0.19 mA, a margin of 1.5. That is why 5 V takes 1 kOhm.
 
-Input resistor dissipation at the highest voltage. The supply is at +5 %, D1 drops 0.3 V and the LED 1.0 V:
+Input resistor dissipation at the highest voltage. The supply is at +5 %, D1 drops 0.35 V and the LED 1.0 V:
 
 | Field voltage | R60 to R67 | Highest current | Power |
 |---|---|---|---|
-| 5 V | 1 kOhm | (5.25 - 0.3 - 1.0) / 1000 = 3.95 mA | 3.95 mA x 3.95 V = 16 mW |
-| 12 V | 2.2 kOhm | (12.6 - 0.3 - 1.0) / 2200 = 5.1 mA | 5.1 mA x 11.3 V = 58 mW |
-| 24 V | 2.2 kOhm | (25.2 - 0.3 - 1.0) / 2200 = 10.9 mA | 10.9 mA x 23.9 V = 0.26 W |
+| 5 V | 1 kOhm | (5.25 - 0.35 - 1.0) / 1000 = 3.90 mA | 3.90 mA x 3.90 V = 15 mW |
+| 12 V | 2.2 kOhm | (12.6 - 0.35 - 1.0) / 2200 = 5.1 mA | 5.1 mA x 11.25 V = 58 mW |
+| 24 V | 2.2 kOhm | (25.2 - 0.35 - 1.0) / 2200 = 10.8 mA | 10.8 mA x 23.85 V = 0.26 W |
 
-At 24 V each resistor dissipates 0.26 W. That is why R60 to R67 are 0.5 W parts. 10.9 mA is well below the LED's 50 mA rating (typical, check).
+At 24 V each resistor dissipates 0.26 W. That is why R60 to R67 are 0.5 W parts. 10.8 mA is well below the LED's 50 mA rating (typical, check).
 
 Expander side:
 
-- Low level: the transistor holds `XINn` at 0.4 V or less (assumed). The input low threshold is 0.99 V. The margin is 0.59 V.
-- High level: leakage of 1 uA plus 0.1 uA dark current in 47 kOhm drops 1.1 uA x 47 kOhm = 0.05 V. With `3V3` at 3.3 V - 5 % = 3.14 V, `XINn` sits at 3.09 V or more. The internal pull-up only raises it. The input high threshold is 2.31 V. The margin is 0.78 V.
+- Low level: the transistor holds `X1.n` at 0.4 V or less (assumed). The input low threshold is 0.99 V. The margin is 0.59 V.
+- High level: leakage of 1 uA plus 0.1 uA dark current in 47 kOhm drops 1.1 uA x 47 kOhm = 0.05 V. With `+3V3` at 3.3 V - 5 % = 3.14 V, `X1.n` sits at 3.09 V or more. The internal pull-up only raises it. The input high threshold is 2.31 V. The margin is 0.78 V.
 - Noise: 47 kOhm in parallel with the internal pull-up is about 24 kOhm. The trace from the opto to U2 is short and on the board. If a long field cable couples noise across the opto, fit C40 to C47. 24 kOhm x 10 nF = 0.24 ms, still fast for a door contact.
 
 Reverse voltage: the opto LED stands about 6 V reverse (typical, check). D10 to D17 clamp a reversed input to about 0.7 V.
@@ -497,7 +524,7 @@ Leave JP10 fitted when the sensors use `+V_S`. Remove it when the sensors have t
 
 ### 4.9 Free-pin header
 
-J7, 2x6 pin header, 2.54 mm. Each signal sits beside a ground.
+J7, 2x9 pin header, 2.54 mm. Each signal sits beside a ground.
 
 | J7 pin | Net | J7 pin | Net |
 |---|---|---|---|
@@ -507,19 +534,23 @@ J7, 2x6 pin header, 2.54 mm. Each signal sits beside a ground.
 | 7 | GPIO 19 | 8 | GND |
 | 9 | GPIO 20 | 10 | GND |
 | 11 | GPIO 21 | 12 | GND |
+| 13 | GPIO 16 | 14 | GND |
+| 15 | GPIO 23 | 16 | GND |
+| 17 | GPIO 24 | 18 | GND |
 
 No resistors. Silkscreen: **"3.3 V LOGIC, NO LOAD"**. These pins feed a relay module input or a logic input, never a coil or a lamp.
 
-GPIO 4 defaults to a pull-up at reset (typical, check: BCM2835 GPIO 0 to 8). A relay module with an active-high input on GPIO 4 can switch on during boot, before UOS configures the pin. Use GPIO 4 for active-low modules or for inputs.
+GPIO 16, 23 and 24 default to a pull-down at reset (typical, check: BCM2835 GPIO 9 to 27). GPIO 4 defaults to a pull-up at reset (typical, check: BCM2835 GPIO 0 to 8). A relay module with an active-high input on GPIO 4 can switch on during boot, before UOS configures the pin. Use GPIO 4 for active-low modules or for inputs.
 
 ### 4.10 HAT ID EEPROM
 
 | Ref | Part | Connection |
 |---|---|---|
-| U7 | 24C32 class I2C EEPROM, SOIC-8, not fitted | SDA to ID_SD, header pin 27. SCL to ID_SC, header pin 28. A0 to A2 to `GND`. VCC `3V3`. |
+| U7 | 24C32 class I2C EEPROM, SOIC-8, not fitted | SDA to ID_SD, header pin 27. SCL to ID_SC, header pin 28. A0 to A2 to `GND`. VCC `+3V3`. |
 | C12 | 100 nF, not fitted | U7 VCC to `GND` |
-| R80, R81 | Pull-ups, not fitted | ID_SD and ID_SC to `3V3`. Take the value from the HAT specification. |
-| JP11 | 2-pad solder jumper, open | WP to `GND` when closed. Open keeps the chip write-protected through a pull-up, check the part. |
+| R80, R81 | 3.9 kOhm, not fitted | ID_SD and ID_SC to `+3V3`. Value from the Raspberry Pi HAT design guide (from memory, to verify). |
+| R82 | 1 kOhm, not fitted | U7 WP to `+3V3`. Value from the HAT design guide (from memory, to verify). |
+| JP11 | 2-pad solder jumper, open | WP to `GND` when closed, so writes are allowed. Open, R82 pulls WP high and the chip stays write-protected. |
 
 The software does not use this EEPROM. BOARD_SUPPORT.md, section "Pins", notes GPIO 0 and 1 as the ID EEPROM pins and the input example avoids them.
 
@@ -527,11 +558,11 @@ The software does not use this EEPROM. BOARD_SUPPORT.md, section "Pins", notes G
 
 | Ref | Net |
 |---|---|
-| TP1 | `3V3` |
-| TP2 | `5V` |
+| TP1 | `+3V3` |
+| TP2 | `+5V` |
 | TP3 | `GND`, a loop for a probe clip |
-| TP4 | `SDA` |
-| TP5 | `SCL` |
+| TP4 | `I2C_SDA` |
+| TP5 | `I2C_SCL` |
 | TP6 | `V_PROT` |
 | TP7 | `V_SW` |
 | TP8 | `SQW` |
@@ -546,8 +577,8 @@ PCA9554 register defaults (typical, check): input port read-only; output port `0
 
 | Step | State | Load |
 |---|---|---|
-| 1. Supply on, Pi off | `3V3` absent. U1 unpowered. `DRVn` at 0 V through RN1. GPIO 25 unpowered, R23 holds Q2 off, Q1 off, `V_SW` dead. | Off, twice over |
-| 2. Pi powers up, firmware runs | U1 powers on with every pin an input. The 100 kOhm pull-up against 10 kOhm gives 0.30 V on `DRVn`. GPIO 25 is an input with a pull-down. Q1 off. | Off, twice over |
+| 1. Supply on, Pi off | `+3V3` absent. U1 unpowered. `X0.n` at 0 V through RN1. GPIO 25 unpowered, R23 holds Q2 off, Q1 off, `V_SW` dead. | Off, twice over |
+| 2. Pi powers up, firmware runs | U1 powers on with every pin an input. The 100 kOhm pull-up against 10 kOhm gives 0.30 V on `X0.n`. GPIO 25 is an input with a pull-down. Q1 off. | Off, twice over |
 | 3. RobCo-Core starts, before UOS devices | No code touches U1 or GPIO 25. The library muxes only the pins a driver asks for (BOARD_SUPPORT.md, section "Pins": "It never touches a pin you do not use."). | Off |
 | 4. Expander driver starts | It must write the output register to `0x00` first, then the configuration register to `0x00`. If it wrote configuration first, every pin would drive the default `0xFF` and turn every ULN2803A channel on. The arm switch is still off, so no load moves even then. | Off |
 | 5. UOS boot operations | `dv_boot_ops()` gives one operation per device, at the level of its `initial` state (UOS `dev.md`, section "Boot"). With `initial = off`, outputs stay off. | Off |
@@ -569,7 +600,7 @@ Mitigations:
 | Step | State | Load |
 |---|---|---|
 | 8. Pi resets | The SoC resets its GPIO block: GPIO 25 returns to input with a pull-down (typical, check for a watchdog reset). Q2 off, Q1 off, `V_SW` dead. | Off |
-| 9. Expander during the reboot | U1 keeps `3V3`, so it keeps its old output state. Channels that were on still pull their outputs low, but `V_SW` is dead, so no current flows. | Off |
+| 9. Expander during the reboot | U1 keeps `+3V3`, so it keeps its old output state. Channels that were on still pull their outputs low, but `V_SW` is dead, so no current flows. | Off |
 | 10. Software restarts | Steps 4 to 6 repeat: write off, configure outputs, then arm. | Off until step 6 |
 
 Without the arm switch, step 9 would leave a door strike powered through the whole reboot. That is the reason for Q1.
@@ -588,39 +619,41 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | U5, U6 | 2 | Quad optocoupler, example Lite-On LTV-847 | DIP-16 | |
 | U7 | 1 | 24C32 class EEPROM | SOIC-8 | Not fitted |
 | M1 | 1 | PAM8302A mono class-D breakout module | 2.54 mm pins | Check the module pinout |
-| Q1 | 1 | P-channel MOSFET, 40 V or more, Rds(on) 0.1 Ohm or less at -4.5 V | TO-220 | Generic, check Vgs limits |
-| Q2 | 1 | 2N3904 | TO-92 | |
-| D1, D4 | 2 | 1N5822, 3 A 40 V Schottky | DO-201 | |
+| Q1 | 1 | P-channel MOSFET, 60 V or more, threshold 2.5 V or less, Rds(on) 0.1 Ohm or less at -4.5 V | TO-220 | See section 4.4. Example from memory, to verify: Vishay SQP50P06-15L |
+| Q2 | 1 | 2N5551, NPN, 160 V | TO-92 | MPSA06, 80 V, also fits. Check the pin order. |
+| D1, D4 | 2 | SB360, 3 A 60 V Schottky | DO-201AD | Any 3 A 60 V Schottky in DO-201AD |
 | D2 | 1 | TVS 600 W, about 26 V standoff, unidirectional | DO-15 | Check the standoff |
 | D3 | 1 | 12 V zener, 500 mW | DO-35 | |
 | D10 to D17 | 8 | 1N4148 | DO-35 | |
 | LED0 to LED7 | 8 | Red, 3 mm, high efficiency | THT | |
 | LED8 | 1 | Green, 3 mm | THT | Armed indicator |
-| F1 | 1 | Polyfuse, 1.1 A hold, 30 V or more | Radial | |
-| F2 | 1 | Polyfuse, 200 mA hold or more, 400 mA trip or less, 30 V or more, example Bourns MF-R020 | Radial | Example, check |
+| F1 | 1 | Polyfuse, 1.1 A hold, 60 V or more, example Littelfuse RXEF110 | Radial | Example from memory, to verify. Bourns MF-R110 is rated 30 V: do not use it. |
+| F2 | 1 | Polyfuse, 200 mA hold or more, 400 mA trip or less, 60 V or more, example Bourns MF-R020 | Radial | Example from memory, to verify |
 | Y1 | 1 | 32.768 kHz, 6 pF load | Cylindrical THT | Check the load capacitance |
 | BT1 | 1 | CR2032 holder | THT | Cell not included |
 | RN1 | 1 | 10 kOhm x 8, bussed | SIP-9 | Pin 1 common |
 | R1, R2, R4 | 3 | 4.7 kOhm, 4.7 kOhm, 10 kOhm | Axial | Not fitted |
 | R3 | 1 | 10 kOhm | Axial | |
 | R70 to R77 | 8 | 47 kOhm | Axial | Input pull-ups |
-| R10 to R17, R24 | 9 | 1.5, 4.7 or 10 kOhm by load supply | Axial | See section 4.3 |
-| R20 | 1 | 10 kOhm | Axial | |
+| R10 to R17, R24 | 9 | 1.5 kOhm, 4.7 kOhm or 10 kOhm by load supply | Axial | See section 4.3 |
+| R20 | 1 | 100 kOhm | Axial | |
 | R21 | 1 | 1 kOhm | Axial | |
 | R22 | 1 | 4.7 kOhm | Axial | |
 | R23 | 1 | 100 kOhm | Axial | |
 | R30 | 1 | 270 Ohm | Axial | |
 | R31, R32 | 2 | 1 kOhm | Axial | |
-| R40 to R48 | 9 | 1 kOhm | Axial | |
-| R50 to R58 | 9 | 10 kOhm | Axial | Not fitted |
-| R59 | 1 | 100 Ohm | Axial | J5 pin 12 limit |
+| R40 to R45 | 6 | 1 kOhm | Axial | R46 to R48 retired |
+| R50 to R55 | 6 | 10 kOhm | Axial | Not fitted. R56 to R58 retired. |
+| R59 | 1 | 100 Ohm | Axial | J5 pin 9 limit |
 | R60 to R67 | 8 | 2.2 kOhm, 0.5 W, or 1 kOhm, 0.5 W for a 5 V field supply | Axial | See section 4.8 |
-| R80, R81 | 2 | Per HAT specification | Axial or 0805 | Not fitted |
+| R80, R81 | 2 | 3.9 kOhm | Axial | Not fitted. HAT design guide, to verify. |
+| R82 | 1 | 1 kOhm | Axial | Not fitted. WP pull-up. |
 | RV1 | 1 | 10 kOhm trimmer | THT | |
-| C1, C9 | 2 | 100 uF 35 V electrolytic | Radial | |
+| C1, C9 | 2 | 100 uF 50 V electrolytic | Radial | 8 mm footprint, check the part's diameter |
 | C2, C5 to C8, C11, C12, C32 | 8 | 100 nF X7R 50 V | THT | C12 not fitted, so 7 fitted. C10 retired. |
-| C3 | 1 | 10 uF 10 V | THT | |
+| C3 | 1 | 10 uF 10 V ceramic | THT | |
 | C4 | 1 | 47 uF 10 V electrolytic | Radial | |
+| C13 | 1 | 47 nF X7R 50 V | THT | Not fitted. 10 nF to 47 nF if arming dips the supply. |
 | C30 | 1 | 33 nF film or C0G | THT | |
 | C31 | 1 | 10 uF 16 V | Radial | |
 | C40 to C47 | 8 | 10 nF | THT | Not fitted |
@@ -628,16 +661,17 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | J2 | 1 | 2-way screw terminal, 3.5 mm | THT | Load supply |
 | J3 | 1 | 10-way screw terminal, 3.5 mm | THT | Outputs, or 2-way plus 8-way |
 | J4 | 1 | 10-way screw terminal, 3.5 mm | THT | Inputs |
-| J5 | 1 | 1x12 pin header | THT | Buttons |
+| J5 | 1 | 1x9 pin header | THT | Buttons |
 | J6 | 1 | 1x6 pin header | THT | Serial |
-| J7 | 1 | 2x6 pin header | THT | Free pins |
+| J7 | 1 | 2x9 pin header | THT | Free pins |
 | J8 | 1 | 2-way screw terminal | THT | Speaker |
 | J9 | 1 | 1x2 pin header | THT | Expander INT |
 | J10 | 1 | 3.5 mm stereo jack | THT | Audio from the Pi's jack |
 | JP1, JP9 | 2 | 1x3 pin header with shunt | THT | |
 | JP8, JP10 | 2 | 1x2 pin header, shunt on JP10 only | THT | |
-| JP2 to JP7, JP11 | 7 | Solder jumper | Pads | |
+| JP2 to JP7, JP11, JP12 | 8 | Solder jumper | Pads | |
 | TP1 to TP8 | 8 | Test point loop | THT | |
+| H1 to H4 | 4 | M2.5 mounting hole | Hole | Not a part to buy. Positions from the HAT drawing. |
 
 Fine-pitch parts: the PCA9554, the DS1338 and the 24C32 are SOIC, 1.27 mm pitch, which a hobbyist can solder with a fine tip. Do not choose their QFN or TSSOP versions. The PAM8302A chip is only small-package, so the board takes the module.
 
@@ -698,7 +732,7 @@ Requirements on the software, pending:
 - UOS processes the ARM device after the expander devices. `dv_boot_ops()` gives one operation per device. That the order follows the file order is assumed, check.
 - For a sensor, UOS sets a pull toward the inactive level (UOS `dev.md`, section "Boot"). On the expander there is no pull-down, only the 100 kOhm pull-up and R70 to R77. With `active = low` the pull-up is the inactive level, so this is consistent.
 - `privs = 1` on ARM keeps it to `SYSTEM` (UOS `dev.md`, section "Commands per type"). An `OFF` on ARM is a manual "all outputs off".
-- UOS reads at most 16 device sections. This board offers 16 expander lines, 6 free pins and the ARM line. Not all can be devices at once.
+- UOS reads at most 16 device sections. This board offers 16 expander lines, 9 free pins and the ARM line. Not all can be devices at once.
 
 ## 8. Layout guidance
 
@@ -741,7 +775,7 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 ## 10. Open questions and risks
 
 - PCA9554 output register default `0xFF` and configuration default `0xFF`: check the data sheet.
-- PCA9554 pull-up value about 100 kOhm: check the minimum. A lower pull-up raises the 0.30 V at `DRVn`.
+- PCA9554 pull-up value about 100 kOhm: check the minimum. A lower pull-up raises the 0.30 V at `X0.n`.
 - PCA9554 pin order and address formula: check the data sheet.
 - PCA9554 in DIP-16: check whether a through-hole version is still stocked.
 - ULN2803A input on-voltage at 3.3 V drive: check; the 200 mA per-channel limit depends on it.
@@ -755,23 +789,27 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 - Whether the Pi firmware touches GPIO 25 or GPIO 4 during boot: check.
 - GPIO 4 has a pull-up at reset. The example `DEVICES.CFG` in UOS puts an `active = high` door on GPIO 4. A relay module there can switch on during boot. Raise it with UOS.
 - Whether RobCo-Core or UOS arms the SoC watchdog after a crash: unknown.
-- P-channel MOSFET for Q1: pick a part specified at -4.5 V with Vgs max 20 V. No example number given.
+- P-channel MOSFET for Q1: pick a part with a threshold of 2.5 V or less, specified at -4.5 V, Vgs max 20 V. The example SQP50P06-15L is from memory: check it. At a 5 V supply its Rds(on) is not guaranteed, see section 4.4.
 - D2 standoff voltage against the highest supply you use: check.
 - DS1338 crystal load 6 pF and no external capacitors: check.
 - DS1338 3.3 V grade suffix: check.
 - LTV-847 minimum transfer ratio 50 % at 5 mA: check. Derating x 0.5 below 5 mA and x 0.7 for age and temperature: assumed. Check the curve against LED current.
 - Opto low level 0.4 V at most at the currents used: assumed. Check the saturation curve.
 - PCA9554 input thresholds 0.3 and 0.7 x VDD, input leakage 1 uA, internal pull-up at least 50 kOhm: check.
-- Supply tolerance plus or minus 5 % and D1 drop 0.3 V to 0.45 V at low current: check against the supply and the 1N5822 curve.
+- Supply tolerance plus or minus 5 % and D1 drop 0.3 V to 0.45 V at low current: check against the supply and the SB360 curve.
 - LTV-847 pin order: check.
 - PAM8302A module pinout and footprint: check the module you buy.
 - PAM8302A chip package: check whether a hand-solderable version exists.
 - F2 hold, trip, minimum resistance, tripped power and trip time: typical, check the data sheet of the part you buy.
+- F1 and F2 example parts, RXEF110 and MF-R020, and their ratings: from memory, to verify.
+- Q2 2N5551: 160 V collector to emitter, TO-92 pin order 1 emitter, 2 base, 3 collector, hFE 80 or more at 10 mA, saturation 0.15 V at 10 mA and 1 mA base: from memory, to verify.
 - Sensor allowance on `+V_S`: 50 mA assumed. Larger sensors need their own supply with JP10 removed.
 - F1 trip current near 2.2 A and Q1 safe operating area in a `V_SW` short: check.
 - Pi 5 V budget for loads through JP1: 300 mA assumed. Check the Pi model's input fuse and supply.
 - Terminal count against the 65 mm and 56 mm edges: check the fit.
-- HAT EEPROM pull-up values and WP wiring: take from the HAT specification.
+- HAT EEPROM pull-ups 3.9 kOhm and WP pull-up 1 kOhm: from memory of the HAT design guide, check it.
+- D2 clamp near 42 V at its rated pulse: from memory, check the part. C1, C9, D1, D4, Q1 and Q2 ratings rest on it.
+- DS1338 VBAT grounded when no cell is used: from memory of the DS1307 family, check the DS1338 data sheet.
 - Pi internal pull-up value about 50 kOhm: check.
 - A door strike current above 200 mA needs an external relay or two paralleled channels.
 - Mains loads: external rated relay modules only, in their own enclosure, wired by a qualified person.

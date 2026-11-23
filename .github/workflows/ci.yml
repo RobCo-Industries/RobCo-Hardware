@@ -105,6 +105,7 @@ jobs:
         run: |
           tools/build.sh docs toy
           tools/build.sh docs toy2
+          tools/build.sh docs terminal-controller
       - name: Gerbers and drill
         if: always()
         run: tools/build.sh fab toy
@@ -125,6 +126,11 @@ jobs:
             build/toy2/*.net
             build/toy2/*.rpt
             build/toy2/svg/
+            build/terminal-controller/*.pdf
+            build/terminal-controller/*.csv
+            build/terminal-controller/*.net
+            build/terminal-controller/*.rpt
+            build/terminal-controller/svg/
           if-no-files-found: warn
 
   render:
