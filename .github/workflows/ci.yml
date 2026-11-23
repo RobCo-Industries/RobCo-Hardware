@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # check_pins.py compares each pins.yaml with the software pin table.
+  # Relative to the workspace: in a container job github.workspace is the host path.
+  ROBCO_BOARD_SUPPORT: robco-core/docs/spec/BOARD_SUPPORT.md
+
+jobs:
+  tests:
+    name: Python tests (${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 is the Python that ships with KiCad on macOS.
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: RobCo-Industries/RobCo-Core
+          path: robco-core
+          sparse-checkout: docs/spec
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install pytest==8.3.4
+      - run: python -m pytest -q tests
+
+  kicad:
+    name: Toy board checks and exports
+    needs: tests
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:10.0
+      # The checkout must write to the workspace, which the runner owns.
+      options: --user root
+    env:
+      # KiCad wants a writable config folder.
+      HOME: /tmp/home
+      KICAD_CONFIG_HOME: /tmp/kicad-config
+      KICAD_CLI: /usr/bin/kicad-cli
+      KICAD_PY: /usr/bin/python3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: RobCo-Industries/RobCo-Core
+          path: robco-core
+          sparse-checkout: docs/spec
+      - name: Tool versions
+        run: |
+          mkdir -p "$HOME" "$KICAD_CONFIG_HOME"
+          kicad-cli version
+          python3 -c "import pcbnew; print('pcbnew', pcbnew.Version())"
+          ls -d /usr/share/kicad/symbols /usr/share/kicad/footprints /usr/share/kicad/3dmodels || true
+      - name: Regenerated files equal committed files
+        run: tools/build.sh regen toy
+      - name: ERC
+        run: tools/build.sh erc toy
+      - name: Pin check
+        run: tools/build.sh pins toy
+      - name: DRC
+        run: tools/build.sh drc toy
+      - name: Schematic PDF, SVG, netlist and BOM
+        if: always()
+        run: tools/build.sh docs toy
+      - name: Gerbers and drill
+        if: always()
+        run: tools/build.sh fab toy
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: toy-outputs
+          path: |
+            build/toy/*.pdf
+            build/toy/*.csv
+            build/toy/*.net
+            build/toy/*.rpt
+            build/toy/*.log
+            build/toy/svg/
+            build/toy/fab/
+          if-no-files-found: warn
+
+  render:
+    # A separate job, so a headless render problem does not hide the checks.
+    name: Toy board 3D renders
+    needs: tests
+    runs-on: ubuntu-latest
+    container:
+      image: kicad/kicad:10.0
+      options: --user root
+    env:
+      HOME: /tmp/home
+      KICAD_CONFIG_HOME: /tmp/kicad-config
+      KICAD_CLI: /usr/bin/kicad-cli
+      KICAD_PY: /usr/bin/python3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Renders
+        run: |
+          mkdir -p "$HOME" "$KICAD_CONFIG_HOME"
+          tools/build.sh render toy
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: toy-renders
+          path: |
+            build/toy/render/
+            build/toy/kicad-cli.log
+          if-no-files-found: warn
