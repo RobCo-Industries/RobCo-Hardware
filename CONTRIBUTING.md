@@ -1,0 +1,36 @@
+# Contributing
+
+Every board here is a proposal. Do not write that a board works, or was tested, unless someone tested a real board.
+
+## Run the checks
+
+```sh
+tools/build.sh test        # Python tests
+tools/build.sh check toy   # the board checks
+```
+
+CI runs the same commands. See the README for the tools.
+
+## Board folders
+
+Each board has the same shape:
+
+- `spec/` holds the spec and `pins.yaml`, the single source for the header map. One entry per header pin: `pin`, `name` (the Pi pin name, such as `GPIO17`), `net`, `use` (the software use) and `source`. Keep to the YAML shape of `toy/spec/pins.yaml`: `check_pins.py` reads it without a YAML library.
+- `gen/circuit.py` writes the schematic and the project files. `gen/board.py` writes the board with `pcbnew`.
+- `kicad/` holds the generated files. Commit them. Do not edit them by hand until the owner routes the board. From then on the routed board file is the source.
+- `board.env` may set `ROUTED=yes`. DRC then fails CI on any violation.
+
+## Conventions
+
+- Put every symbol, wire and label on the 1.27 mm grid. The schematic writer raises an error on an off-grid point.
+- Connect pins with net labels by default. `Schematic.label()` draws a short wire stub and puts the label at its end, so the text never covers a pin number.
+- Use power symbols for rails, and `Schematic.power_flag()` once per rail that a connector feeds. ERC needs the flag.
+- Reference designators: J1 is the Pi header, U for chips, then Q, D, R, C, JP, TP. Group numbers by block, such as R1x for I2C.
+- Net names match the software: `GPIO17`, `X0.0` to `X1.7`, `BTN_UP`, `+3V3`, `+5V`, `GND`.
+- Each project has its own `sym-lib-table` and `fp-lib-table`. Stock libraries go through `${KICAD10_SYMBOL_DIR}` and `${KICAD10_FOOTPRINT_DIR}`, ours through `${KIPRJMOD}/../../lib`. The generator writes both tables.
+- UUIDs come from the project name and the item path. Never use random UUIDs: CI compares a fresh generation with the committed files byte for byte.
+- Do not commit generated outputs: PDFs, renders, netlists, BOMs, fab files. They live under `build/`, which git ignores.
+
+## Commits
+
+Use short imperative subjects. Each commit should pass the tests.

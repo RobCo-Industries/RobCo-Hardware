@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# Every run step uses bash with -e and pipefail. Without this a container
+# step may fall back to sh, which ignores a failure inside a pipe.
+defaults:
+  run:
+    shell: bash
+
+env:
+  # check_pins.py compares each pins.yaml with the software pin table.
+  # Relative to the workspace: in a container job github.workspace is the host path.
+  ROBCO_BOARD_SUPPORT: robco-core/docs/spec/BOARD_SUPPORT.md
+
+jobs:
+  tests:
+    name: Python tests (${{ matrix.python }})
+    # Pinned image: setup-python has no 3.9 for ubuntu-latest, now Ubuntu 26.04.
+    # Ubuntu 24.04 still offers it. Pinning beats installing 3.9 another way.
+    runs-on: ubuntu-24.04
+    env:
+      # A missing BOARD_SUPPORT.md fails the test here instead of skipping it.
+      ROBCO_REQUIRE_BOARD_SUPPORT: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 is the Python that ships with KiCad on macOS.
+        # 3.x is the newest stable release, so drift shows early.
+        python: ["3.9", "3.12", "3.x"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: RobCo-Industries/RobCo-Core
+          path: robco-core
+          sparse-checkout: docs/spec
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: test -f "$ROBCO_BOARD_SUPPORT" || { echo "::error::$ROBCO_BOARD_SUPPORT missing after the RobCo-Core checkout"; exit 1; }
+      - run: python -m pip install pytest==8.3.4
+      - run: python -m pytest -q -rs tests
+
+  kicad:
+    name: Toy board checks and exports
+    needs: tests
+    runs-on: ubuntu-24.04
+    container:
+      image: kicad/kicad:10.0
+      # The checkout must write to the workspace, which the runner owns.
+      options: --user root
+    env:
+      # KiCad wants a writable config folder.
+      HOME: /tmp/home
+      KICAD_CONFIG_HOME: /tmp/kicad-config
+      KICAD_CLI: /usr/bin/kicad-cli
+      KICAD_PY: /usr/bin/python3
+    steps:
+      # Without git, actions/checkout downloads an archive instead of a clone.
+      - name: Install git if the image lacks it
+        run: |
+          # The checkout writes git config under HOME, so create it first.
+          mkdir -p "$HOME" "$KICAD_CONFIG_HOME"
+          if ! command -v git >/dev/null; then
+            apt-get update
+            apt-get install -y --no-install-recommends git ca-certificates
+          fi
+          git --version
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: RobCo-Industries/RobCo-Core
+          path: robco-core
+          sparse-checkout: docs/spec
+      - name: Tool versions
+        run: |
+          mkdir -p "$HOME" "$KICAD_CONFIG_HOME"
+          for t in "$KICAD_CLI" "$KICAD_PY" cmp diff; do
+            command -v "$t" >/dev/null || { echo "::error::$t not found in the image"; exit 1; }
+          done
+          "$KICAD_CLI" version
+          "$KICAD_PY" -c "import pcbnew; print('pcbnew', pcbnew.Version())"
+          ls -d /usr/share/kicad/symbols /usr/share/kicad/footprints /usr/share/kicad/3dmodels || true
+      - name: Regenerated files equal committed files
+        run: tools/build.sh regen toy
+      - name: ERC
+        run: tools/build.sh erc toy
+      - name: Pin check
+        run: tools/build.sh pins toy
+      - name: DRC
+        run: tools/build.sh drc toy
+      - name: Schematic PDF, SVG, netlist and BOM
+        if: always()
+        run: tools/build.sh docs toy
+      - name: Gerbers and drill
+        if: always()
+        run: tools/build.sh fab toy
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: toy-outputs
+          path: |
+            build/toy/*.pdf
+            build/toy/*.csv
+            build/toy/*.net
+            build/toy/*.rpt
+            build/toy/*.log
+            build/toy/svg/
+            build/toy/fab/
+          if-no-files-found: warn
+
+  render:
+    # A separate job, so a headless render problem does not hide the checks.
+    name: Toy board 3D renders
+    needs: tests
+    runs-on: ubuntu-24.04
+    container:
+      image: kicad/kicad:10.0
+      options: --user root
+    env:
+      HOME: /tmp/home
+      KICAD_CONFIG_HOME: /tmp/kicad-config
+      KICAD_CLI: /usr/bin/kicad-cli
+      KICAD_PY: /usr/bin/python3
+    steps:
+      # Without git, actions/checkout downloads an archive instead of a clone.
+      - name: Install git if the image lacks it
+        run: |
+          # The checkout writes git config under HOME, so create it first.
+          mkdir -p "$HOME" "$KICAD_CONFIG_HOME"
+          if ! command -v git >/dev/null; then
+            apt-get update
+            apt-get install -y --no-install-recommends git ca-certificates
+          fi
+          git --version
+      - uses: actions/checkout@v4
+      - name: Renders
+        run: |
+          mkdir -p "$HOME" "$KICAD_CONFIG_HOME"
+          if ! tools/build.sh render toy; then
+            echo "::error::kicad-cli pcb render failed. It may need a display or GL libraries in the image. Log follows."
+            cat build/toy/kicad-cli.log || true
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: toy-renders
+          path: |
+            build/toy/render/
+            build/toy/kicad-cli.log
+          if-no-files-found: warn
