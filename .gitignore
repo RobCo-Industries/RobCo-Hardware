@@ -1,0 +1,19 @@
+# Build outputs: PDFs, renders, netlists, BOMs, fab files, test venv
+/build/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# KiCad local and temporary files
+*.kicad_prl
+*-backups/
+_autosave-*
+\#auto_saved_files\#
+~*.lck
+*.lck
+fp-info-cache
+*.bak
+*.kicad_sch-bak
+*.kicad_pcb-bak
