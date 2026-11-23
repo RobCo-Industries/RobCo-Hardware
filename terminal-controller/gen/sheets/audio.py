@@ -8,7 +8,7 @@ from __future__ import annotations
 from common import g
 from sch import Schematic
 
-from sheets.parts import C_FILM, CP_5MM, HDR, NO_FOOTPRINT, TERM_2, decoupling, note, res
+from sheets.parts import C_FILM, CP_5MM, HDR, PAM8302A_MODULE, TERM_2, decoupling, note, res
 
 # Horizontal parts are turned 90 degrees: KiCad then right-justifies their
 # fields, so each anchor is the end of the text.
@@ -73,7 +73,7 @@ def select(s: Schematic) -> None:
 
 def amplifier(s: Schematic, rv1) -> None:
     s.frame("Level, amplifier and speaker", (g(107), g(12)), (g(224), g(96)))
-    m1 = s.symbol("RobCo:PAM8302A_Module", "M1", "PAM8302A", (g(164), g(56)), footprint=NO_FOOTPRINT,
+    m1 = s.symbol("RobCo:PAM8302A_Module", "M1", "PAM8302A", (g(164), g(56)), footprint=PAM8302A_MODULE,
                   ref_at=(g(-2), g(-11)), value_at=(g(-2), g(-9)),
                   description="PAM8302A class-D mono amplifier breakout, 2.54 mm pins. Pinout from the module bought.")
     wiper = rv1.pin("2")

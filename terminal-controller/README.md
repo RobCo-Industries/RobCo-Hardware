@@ -1,6 +1,6 @@
 # Terminal controller HAT
 
-Status: proposal. The schematic is drawn and ERC is clean. The board is not started. Nobody has built or tested it.
+Status: proposal. The schematic is drawn and ERC is clean. The board is not placed: the parts do not fit a 65 by 56 mm HAT, see [Board](#board). Nobody has built or tested it.
 
 The spec is in [spec/SPEC.md](spec/SPEC.md), the header map in [spec/pins.yaml](spec/pins.yaml) and the bring-up checklist in [spec/BRINGUP.md](spec/BRINGUP.md).
 
@@ -48,12 +48,17 @@ The sheets mark these "to verify". Check each one against the data sheet of the 
 - JP11: how the 24C32 treats an open WP pin.
 - BT1: the pad polarity of the Keystone 3002 holder.
 
-### Footprints still missing
+### Own footprints
 
-No stock footprint fits these parts. The board step must add them to `lib/RobCo.pretty`:
+No stock footprint fits these parts. They use own footprints in `lib/RobCo.pretty`. Every dimension comes from memory and is to verify:
 
-- F1 and F2: radial PPTC fuses rated 60 V or more, such as the Littelfuse RXEF110 and the Bourns MF-R020 (from memory, to verify). The stock library has the MF-RG and MF-RHT series only.
-- M1: the PAM8302A module, with the pin header and hole spacing of the module bought.
+| Ref | Footprint | Assumed dimensions |
+|---|---|---|
+| F1 | `RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm` | Littelfuse RXEF110 class: body 10.0 x 3.5 mm, leads 5.1 mm apart, drill 1.0 mm |
+| F2 | `RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm` | Bourns MF-R020 class: body 7.4 x 3.0 mm, leads 5.1 mm apart, drill 0.8 mm |
+| M1 | `RobCo:PAM8302A_Module_1x07_P2.54mm` | One row of 7 pins on 2.54 mm in the symbol's order, module 20.3 x 17.8 mm |
+
+None of the three has a 3D model.
 
 ### Other choices on the sheets
 
@@ -61,3 +66,28 @@ No stock footprint fits these parts. The board step must add them to `lib/RobCo.
 - JP2 to JP7 use the stock `SolderJumper_3_Bridged12`: pad 1 is the bridged default. The netlist keeps pads 1 and 2 apart, so the board step must accept the bridge in the footprint.
 - C8 sits from `V_SW` to `GND`, which is U4 COM to GND, as the spec says.
 - The four HAT mounting holes are H1 to H4. The spec BOM now lists them.
+
+## Board
+
+There is no board file yet. The through-hole parts of the schematic do not fit on the 65 by 56 mm HAT, on one side or on two.
+
+Areas below are the sums of the footprint courtyards, with J1 and the four holes left out:
+
+| Case | Courtyard area |
+|---|---|
+| Every footprint, through-hole as drawn | 7540 mm² |
+| Fitted parts only, through-hole | 6820 mm² |
+| SMD variants of the passives, diodes, LEDs, U4 to U6, Q1, Q2 and BT1 | 5080 mm² |
+| Free top side of the HAT: outline less J1, the holes and the display and camera slots | about 3060 mm² |
+
+Parts never pack at 100 %. A hand layout of through-hole parts reaches about 60 to 70 %.
+
+The screw terminals need 88 mm of edge: J3 and J4 are 36 mm each, J2 and J8 8 mm each. The long edge opposite J1 has 52 mm between the mounting holes. The short edge away from the Pi's USB and Ethernet has 43 mm, or two pieces of 13 mm with the display slot kept.
+
+The HAT outline, hole positions and slots come from KiCad's `template/RaspberryPi-HAT`: board 65 x 56 mm, corner radius 3 mm, M2.5 holes 3.5 mm in from each edge, 58 x 49 mm apart.
+
+Options, for the owner to choose:
+
+- A larger board beyond the HAT standard. Through-hole as drawn needs about 11 000 mm² of free area, for example 100 x 120 mm.
+- SMD variants of the named parts on both sides of a HAT, without the footprints of parts not fitted. This is close to the limit and needs a new fit check.
+- Two boards: a HAT with the logic, the clock, the audio and the headers, and a field board with the terminals, the output and input stages and the load supply, joined by a ribbon cable.
