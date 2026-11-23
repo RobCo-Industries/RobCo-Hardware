@@ -28,18 +28,18 @@ Software references point to files in the RobCo-Core and UOS repositories. "BOAR
 - Expander 1 reads 8 optocoupler inputs for 5 V to 24 V field signals and dry contacts.
 - A DS1338 clock with a crystal and a CR2032 cell sits on the same I2C bus, at `0x68`.
 - A class-D amplifier module plays the Pi's PWM audio through a low-pass filter and a volume trimmer.
-- A header carries the 6 operator buttons and the dial.
+- A header carries the 6 operator buttons. The board has no dial: UOS has six buttons and none.
 - A 6-pin header carries the PL011 serial console at 3.3 V.
-- A 2x6 header carries the 6 Pi pins that stay free, each beside a ground.
+- A 2x9 header carries the 9 Pi pins that stay free, each beside a ground.
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
 ```
                          Raspberry Pi 40-pin header (J1)
-   3V3   5V   GPIO2/3 (I2C)  GPIO14/15  GPIO18  buttons  GPIO25  free pins
+  +3V3  +5V   GPIO2/3 (I2C)  GPIO14/15  GPIO18  buttons  GPIO25  free pins
     |     |        |            |          |       |        |        |
     |     |   +----+-----+---+  |          |       |        |        +--> J7 free-pin header
-    |     |   |          |   |  +--> J6 serial (FTDI order, 3.3 V only)  (4,12,13,19,20,21)
-    |     |   v          v   v             |       +--> J5 buttons and dial
+    |     |   |          |   |  +--> J6 serial (FTDI order, 3.3 V only)  (4,12,13,16,19,20,21,23,24)
+    |     |   v          v   v             |       +--> J5 buttons
     |     |  U1 PCA9554 U2 PCA9554 U3 DS1338 |              |
     |     |  0x20       0x21       0x68 + Y1 + BT1         |
     |     |   |          ^                   v             v
@@ -75,33 +75,33 @@ Sources: BOARD_SUPPORT.md, sections "UART policy" and "Pins" (including the butt
 | 8 | GPIO 14, TXD | `UART_TX` | PL011 TXD (BOARD_SUPPORT.md UART policy and Pins) | J6 pin 5 | used |
 | 9 | GND | `GND` | Ground | GND | used |
 | 10 | GPIO 15, RXD | `UART_RX` | PL011 RXD (BOARD_SUPPORT.md UART policy and Pins) | J6 pin 4 | used |
-| 11 | GPIO 17 | `BTN_LEFT` | LEFT (BOARD_SUPPORT.md Pins, input example) | J5 LEFT via R | used |
+| 11 | GPIO 17 | `BTN_LEFT` | LEFT (BOARD_SUPPORT.md Pins, input example) | J5 pin 4 (LEFT) through R42, 1 kOhm | used |
 | 12 | GPIO 18 | `AUDIO_PWM` | Audio channel 1 (BOARD_SUPPORT.md Pins, audio table: Pi Zero at ALT5) | Audio filter input | used |
-| 13 | GPIO 27 | `BTN_BACK` | BACK (BOARD_SUPPORT.md Pins, input example) | J5 BACK via R | used |
+| 13 | GPIO 27 | `BTN_BACK` | BACK (BOARD_SUPPORT.md Pins, input example) | J5 pin 7 (BACK) through R45, 1 kOhm | used |
 | 14 | GND | `GND` | Ground | GND | used |
-| 15 | GPIO 22 | `BTN_RIGHT` | RIGHT (BOARD_SUPPORT.md Pins, input example) | J5 RIGHT via R | used |
-| 16 | GPIO 23 | `DIAL_A` | Dial A (BOARD_SUPPORT.md Pins, input example) | J5 DIAL_A via R | used |
+| 15 | GPIO 22 | `BTN_RIGHT` | RIGHT (BOARD_SUPPORT.md Pins, input example) | J5 pin 5 (RIGHT) through R43, 1 kOhm | used |
+| 16 | GPIO 23 | `GPIO23` | free (no dial on this board; the input example uses it for the dial, ignored) | J7 free-pin header | free |
 | 17 | 3V3 | `+3V3` | Power | Joined to pin 1 | used |
-| 18 | GPIO 24 | `DIAL_B` | Dial B (BOARD_SUPPORT.md Pins, input example) | J5 DIAL_B via R | used |
+| 18 | GPIO 24 | `GPIO24` | free (no dial on this board; the input example uses it for the dial, ignored) | J7 free-pin header | free |
 | 19 | GPIO 10, MOSI | not connected | SPI0 MOSI (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 20 | GND | `GND` | Ground | GND | used |
 | 21 | GPIO 9, MISO | not connected | SPI0 MISO (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
-| 22 | GPIO 25 | `ARM` | ARM device in UOS DEVICES.CFG (UOS dev.md, free pin) | ARM signal to Q2 | used |
+| 22 | GPIO 25 | `ARM` | ARM device in UOS DEVICES.CFG (UOS dev.md, free pin) | R22 to the Q2 base, arm switch | used |
 | 23 | GPIO 11, SCLK | not connected | SPI0 SCLK (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 24 | GPIO 8, CE0 | not connected | SPI0 CE0 (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 25 | GND | `GND` | Ground | GND | used |
 | 26 | GPIO 7, CE1 | not connected | SPI0 CE1 (BOARD_SUPPORT.md Pins) | Not connected. Reserved for SPI0. | free on board, refused |
 | 27 | ID_SD, GPIO 0 | `ID_SD` | ID EEPROM (BOARD_SUPPORT.md Pins; avoided by the input example) | U7 SDA footprint, not fitted | optional |
 | 28 | ID_SC, GPIO 1 | `ID_SC` | ID EEPROM (BOARD_SUPPORT.md Pins; avoided by the input example) | U7 SCL footprint, not fitted | optional |
-| 29 | GPIO 5 | `BTN_UP` | UP (BOARD_SUPPORT.md Pins, input example) | J5 UP via R | used |
+| 29 | GPIO 5 | `BTN_UP` | UP (BOARD_SUPPORT.md Pins, input example) | J5 pin 2 (UP) through R40, 1 kOhm | used |
 | 30 | GND | `GND` | Ground | GND | used |
-| 31 | GPIO 6 | `BTN_DOWN` | DOWN (BOARD_SUPPORT.md Pins, input example) | J5 DOWN via R | used |
+| 31 | GPIO 6 | `BTN_DOWN` | DOWN (BOARD_SUPPORT.md Pins, input example) | J5 pin 3 (DOWN) through R41, 1 kOhm | used |
 | 32 | GPIO 12 | `GPIO12` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
 | 33 | GPIO 13 | `GPIO13` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
 | 34 | GND | `GND` | Ground | GND | used |
 | 35 | GPIO 19 | `GPIO19` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
-| 36 | GPIO 16 | `DIAL_PUSH` | Dial push (BOARD_SUPPORT.md Pins, input example) | J5 DIAL_PUSH via R | used |
-| 37 | GPIO 26 | `BTN_SELECT` | SELECT (BOARD_SUPPORT.md Pins, input example) | J5 SELECT via R | used |
+| 36 | GPIO 16 | `GPIO16` | free (no dial on this board; the input example uses it for the dial, ignored) | J7 free-pin header | free |
+| 37 | GPIO 26 | `BTN_SELECT` | SELECT (BOARD_SUPPORT.md Pins, input example) | J5 pin 6 (SELECT) through R44, 1 kOhm | used |
 | 38 | GPIO 20 | `GPIO20` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
 | 39 | GND | `GND` | Ground | GND | used |
 | 40 | GPIO 21 | `GPIO21` | free (UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins) | J7 free-pin header | free |
@@ -113,7 +113,9 @@ Notes on the map:
 - The button pins are the mapping of `examples/input/robco_config.h`. BOARD_SUPPORT.md, section "Pins", calls it "an example, not a library default". UOS `dev.md` refuses the same pins, so the board follows them.
 - On the Pi 1, 2 and 3, PWM audio uses GPIO 40, 41 and 45 (BOARD_SUPPORT.md, section "Pins"). Those pins are not on the header. They feed the Pi's analogue jack. See [the audio block](#45-audio).
 - On the Zero, GPIO 12 and 13 at ALT0 can also carry two PWM channels (audio.md, section `audio.h`). If you use them for stereo, they leave the free-pin header.
-- GPIO 25 is free in UOS `dev.md`. This board uses it for the arm switch. The free pins left are 4, 12, 13, 19, 20 and 21.
+- GPIO 25 is free in UOS `dev.md`. This board uses it for the arm switch.
+- The input example maps a dial to GPIO 16, 23 and 24. UOS has six buttons and no dial, so this board has no dial. Those three pins go to the free-pin header. `pins.yaml` tells the pin check to skip the input example for these three pins only.
+- The free pins are 4, 12, 13, 16, 19, 20, 21, 23 and 24.
 
 ## 4. Circuit blocks
 
@@ -151,7 +153,7 @@ Shorts on the supplies the board offers to the outside:
 |---|---|---|---|
 | `+V_S` sensor supply | J4 `+V` | F2, its own polyfuse, hold 200 mA. See [the input stage](#48-input-stage). | Yes |
 | `V_SW` load rail | J3 `+V`, two positions | F1, hold 1.1 A, trip about 2.2 A (typical, check). F1, D1 and Q1 carry the fault until F1 trips. | Yes, see below |
-| `3V3` | J5 pin 12 | R59, 100 Ohm: 3.3 V / 100 Ohm = 33 mA | Yes |
+| `3V3` | J5 pin 9 | R59, 100 Ohm: 3.3 V / 100 Ohm = 33 mA | Yes |
 | `5V` | No header pin carries it. J6 pin 3 stays open. JP1 pin 3 is a jumper, not a terminal. | Not offered | Not applicable |
 | Free pins | J7 | J7 has GPIO and ground only, no supply pin | Not applicable |
 
@@ -325,9 +327,9 @@ Package: the PAM8302A chip comes in a small surface-mount package that is hard t
 
 Power: at 8 Ohm and 1 W the amplifier draws about 1 W / 5 V / 0.85 efficiency = 0.24 A from `5V` (typical efficiency, check). Budget it in the Pi supply.
 
-### 4.6 Buttons and dial
+### 4.6 Buttons
 
-Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its pin to ground and uses the internal pull-up." `input_gpio_add_button()` takes a `GPIO_PULL_*` code, and the example passes `GPIO_PULL_UP`. `input_gpio_add_dial()` sets pull-ups on both dial pins.
+Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its pin to ground and uses the internal pull-up." `input_gpio_add_button()` takes a `GPIO_PULL_*` code, and the example passes `GPIO_PULL_UP`.
 
 | J5 pin | Net | Pi pin | Header pin |
 |---|---|---|---|
@@ -338,22 +340,21 @@ Pins from BOARD_SUPPORT.md, section "Pins", and input.md. "Each button ties its 
 | 5 | RIGHT | GPIO 22 | 15 |
 | 6 | SELECT | GPIO 26 | 37 |
 | 7 | BACK | GPIO 27 | 13 |
-| 8 | DIAL_A | GPIO 23 | 16 |
-| 9 | DIAL_B | GPIO 24 | 18 |
-| 10 | DIAL_PUSH | GPIO 16 | 36 |
-| 11 | GND | | |
-| 12 | 3V3 | | |
+| 8 | GND | | |
+| 9 | 3V3 | | |
 
 | Ref | Part | Connection |
 |---|---|---|
-| J5 | 1x12 pin header, 2.54 mm | As above |
-| R40 to R48 | 1 kOhm | In series between each Pi pin and its J5 pin |
-| R50 to R58 | 10 kOhm, not fitted | Each J5 signal pin to `3V3` |
-| R59 | 100 Ohm | `3V3` to J5 pin 12 |
+| J5 | 1x9 pin header, 2.54 mm | As above |
+| R40 to R45 | 1 kOhm | In series between each Pi pin and its J5 pin: R40 UP, R41 DOWN, R42 LEFT, R43 RIGHT, R44 SELECT, R45 BACK |
+| R50 to R55 | 10 kOhm, not fitted | Each J5 signal pin to `3V3`, in the same order |
+| R59 | 100 Ohm | `3V3` to J5 pin 9 |
 
-R40 to R48 limit current if a cable fault puts a pin on a rail: 3.3 V / 1 kOhm = 3.3 mA. They also form a small filter with cable capacitance. With the internal pull-up of about 50 kOhm (typical, check), a pressed button reads 3.3 V x 1 / (50 + 1) = 0.065 V. That is a clean low.
+R46 to R48 and R56 to R58 are retired. They served the dial. The designators stay unused.
 
-R50 to R58 are for the BCM2711, where input.md says `gpio_set_pull()` fails. The BCM2711 is not supported (BOARD_SUPPORT.md, section "Supported boards"), so they stay empty. J5 pin 12 feeds an optional LED on the panel and nothing else. R59 limits a short on that pin to 3.3 V / 100 Ohm = 33 mA and 33 mA x 3.3 V = 0.11 W, inside the 1/4 W rating. A panel LED of 2.0 V (typical, check) gets (3.3 - 2.0) / 100 = 13 mA. Add a resistor on the panel for less.
+R40 to R45 limit current if a cable fault puts a pin on a rail: 3.3 V / 1 kOhm = 3.3 mA. They also form a small filter with cable capacitance. With the internal pull-up of about 50 kOhm (typical, check), a pressed button reads 3.3 V x 1 / (50 + 1) = 0.065 V. That is a clean low.
+
+R50 to R55 are for the BCM2711, where input.md says `gpio_set_pull()` fails. The BCM2711 is not supported (BOARD_SUPPORT.md, section "Supported boards"), so they stay empty. J5 pin 9 feeds an optional LED on the panel and nothing else. R59 limits a short on that pin to 3.3 V / 100 Ohm = 33 mA and 33 mA x 3.3 V = 0.11 W, inside the 1/4 W rating. A panel LED of 2.0 V (typical, check) gets (3.3 - 2.0) / 100 = 13 mA. Add a resistor on the panel for less.
 
 ### 4.7 Serial console
 
@@ -497,7 +498,7 @@ Leave JP10 fitted when the sensors use `+V_S`. Remove it when the sensors have t
 
 ### 4.9 Free-pin header
 
-J7, 2x6 pin header, 2.54 mm. Each signal sits beside a ground.
+J7, 2x9 pin header, 2.54 mm. Each signal sits beside a ground.
 
 | J7 pin | Net | J7 pin | Net |
 |---|---|---|---|
@@ -507,10 +508,13 @@ J7, 2x6 pin header, 2.54 mm. Each signal sits beside a ground.
 | 7 | GPIO 19 | 8 | GND |
 | 9 | GPIO 20 | 10 | GND |
 | 11 | GPIO 21 | 12 | GND |
+| 13 | GPIO 16 | 14 | GND |
+| 15 | GPIO 23 | 16 | GND |
+| 17 | GPIO 24 | 18 | GND |
 
 No resistors. Silkscreen: **"3.3 V LOGIC, NO LOAD"**. These pins feed a relay module input or a logic input, never a coil or a lamp.
 
-GPIO 4 defaults to a pull-up at reset (typical, check: BCM2835 GPIO 0 to 8). A relay module with an active-high input on GPIO 4 can switch on during boot, before UOS configures the pin. Use GPIO 4 for active-low modules or for inputs.
+GPIO 16, 23 and 24 default to a pull-down at reset (typical, check: BCM2835 GPIO 9 to 27). GPIO 4 defaults to a pull-up at reset (typical, check: BCM2835 GPIO 0 to 8). A relay module with an active-high input on GPIO 4 can switch on during boot, before UOS configures the pin. Use GPIO 4 for active-low modules or for inputs.
 
 ### 4.10 HAT ID EEPROM
 
@@ -611,9 +615,9 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | R23 | 1 | 100 kOhm | Axial | |
 | R30 | 1 | 270 Ohm | Axial | |
 | R31, R32 | 2 | 1 kOhm | Axial | |
-| R40 to R48 | 9 | 1 kOhm | Axial | |
-| R50 to R58 | 9 | 10 kOhm | Axial | Not fitted |
-| R59 | 1 | 100 Ohm | Axial | J5 pin 12 limit |
+| R40 to R45 | 6 | 1 kOhm | Axial | R46 to R48 retired |
+| R50 to R55 | 6 | 10 kOhm | Axial | Not fitted. R56 to R58 retired. |
+| R59 | 1 | 100 Ohm | Axial | J5 pin 9 limit |
 | R60 to R67 | 8 | 2.2 kOhm, 0.5 W, or 1 kOhm, 0.5 W for a 5 V field supply | Axial | See section 4.8 |
 | R80, R81 | 2 | Per HAT specification | Axial or 0805 | Not fitted |
 | RV1 | 1 | 10 kOhm trimmer | THT | |
@@ -628,9 +632,9 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | J2 | 1 | 2-way screw terminal, 3.5 mm | THT | Load supply |
 | J3 | 1 | 10-way screw terminal, 3.5 mm | THT | Outputs, or 2-way plus 8-way |
 | J4 | 1 | 10-way screw terminal, 3.5 mm | THT | Inputs |
-| J5 | 1 | 1x12 pin header | THT | Buttons |
+| J5 | 1 | 1x9 pin header | THT | Buttons |
 | J6 | 1 | 1x6 pin header | THT | Serial |
-| J7 | 1 | 2x6 pin header | THT | Free pins |
+| J7 | 1 | 2x9 pin header | THT | Free pins |
 | J8 | 1 | 2-way screw terminal | THT | Speaker |
 | J9 | 1 | 1x2 pin header | THT | Expander INT |
 | J10 | 1 | 3.5 mm stereo jack | THT | Audio from the Pi's jack |
@@ -698,7 +702,7 @@ Requirements on the software, pending:
 - UOS processes the ARM device after the expander devices. `dv_boot_ops()` gives one operation per device. That the order follows the file order is assumed, check.
 - For a sensor, UOS sets a pull toward the inactive level (UOS `dev.md`, section "Boot"). On the expander there is no pull-down, only the 100 kOhm pull-up and R70 to R77. With `active = low` the pull-up is the inactive level, so this is consistent.
 - `privs = 1` on ARM keeps it to `SYSTEM` (UOS `dev.md`, section "Commands per type"). An `OFF` on ARM is a manual "all outputs off".
-- UOS reads at most 16 device sections. This board offers 16 expander lines, 6 free pins and the ARM line. Not all can be devices at once.
+- UOS reads at most 16 device sections. This board offers 16 expander lines, 9 free pins and the ARM line. Not all can be devices at once.
 
 ## 8. Layout guidance
 

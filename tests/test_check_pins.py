@@ -104,6 +104,17 @@ def test_ignored_source_is_skipped(tmp_path):
     assert run(tmp_path, text, spec=SPEC) == (cp.OK, [])
 
 
+def test_ignored_source_for_one_pin_only(tmp_path):
+    # GPIO 5 (pin 29) and GPIO 27 (pin 13) are Input example pins.
+    text = pi40_yaml(drop=(29, 13)).replace("header: pi40", "header: pi40\nignore_sources: [Input example:GPIO5]")
+    code, problems = run(tmp_path, text, spec=SPEC)
+    assert code == cp.MISSING_USE
+    assert [p.text.split(":")[0] for p in problems] == ["GPIO27"]
+    text = pi40_yaml(drop=(29, 13)).replace(
+        "header: pi40", "header: pi40\nignore_sources: [Input example:GPIO5, Input example:GPIO27]")
+    assert run(tmp_path, text, spec=SPEC) == (cp.OK, [])
+
+
 def test_wrong_pi_name_fails(tmp_path):
     code, problems = run(tmp_path, pi40_yaml(change={7: ("GPIO5", "none")}), spec=SPEC)
     assert cp.WRONG_NAME in {p.code for p in problems}

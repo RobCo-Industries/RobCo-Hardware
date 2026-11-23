@@ -8,7 +8,9 @@ the netlist, and every connected header pin in the netlist must be listed.
 
 With `--board-support`, every GPIO that the software uses, as listed in the
 "Pins" section of RobCo-Core `docs/spec/BOARD_SUPPORT.md`, must have the same
-use in `pins.yaml`. On a `pi40` header, every such GPIO must be present, and
+use in `pins.yaml`. `ignore_sources` in `pins.yaml` lists source tables to
+skip: a table name such as `Input example` skips the whole table, and
+`Input example:GPIO16` skips that table for GPIO 16 only. On a `pi40` header, every such GPIO must be present, and
 each pin name must match the Raspberry Pi pin at that number.
 
 Exit codes. With several kinds of difference, the lowest code wins.
@@ -298,7 +300,7 @@ def check_software(pm: PinMap, uses: SoftwareUse) -> List[Problem]:
             elif have != want:
                 problems.append(Problem(WRONG_NAME, f"pin {e.pin}: named '{e.name}', the Pi has '{want}' there"))
     for gpio in sorted(uses):
-        wanted = [(u, s) for u, s in uses[gpio] if s not in pm.ignore]
+        wanted = [(u, s) for u, s in uses[gpio] if s not in pm.ignore and f"{s}:GPIO{gpio}" not in pm.ignore]
         if not wanted:
             continue
         names = [u for u, _ in wanted]
