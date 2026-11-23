@@ -25,3 +25,6 @@
 - Fix terminal controller review findings: 60 V diodes and Q1, 50 V reservoir capacitors above the TVS clamp; R20 at 100 kOhm and the real gate drive at 5 V; WP, ID_SD and ID_SC pull-ups; footprints for C13 and a VBAT jumper; notes on GPIO 25, back-fed loads, arming inrush and audio level.
 - Refuse units of one reference that use different library symbols, or differ in value, footprint or fitting, across all sheets.
 - Rate the terminal controller fuses F1 and F2 at 60 V or more, above the TVS clamp.
+- Check `pins.yaml` against the SPI display table of BOARD_SUPPORT.md too. The toy and the terminal controller skip it for GPIO 25 and GPIO 4, which they use otherwise.
+- Find RobCo-Core two levels up in the tests too, so the real pin table tests run from a worktree.
+- Add the Pip-Boy HAT spec, its header map and its bring-up checklist. Specification only.
