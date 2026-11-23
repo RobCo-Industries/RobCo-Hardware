@@ -2858,7 +2858,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Transistor_BJT:2N3904"
+		(symbol "Transistor_BJT:Q_NPN_EBC"
 			(pin_names
 				(offset 0)
 				(hide yes)
@@ -2869,7 +2869,7 @@
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
 			(property "Reference" "Q"
-				(at 5.08 1.905 0)
+				(at 5.08 1.27 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -2879,8 +2879,8 @@
 					(justify left)
 				)
 			)
-			(property "Value" "2N3904"
-				(at 5.08 0 0)
+			(property "Value" "Q_NPN_EBC"
+				(at 5.08 -1.27 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
@@ -2890,20 +2890,18 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
-				(at 5.08 -1.905 0)
+			(property "Footprint" ""
+				(at 5.08 2.54 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(hide yes)
 				(effects
 					(font
 						(size 1.27 1.27)
-						(italic yes)
 					)
-					(justify left)
 				)
 			)
-			(property "Datasheet" "https://www.onsemi.com/pub/Collateral/2N3903-D.PDF"
+			(property "Datasheet" ""
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2912,10 +2910,9 @@
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left)
 				)
 			)
-			(property "Description" "0.2A Ic, 40V Vce, Small Signal NPN Transistor, TO-92"
+			(property "Description" "NPN transistor, emitter/base/collector"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2948,7 +2945,7 @@
 					)
 				)
 			)
-			(property "ki_keywords" "NPN Transistor"
+			(property "ki_keywords" "BJT"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2959,18 +2956,7 @@
 					)
 				)
 			)
-			(property "ki_fp_filters" "TO?92*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "2N3904_0_1"
+			(symbol "Q_NPN_EBC_0_1"
 				(polyline
 					(pts
 						(xy -2.54 0) (xy 0.635 0)
@@ -3007,7 +2993,7 @@
 					)
 				)
 			)
-			(symbol "2N3904_1_1"
+			(symbol "Q_NPN_EBC_1_1"
 				(polyline
 					(pts
 						(xy 0.635 0.635) (xy 2.54 2.54)
@@ -4382,7 +4368,7 @@
 		)
 		(uuid "96600ef1-ab83-5cbf-b71e-e87e000e50f8")
 	)
-	(text "To verify: Q1 pin order assumed for TO-220 as\n1 gate, 2 drain, 3 source (IRF9540N style).\nQ2 2N3904, TO-92: 1 emitter, 2 base, 3 collector.\nCheck both against the parts bought."
+	(text "To verify: Q1 pin order assumed for TO-220 as\n1 gate, 2 drain, 3 source (IRF9540N style).\nQ2 2N5551, TO-92: 1 emitter, 2 base, 3 collector.\nCheck both against the parts bought."
 		(exclude_from_sim no)
 		(at 76.2 190.5 0)
 		(effects
@@ -4391,7 +4377,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "dfec9c65-4e25-5f08-93eb-652743472bea")
+		(uuid "c535c0b1-2b18-549c-a81b-a054e87ba731")
 	)
 	(rectangle
 		(start 198.12 81.28)
@@ -6640,7 +6626,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Transistor_BJT:2N3904")
+		(lib_id "Transistor_BJT:Q_NPN_EBC")
 		(at 60.96 147.32 0)
 		(unit 1)
 		(body_style 1)
@@ -6661,7 +6647,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2N3904"
+		(property "Value" "2N5551"
 			(at 66.04 148.59 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6694,7 +6680,7 @@
 				)
 			)
 		)
-		(property "Description" "NPN, TO-92. Pulls ARM_G down when ARM is high."
+		(property "Description" "NPN, 160 V, TO-92. Pulls ARM_G down when ARM is high."
 			(at 60.96 147.32 0)
 			(hide yes)
 			(show_name no)

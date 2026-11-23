@@ -145,7 +145,7 @@ Reverse polarity: D1 blocks a reversed supply. Its drop is about 0.55 V at 1 A a
 
 D2 clamps spikes on the load rail. A 26 V standoff lets a 24 V supply run below the clamp. A 24 V supply can sit at 24 V + 5 % = 25.2 V, which is still below 26 V. Check the standoff of the exact part.
 
-At its rated pulse such a TVS clamps near 42 V (typical, check: from memory, to verify). Every part on the rails it protects is rated above that: D1 and D4 at 60 V, Q1 at 60 V or more, C1 and C9 at 50 V, the ULN2803A at 50 V, F1 and F2 at 60 V or more.
+At its rated pulse such a TVS clamps near 42 V (typical, check: from memory, to verify). Every part on the rails it protects is rated above that: D1 and D4 at 60 V, Q1 at 60 V or more, Q2 at 160 V, C1 and C9 at 50 V, the ULN2803A at 50 V, F1 and F2 at 60 V or more.
 
 A tripped fuse sees the difference between its two sides. With a short on its far side that is the whole rail, so each fuse is rated 60 V to leave room above the clamp.
 
@@ -276,7 +276,7 @@ This stage cuts every load whenever the Pi is not running the software. See [the
 | R20 | 100 kOhm | `V_PROT` to `ARM_G` |
 | D3 | 12 V zener, 500 mW, DO-35 | Cathode `V_PROT`, anode `ARM_G` |
 | R21 | 1 kOhm | `ARM_G` to Q2 collector |
-| Q2 | NPN, 2N3904, TO-92 | Emitter `GND`, base via R22 |
+| Q2 | NPN, 2N5551, 160 V, TO-92 | Emitter `GND`, base via R22 |
 | R22 | 4.7 kOhm | `ARM`, GPIO 25 on header pin 22, to the Q2 base |
 | R23 | 100 kOhm | Q2 base to `GND` |
 | D4 | Schottky 3 A, 60 V, SB360 class, DO-201AD | Anode `GND`, cathode `V_SW` |
@@ -288,7 +288,7 @@ This stage cuts every load whenever the Pi is not running the software. See [the
 
 Operation: `ARM` (GPIO 25) high turns Q2 on. Q2 pulls `ARM_G` down through R21. Q1 turns on and `V_SW` follows `V_PROT`. GPIO 25 low or floating leaves Q2 off. R20 holds Q1's gate at its source. `V_SW` is dead.
 
-Gate voltage with Q2 on. R20 and R21 form a divider across `V_PROT` minus Q2's saturation voltage: Vgs = -(`V_PROT` - 0.2 V) x 100 / 101. `V_PROT` is the supply minus D1's drop. Q2 saturates at 0.2 V or less (typical, check the 2N3904). D3 clamps the result at -12 V.
+Gate voltage with Q2 on. R20 and R21 form a divider across `V_PROT` minus Q2's saturation voltage: Vgs = -(`V_PROT` - 0.2 V) x 100 / 101. `V_PROT` is the supply minus D1's drop. Q2 saturates at 0.2 V or less. The 2N5551 has a saturation voltage of 0.15 V at most at 10 mA with 1 mA of base current (from memory, to verify). Q2 runs with less base drive, so take 0.2 V. D3 clamps the result at -12 V.
 
 | Supply | D1 drop | `V_PROT` | Divider Vgs | After D3 clamp |
 |---|---|---|---|---|
@@ -298,7 +298,7 @@ Gate voltage with Q2 on. R20 and R21 form a divider across `V_PROT` minus Q2's s
 | 24 V, light load | 0.35 V | 23.65 V | -23.2 V | -12 V |
 | 25.2 V, highest, light load | 0.35 V | 24.85 V | -24.4 V | -12 V, -12.6 V at the zener's +5 % |
 
-The zener keeps Vgs below the 20 V limit. Worst case at 25.2 V, taken without D1's drop: R21 carries (25.2 - 12 - 0.2) / 1 kOhm = 13 mA. R20 takes 12 V / 100 kOhm = 0.12 mA. D3 carries 12.9 mA and dissipates 12 V x 12.9 mA = 155 mW, inside 500 mW. R21 dissipates 13 V x 13 mA = 169 mW, inside 1/4 W. Q2 collector current is 13 mA. Base current (3.3 - 0.7) / 4.7 kOhm = 0.55 mA. A 2N3904 has hFE 100 or more at 10 mA (typical, check), so it saturates with a margin of 0.55 x 100 / 13 = 4.2.
+The zener keeps Vgs below the 20 V limit. Worst case at 25.2 V, taken without D1's drop: R21 carries (25.2 - 12 - 0.2) / 1 kOhm = 13 mA. R20 takes 12 V / 100 kOhm = 0.12 mA. D3 carries 12.9 mA and dissipates 12 V x 12.9 mA = 155 mW, inside 500 mW. R21 dissipates 13 V x 13 mA = 169 mW, inside 1/4 W. Q2 collector current is 13 mA. Base current (3.3 - 0.7) / 4.7 kOhm = 0.55 mA. A 2N5551 has hFE 80 or more at 10 mA (from memory, to verify), so it saturates with a margin of 0.55 x 80 / 13 = 3.4. With a weak GPIO high of 3.0 V the base gets (3.0 - 0.7) / 4.7 kOhm = 0.49 mA. R23 takes 0.7 V / 100 kOhm = 0.007 mA. The margin is still 0.48 x 80 / 13 = 3.0. R22 and R23 stay as they are.
 
 ARM floating or low: R23 holds Q2 off. R20 ties the gate to the source. Leakage of Q2 and of Q1's gate, 1 uA at most together (assumed), drops 1 uA x 100 kOhm = 0.1 V across R20. That is far below any gate threshold. Q1 stays off.
 
@@ -620,7 +620,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | U7 | 1 | 24C32 class EEPROM | SOIC-8 | Not fitted |
 | M1 | 1 | PAM8302A mono class-D breakout module | 2.54 mm pins | Check the module pinout |
 | Q1 | 1 | P-channel MOSFET, 60 V or more, threshold 2.5 V or less, Rds(on) 0.1 Ohm or less at -4.5 V | TO-220 | See section 4.4. Example from memory, to verify: Vishay SQP50P06-15L |
-| Q2 | 1 | 2N3904 | TO-92 | |
+| Q2 | 1 | 2N5551, NPN, 160 V | TO-92 | MPSA06, 80 V, also fits. Check the pin order. |
 | D1, D4 | 2 | SB360, 3 A 60 V Schottky | DO-201AD | Any 3 A 60 V Schottky in DO-201AD |
 | D2 | 1 | TVS 600 W, about 26 V standoff, unidirectional | DO-15 | Check the standoff |
 | D3 | 1 | 12 V zener, 500 mW | DO-35 | |
@@ -802,13 +802,13 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 - PAM8302A chip package: check whether a hand-solderable version exists.
 - F2 hold, trip, minimum resistance, tripped power and trip time: typical, check the data sheet of the part you buy.
 - F1 and F2 example parts, RXEF110 and MF-R020, and their ratings: from memory, to verify.
-- Q2, the 2N3904, is rated 40 V collector to emitter (from memory, to verify). With Q2 off its collector sits near `V_PROT` through R20 and R21, so a clamp near 42 V exceeds that rating. R20 limits the current to 0.4 mA. Decide whether to use a 60 V NPN.
+- Q2 2N5551: 160 V collector to emitter, TO-92 pin order 1 emitter, 2 base, 3 collector, hFE 80 or more at 10 mA, saturation 0.15 V at 10 mA and 1 mA base: from memory, to verify.
 - Sensor allowance on `+V_S`: 50 mA assumed. Larger sensors need their own supply with JP10 removed.
 - F1 trip current near 2.2 A and Q1 safe operating area in a `V_SW` short: check.
 - Pi 5 V budget for loads through JP1: 300 mA assumed. Check the Pi model's input fuse and supply.
 - Terminal count against the 65 mm and 56 mm edges: check the fit.
 - HAT EEPROM pull-ups 3.9 kOhm and WP pull-up 1 kOhm: from memory of the HAT design guide, check it.
-- D2 clamp near 42 V at its rated pulse: from memory, check the part. C1, C9, D1, D4 and Q1 ratings rest on it.
+- D2 clamp near 42 V at its rated pulse: from memory, check the part. C1, C9, D1, D4, Q1 and Q2 ratings rest on it.
 - DS1338 VBAT grounded when no cell is used: from memory of the DS1307 family, check the DS1338 data sheet.
 - Pi internal pull-up value about 50 kOhm: check.
 - A door strike current above 200 mA needs an external relay or two paralleled channels.

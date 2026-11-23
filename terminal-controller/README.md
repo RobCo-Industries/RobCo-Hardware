@@ -39,7 +39,7 @@ ERC has no waiver. The project file sets no rule severity.
 The sheets mark these "to verify". Check each one against the data sheet of the part bought:
 
 - Q1: TO-220 pin order 1 gate, 2 drain, 3 source, as the IRF9540N. The own symbol `Q_PMOS_GDS` assumes it.
-- Q2: 2N3904 TO-92 pin order 1 emitter, 2 base, 3 collector, from the stock symbol.
+- Q2: 2N5551 TO-92 pin order 1 emitter, 2 base, 3 collector, from the stock symbol `Q_NPN_EBC`. KiCad has no 2N5551 TO-92 symbol.
 - U1, U2: PCA9554 pinout and address formula. The own symbol is drawn from the TCA9554DW.
 - U3: DS1338 pinout, same as the DS1307. The 6 pF crystal with no load capacitors.
 - U5, U6: LTV-847 pinout from the stock symbol: 1 to 8 anode and cathode pairs, 16 C1 and 15 E1 down to 10 C4 and 9 E4.

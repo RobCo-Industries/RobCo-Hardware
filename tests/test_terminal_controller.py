@@ -267,10 +267,14 @@ def test_ratings_stand_above_the_surge_clamp():
         assert _volts(comps[ref].value) >= 50, f"{ref}: {comps[ref].value}"
     for ref in ("Q1", "F1", "F2"):
         assert _volts(comps[ref].value) >= 60, f"{ref}: {comps[ref].value}"
+    # Q2 collector sits at V_PROT when off. Ratings from memory, to verify.
+    npn_vceo = {"2N5551": 160, "MPSA06": 80}
+    assert npn_vceo.get(comps["Q2"].value, 0) >= 60, f"Q2: {comps['Q2'].value}"
     for ref in ("D1", "D4"):
         assert comps[ref].value == "SB360", f"{ref}: {comps[ref].value}"
     rows = {r: row["value"] for row in spec_bom() for r in row["refs"]}
     assert "60 V" in rows["D1"] and "60 V" in rows["Q1"] and "50 V" in rows["C1"], rows["D1"]
+    assert rows["Q2"].startswith(comps["Q2"].value) and _volts(rows["Q2"]) >= 60, rows["Q2"]
     for ref in ("F1", "F2"):
         assert _volts(rows[ref]) >= 60, f"{ref}: {rows[ref]}"
 

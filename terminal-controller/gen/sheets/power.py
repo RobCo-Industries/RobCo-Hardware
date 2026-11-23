@@ -125,9 +125,9 @@ def arm_switch(s: Schematic) -> None:
     r21 = res(s, "R21", "1k", (x, yg + g(6)), desc="Q1 gate to Q2 collector")
     s.wire((x, yg), r21.pin("1"))
     s.junction((x, yg))
-    q2 = s.symbol("Transistor_BJT:2N3904", "Q2", "2N3904", (x - g(2), yg + g(16)),
+    q2 = s.symbol("Transistor_BJT:Q_NPN_EBC", "Q2", "2N5551", (x - g(2), yg + g(16)),
                   footprint="Package_TO_SOT_THT:TO-92_Inline", ref_at=(g(4), g(-1)), value_at=(g(4), g(1)),
-                  description="NPN, TO-92. Pulls ARM_G down when ARM is high.")
+                  description="NPN, 160 V, TO-92. Pulls ARM_G down when ARM is high.")
     s.wire(r21.pin("2"), q2.pin("3"))
     s.power(q2, "1", "GND", stub=g(1))
     b = q2.pin("2")
@@ -179,7 +179,7 @@ def arm_switch(s: Schematic) -> None:
             "JP8: no shunt. Fitted, it bypasses the arm switch. Test only.", (x + g(10), g(134)))
     note(s, "To verify: Q1 pin order assumed for TO-220 as\n"
             "1 gate, 2 drain, 3 source (IRF9540N style).\n"
-            "Q2 2N3904, TO-92: 1 emitter, 2 base, 3 collector.\n"
+            "Q2 2N5551, TO-92: 1 emitter, 2 base, 3 collector.\n"
             "Check both against the parts bought.", (x + g(10), g(150)))
 
 
