@@ -8,11 +8,13 @@ See [SPEC.md](SPEC.md) for the circuit, the nets and the test points.
 
 Do each step in order. Stop at the first failure. Use a bench supply with a current limit for the steps without the Pi. Fit the CR1220 cell in BT1 before the first power-up, or close JP1 if you run without a cell. VBAT must not float.
 
+J3 takes a regulated 5 V source only. The board does not survive a 9 V or 12 V adapter. Never plug a USB cable into the Pi while J3 is powered: the Zero's data port would feed the computer's VBUS, and its power port would fight J3.
+
 ### Before power
 
 | Step | Action | Expected result | Software |
 |---|---|---|---|
-| 1 | Visual check: polarity of D1, C31, C33, BT1; pin 1 of U1; the flat side of Q1 and Q2; RV1 and M1 orientation. No solder bridges on U1. JP1 and JP2 open. | All parts oriented as the silkscreen shows | None |
+| 1 | Visual check: polarity of D1, D2, C31, C33, BT1; pin 1 of U1; Q3's gate, source and drain against the part's data sheet; the flat side of Q1 and Q2; RV1 and M1 orientation. No solder bridges on U1. JP1 and JP2 open. | All parts oriented as the silkscreen shows | None |
 | 2 | Check J1's pin 1 against the Pi Zero's pin 1, with the Pi face up below the board. Check J2's pin names against the module bought. | Pin 1 meets pin 1. The module's VCC, GND, CS, RESET, DC, SDI, SCK, LED and SDO match J2 pins 1 to 9. | None |
 | 3 | No Pi, no module. Resistance from `+3V3`, `+5V` and `V_EXT` to `GND`, and from `+3V3` to `+5V`. | No short. Several kOhm or more. | None |
 
@@ -21,7 +23,7 @@ Do each step in order. Stop at the first failure. Use a bench supply with a curr
 | Step | Action | Expected result | Software |
 |---|---|---|---|
 | 4 | No Pi, no module. 5.0 V on J3, limit 100 mA. | TP2 within 0.1 V of the supply. Current under 10 mA: only M1 idles. TP1 near 0 V. | None |
-| 5 | No Pi. Reverse the supply on J3, limit 1 A, for 5 seconds at most. | The supply goes into current limit through D1. Nothing else warms. Restore the polarity: TP2 returns to 5 V. | None |
+| 5 | No Pi, no module. Reverse 5.0 V on J3, limit 100 mA, for 10 seconds. Meter on TP2. | Supply current under 1 mA. TP2 stays at 0 V, within 0.05 V. Nothing warms: not F1, not Q3, not D1. If the supply hits its limit, Q3 is in backwards or its pins are swapped: stop. Restore the polarity: TP2 returns to within 0.1 V of 5 V. | None |
 | 6 | No Pi, module fitted. 3.3 V from a second supply on TP1, limit 200 mA. 5 V on J3. Ground both supplies together. | Backlight on: R20 holds Q2 on. Current from the 3.3 V supply 120 mA or less. Note it. TP7 at 3.0 V or more. | None |
 | 7 | Same set-up. Short `TFT_BL`, header pin 35, to `GND` with a 100 Ohm resistor. | Backlight off. TP7 under 0.2 V. 3.3 V current drops by the backlight current. Remove the resistor. | None |
 
@@ -41,7 +43,7 @@ Do each step in order. Stop at the first failure. Use a bench supply with a curr
 | 17 | Add `tft_backlight = 19`. Reboot. Turn the display off with `power` off in Deitrix, then on. | Backlight off while the display is off. On again with it. | Pip-OS `[display]` |
 | 18 | Audio. Set RV1 to its minimum. `[audio] volume = 100`. Play the power-on beep and a tune. Raise RV1 with an oscilloscope across J6 and a USB meter on the supply. | Beep and tune on the speaker. Stop raising RV1 at 2 V peak across the speaker, 0.5 W in 8 Ohm, or where the supply current rises by 150 mA over idle, whichever comes first. No distortion below that. | Pip-OS beep, Deitrix RADIO |
 | 19 | Same set-up. `[audio] volume = 30`. | Quieter, no distortion. | Pip-OS `[audio]` |
-| 20 | Pi USB unplugged. 5.0 V on J3 from a USB power bank lead. Run Deitrix with sound for 10 minutes. | TP2 4.75 V or more under sound. No reset. F1 cool. Total current 0.55 A or less. | Deitrix |
+| 20 | Every USB cable off the Pi. J3 from a USB power bank lead. Run Deitrix with sound for 10 minutes. Measure J3 pin 1 and TP2 under sound. | Drop from J3 pin 1 to TP2 0.21 V or less: F1 0.15 V warm plus Q3 0.055 V. TP2 4.43 V or more, the worst case of SPEC.md section 4.8. That margin is thin. Below 4.6 V, note it and try a shorter lead. No reset. F1 and Q3 warm at most. Total current 0.55 A or less. | Deitrix |
 | 21 | Zero 2 W in place of the Zero, if Pip-OS runs on it. Repeat steps 8, 18 and 20. | Same results. Total current 0.55 A or less with sound. | Pip-OS boot |
 
 ## Configuration lines
