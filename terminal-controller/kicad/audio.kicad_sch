@@ -3200,7 +3200,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k log"
+		(property "Value" "10k trimmer"
 			(at 152.4 78.74 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3361,7 +3361,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "PAM8302A module"
+		(property "Value" "PAM8302A"
 			(at 205.74 59.69 0)
 			(show_name no)
 			(do_not_autoplace no)

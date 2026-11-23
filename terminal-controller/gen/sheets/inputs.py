@@ -40,7 +40,7 @@ def channel(s: Schematic, i: int, at) -> None:
     a, k = opto.pin(str(2 * unit - 1)), opto.pin(str(2 * unit))
     c = opto.pin(str(18 - 2 * unit))
     ya = a[1]
-    r6 = res(s, f"R6{i}", "2k2/1k 0.5W", (x + g(8), ya), horizontal=True, fp=R_HALF_WATT,
+    r6 = res(s, f"R6{i}", "2k2/1k, 0.5W", (x + g(8), ya), horizontal=True, fp=R_HALF_WATT,
              desc=f"IN{i} LED current: 2.2 kOhm for 12 V and 24 V, 1 kOhm for 5 V; 0.5 W", **H_FIELDS)
     s.label_at(f"IN{i}", (x, ya))
     s.wire((x, ya), r6.pin("1"))

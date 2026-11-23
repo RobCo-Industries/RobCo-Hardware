@@ -4286,7 +4286,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k x 8 bussed"
+		(property "Value" "10k x 8, bussed"
 			(at 43.18 44.45 90)
 			(show_name no)
 			(do_not_autoplace no)

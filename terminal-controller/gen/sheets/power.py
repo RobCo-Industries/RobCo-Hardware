@@ -45,7 +45,7 @@ def supply(s: Schematic) -> None:
     s.wire((g(82), y), (g(82), y - g(6)))
     s.junction((g(82), y))
     s.power_symbol("V_PROT", (g(82), y - g(6)))
-    d2 = s.symbol("RobCo:D_TVS_Unidir", "D2", "TVS 26 V", (g(92), y + g(8)), rot=270,
+    d2 = s.symbol("RobCo:D_TVS_Unidir", "D2", "TVS, 26 V", (g(92), y + g(8)), rot=270,
                   ref_at=(g(2), g(-1)), value_at=(g(2), g(1)),
                   footprint="Diode_THT:D_DO-15_P12.70mm_Horizontal",
                   description="TVS, 600 W, unidirectional, about 26 V standoff, DO-15. Cathode V_PROT.")
@@ -85,7 +85,7 @@ def sensor_supply(s: Schematic) -> None:
 def arm_switch(s: Schematic) -> None:
     s.frame("Arm switch: the load rail V_SW is live only while ARM is high", (g(10), g(74)), (g(136), g(154)))
     x, y = g(50), g(90)
-    q1 = s.symbol("RobCo:Q_PMOS_GDS", "Q1", "P-MOSFET 40 V, TO-220", (x, y), rot=90, mirror="y",
+    q1 = s.symbol("RobCo:Q_PMOS_GDS", "Q1", "P-channel MOSFET, 40 V", (x, y), rot=90, mirror="y",
                   footprint="Package_TO_SOT_THT:TO-220-3_Vertical", ref_at=(g(2), g(5)), value_at=(g(2), g(7)),
                   description="P-channel MOSFET, 40 V or more, Vgs max 20 V, Rds(on) 0.1 Ohm or less at -4.5 V. "
                               "Source V_PROT, drain V_SW.")
@@ -96,7 +96,7 @@ def arm_switch(s: Schematic) -> None:
     s.power_symbol("V_PROT", (xs, ys - g(4)))
     # R20 and D3 from V_PROT to ARM_G, side by side.
     r20 = res(s, "R20", "10k", (x - g(20), ys + g(6)), desc="Holds Q1 off: gate to source")
-    d3 = s.symbol("Device:D_Zener", "D3", "12 V 500 mW", (x - g(12), ys + g(6)), rot=270, footprint=DO35,
+    d3 = s.symbol("Device:D_Zener", "D3", "12 V, 500 mW", (x - g(12), ys + g(6)), rot=270, footprint=DO35,
                   ref_at=(g(2), g(-1)), value_at=(g(2), g(1)),
                   description="Gate clamp, 12 V zener, DO-35. Cathode V_PROT, anode ARM_G.")
     yg = ys + g(12)

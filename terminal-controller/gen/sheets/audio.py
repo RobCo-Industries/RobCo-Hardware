@@ -61,7 +61,7 @@ def select(s: Schematic) -> None:
                    description="DC block, + side at AUD_SEL", **H_FIELDS)
     s.wire(jp9.pin("2"), c31.pin("1"))
     s.label_at("AUD_SEL", (g(96), g(50)))
-    rv1 = s.symbol("Device:R_Potentiometer_Trim", "RV1", "10k log", (g(128), g(56)),
+    rv1 = s.symbol("Device:R_Potentiometer_Trim", "RV1", "10k trimmer", (g(128), g(56)),
                    footprint="Potentiometer_THT:Potentiometer_Bourns_3386P_Vertical",
                    ref_at=(g(-8), g(4)), value_at=(g(-8), g(6)),
                    description="Volume, 10 kOhm trimmer, log taper if available")
@@ -73,7 +73,7 @@ def select(s: Schematic) -> None:
 
 def amplifier(s: Schematic, rv1) -> None:
     s.frame("Level, amplifier and speaker", (g(107), g(12)), (g(224), g(96)))
-    m1 = s.symbol("RobCo:PAM8302A_Module", "M1", "PAM8302A module", (g(164), g(56)), footprint=NO_FOOTPRINT,
+    m1 = s.symbol("RobCo:PAM8302A_Module", "M1", "PAM8302A", (g(164), g(56)), footprint=NO_FOOTPRINT,
                   ref_at=(g(-2), g(-11)), value_at=(g(-2), g(-9)),
                   description="PAM8302A class-D mono amplifier breakout, 2.54 mm pins. Pinout from the module bought.")
     wiper = rv1.pin("2")

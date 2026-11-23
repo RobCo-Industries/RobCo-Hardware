@@ -608,7 +608,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | R1, R2, R4 | 3 | 4.7 kOhm, 4.7 kOhm, 10 kOhm | Axial | Not fitted |
 | R3 | 1 | 10 kOhm | Axial | |
 | R70 to R77 | 8 | 47 kOhm | Axial | Input pull-ups |
-| R10 to R17, R24 | 9 | 1.5, 4.7 or 10 kOhm by load supply | Axial | See section 4.3 |
+| R10 to R17, R24 | 9 | 1.5 kOhm, 4.7 kOhm or 10 kOhm by load supply | Axial | See section 4.3 |
 | R20 | 1 | 10 kOhm | Axial | |
 | R21 | 1 | 1 kOhm | Axial | |
 | R22 | 1 | 4.7 kOhm | Axial | |
@@ -642,6 +642,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | JP8, JP10 | 2 | 1x2 pin header, shunt on JP10 only | THT | |
 | JP2 to JP7, JP11 | 7 | Solder jumper | Pads | |
 | TP1 to TP8 | 8 | Test point loop | THT | |
+| H1 to H4 | 4 | M2.5 mounting hole | Hole | Not a part to buy. Positions from the HAT drawing. |
 
 Fine-pitch parts: the PCA9554, the DS1338 and the 24C32 are SOIC, 1.27 mm pitch, which a hobbyist can solder with a fine tip. Do not choose their QFN or TSSOP versions. The PAM8302A chip is only small-package, so the board takes the module.
 

@@ -34,7 +34,7 @@ STRAPS = [
 
 def header(s: Schematic) -> None:
     s.frame("Raspberry Pi header J1", (g(10), g(12)), (g(84), g(112)))
-    j1 = s.symbol("Connector_Generic:Conn_02x20_Odd_Even", "J1", "Pi 40-pin, 2x20 socket", (g(46), g(52)),
+    j1 = s.symbol("Connector_Generic:Conn_02x20_Odd_Even", "J1", "2x20 female header", (g(46), g(52)),
                   footprint="Connector_PinSocket_2.54mm:PinSocket_2x20_P2.54mm_Vertical",
                   ref_at=(g(-3), g(-22)), value_at=(g(-8), g(24)),
                   description="Raspberry Pi 40-pin header, female 2x20 socket. Map in spec/pins.yaml.")
@@ -147,7 +147,7 @@ def clock(s: Schematic) -> None:
     s.power(u3, "4", "GND", stub=g(2))
     s.label(u3, "3", "VBAT", stub=g(2), then=[(g(6), 0)])
     s.label(u3, "7", "SQW", stub=g(3))
-    y1 = s.symbol("Device:Crystal", "Y1", "32.768 kHz 6 pF", (x - g(18), y + g(3)), rot=90,
+    y1 = s.symbol("Device:Crystal", "Y1", "32.768 kHz, 6 pF", (x - g(18), y + g(3)), rot=90,
                   footprint="Crystal:Crystal_C26-LF_D2.1mm_L6.5mm_Horizontal",
                   ref_at=(g(5), g(6)), value_at=(g(5), g(8)),
                   description="32.768 kHz crystal, 6 pF load, cylindrical. No load capacitors.")

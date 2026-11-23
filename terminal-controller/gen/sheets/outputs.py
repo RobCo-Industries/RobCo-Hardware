@@ -19,7 +19,7 @@ H_FIELDS = dict(ref_at=(g(3), g(-2)), value_at=(g(5), g(3)))
 def driver(s: Schematic) -> None:
     s.frame("Driver U4 and its input pull-downs RN1", (g(10), g(12)), (g(118), g(100)))
     # RN1 turned so its eight resistor pins face right, one per driver input row.
-    rn1 = s.symbol("Device:R_Network08", "RN1", "10k x 8 bussed", (g(26), g(46)), rot=90, mirror="x",
+    rn1 = s.symbol("Device:R_Network08", "RN1", "10k x 8, bussed", (g(26), g(46)), rot=90, mirror="x",
                    footprint="Resistor_THT:R_Array_SIP9", ref_at=(g(2), g(-13)), value_at=(g(8), g(-11)),
                    description="Pull-down on each driver input: 10 kOhm x 8 bussed, SIP-9, pin 1 common to GND")
     s.power(rn1, "1", "GND", stub=g(2), then=[(0, g(20))])

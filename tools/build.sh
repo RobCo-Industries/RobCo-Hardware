@@ -10,6 +10,7 @@
 #   erc     only ERC
 #   pins    only the pin check
 #   pintable  only the check that the pin table in spec/SPEC.md matches pins.yaml
+#   nettest the board's netlist tests, tests/test_<board>.py, if it has them
 #   drc     only DRC
 #   docs    schematic PDF and SVG, netlist, BOM
 #   render  3D renders: top, bottom, isometric
@@ -187,6 +188,15 @@ cmd_pintable() {
   "$KICAD_PY" "$REPO/tools/gen_pin_table.py" --check "$BDIR/spec/pins.yaml" "$doc"
 }
 
+# Netlist tests of a board: tests/test_<board>.py, run on the exported netlist.
+cmd_nettest() {
+  local t="$REPO/tests/test_${BOARD//-/_}.py"
+  [ -f "$t" ] || { say "no netlist tests for $BOARD"; return 0; }
+  [ -f "$(sch)" ] || { say "no schematic yet: netlist tests skipped"; return 0; }
+  netlist
+  ROBCO_NETLIST="$OUT/$BOARD.net" "$KICAD_PY" "$t" || die "netlist tests failed"
+}
+
 cmd_drc() {
   mkdir -p "$OUT"
   local pcbfile
@@ -213,6 +223,7 @@ cmd_check() {
   fi
   cmd_pins
   cmd_pintable
+  cmd_nettest
   cmd_drc
 }
 
@@ -264,6 +275,7 @@ case "$CMD" in
   erc) cmd_erc ;;
   pins) cmd_pins ;;
   pintable) cmd_pintable ;;
+  nettest) cmd_nettest ;;
   drc) cmd_drc ;;
   check) cmd_check ;;
   docs) cmd_docs ;;
@@ -271,5 +283,5 @@ case "$CMD" in
   fab) cmd_fab ;;
   out) cmd_docs; cmd_render; cmd_fab ;;
   test) cmd_test ;;
-  *) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,42p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

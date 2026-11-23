@@ -4590,7 +4590,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 27.94 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5232,7 +5232,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 44.45 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5874,7 +5874,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 60.96 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6516,7 +6516,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 77.47 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7158,7 +7158,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 93.98 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7800,7 +7800,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 110.49 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8442,7 +8442,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 127 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9084,7 +9084,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2/1k 0.5W"
+		(property "Value" "2k2/1k, 0.5W"
 			(at 63.5 143.51 90)
 			(show_name no)
 			(do_not_autoplace no)

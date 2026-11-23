@@ -7348,7 +7348,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Pi 40-pin, 2x20 socket"
+		(property "Value" "2x20 female header"
 			(at 48.26 96.52 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12448,7 +12448,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "32.768 kHz 6 pF"
+		(property "Value" "32.768 kHz, 6 pF"
 			(at 161.29 217.17 90)
 			(show_name no)
 			(do_not_autoplace no)
