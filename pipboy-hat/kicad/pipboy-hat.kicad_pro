@@ -33,11 +33,6 @@
     }
   },
   "boards": [],
-  "erc": {
-    "rule_severities": {
-      "isolated_pin_label": "ignore"
-    }
-  },
   "libraries": {
     "pinned_footprint_libs": [],
     "pinned_symbol_libs": []
