@@ -2,7 +2,7 @@
 
 Status: specification only. No schematic, no board. Nobody has built or tested it.
 
-The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device that runs Pip-OS and Deitrix. It carries a 2.8 inch ILI9341 SPI display, six keys, a rotary dial with a push button, a small speaker amplifier, a DS1338 clock and a serial console header. Revision 1 has no battery circuit: it runs from the Pi's USB port or a 5 V input header.
+The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device that runs Pip-OS and Deitrix. It carries a 2.8 inch ILI9341 SPI display, six keys, a rotary dial with a push button, a small speaker amplifier, a DS1338 clock and a serial console header. Revision 1 has no battery circuit: it runs from the Pi's USB port or from a 5 V input header with reverse-polarity protection. That header takes a regulated 5 V source only, with no USB cable on the Pi.
 
 - The spec: [spec/SPEC.md](spec/SPEC.md)
 - The header map: [spec/pins.yaml](spec/pins.yaml). The pin table in the spec is generated from it.

@@ -6,7 +6,7 @@
 
 The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device. It runs Pip-OS and its user interface, Deitrix. It carries an SPI colour display, six keys, a rotary dial with a push button, a small speaker amplifier, a clock chip and a serial console header.
 
-It is for the owner of the project and for any hobbyist who solders one. It assumes you can read a schematic and solder SOIC parts with an iron.
+It is for the owner of the project and for any hobbyist who solders one. It assumes you can read a schematic and solder SOIC and SOT-23 parts with an iron.
 
 Confidence marks used for data sheet figures, as in the terminal controller spec:
 
@@ -31,7 +31,7 @@ Software references:
 - Six 12 mm keys and a rotary encoder with a push button sit on the board, on the pins of the input example. A parallel 11-pin header, not fitted, takes a remote front panel instead.
 - A DS1338 clock with a crystal and a CR1220 cell sits on I2C1 at `0x68`.
 - A PAM8302A class-D module plays the PWM audio of GPIO 18 through a low-pass filter and a level trimmer.
-- 5 V comes from the Pi's USB power port or from a 2-pin input header with a polyfuse and a TVS diode.
+- 5 V comes from the Pi's USB power port or from a 2-pin input header with a polyfuse, a reverse-polarity MOSFET and a TVS diode. The header takes a regulated 5 V source only.
 - A 6-pin header carries the PL011 serial console at 3.3 V.
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
@@ -44,13 +44,14 @@ Software references:
    |      |   0x68 + Y1    socket, 14 pin  backlight  3.3 V only  filter     1 kOhm
    |      |   + BT1        DS1 ILI9341     switch                    |         |
    |      |                  ^   ^           |                       v         v
-   |      +------------------+   +-----------+ TFT_LED            C31, RV1   SW1-SW6 keys
+   |      +------------------+   +-----------+ TFT_LED           C31 R31 RV1 SW1-SW6 keys
    |      |                    VCC        LED                        |      SW7 dial + push
    |      +--> U2 ID EEPROM, not fitted                              v      J5 panel header
    |                                                            M1 PAM8302A    (not fitted)
    +-------------------------------------------------------------> Vin |
    |                                                                   v
-  J3 5 V in -> F1 polyfuse -> +5V rail, D1 TVS to GND                J6 speaker
+  J3 5 V in -> F1 polyfuse -> Q3 P-MOSFET -> +5V rail, D1 TVS        J6 speaker
+                              reverse block, D2, R1
 ```
 
 ## 3. The 40-pin header map
@@ -118,7 +119,7 @@ Notes on the map:
 
 Net names follow plan section 5 and the terminal controller: rails `+3V3`, `+5V`, `GND` and `V_EXT`; buses `I2C_SDA`, `I2C_SCL`, `SPI_SCLK`, `SPI_MOSI`, `SPI_MISO`; display lines `TFT_CS`, `TFT_DC`, `TFT_RESET`, `TFT_BL`, `TFT_LED`; inputs `BTN_UP`, `BTN_DOWN`, `BTN_LEFT`, `BTN_RIGHT`, `BTN_SELECT`, `BTN_BACK`, `DIAL_A`, `DIAL_B`, `DIAL_PUSH`; `AUDIO_PWM`, `UART_TX`, `UART_RX`, `ID_SD`, `ID_SC`. The full list is in [section 5](#5-net-names).
 
-Every resistor is 1/4 W metal film, 1 %, through-hole, unless the row says otherwise. Every 100 nF capacitor is ceramic X7R, 50 V, 2.54 mm or 5.08 mm lead pitch. The only SMD parts are U1 and U2 in SOIC-8, and U2 is not fitted.
+Every resistor is 1/4 W metal film, 1 %, through-hole, unless the row says otherwise. Every 100 nF capacitor is ceramic X7R, 50 V, 2.54 mm or 5.08 mm lead pitch. The only SMD parts are U1 and U2 in SOIC-8, and Q3 in SOT-23. U2 is not fitted. SOT-23 has three leads at 0.95 mm pitch, and an iron with a fine tip solders it.
 
 ### 4.1 Display
 
@@ -217,7 +218,7 @@ Pin: GPIO 19, header pin 35. It is not the default. `PIPOS.CFG` must say `tft_ba
 
 Operation: `TFT_BL` high turns Q2 on. Q2 pulls Q1's base down through R22. Q1 feeds `+3V3` to the module's LED pin. `TFT_BL` low turns both off, and R23 holds Q1 off.
 
-Backlight current: the module's LED pin feeds four white LEDs in parallel through a resistor on the module (typical, check). Design on 100 mA (assumed). Bring-up step 6 measures it.
+Backlight current: the module's LED pin feeds four white LEDs in parallel through a resistor on the module (typical, check). Design on 100 mA (assumed). With about 3.1 V at the LED pin, the current depends strongly on the LEDs' forward voltage, about 2.9 V to 3.2 V for white LEDs (typical, check). It may be well under 100 mA and the screen dim. Some modules instead drive an on-module transistor from the LED pin. Then the pin draws a few mA and the module lights the LEDs from VCC. Bring-up step 6 measures the current and shows which case applies. A later revision could feed the LED pin from `+5V` through a series resistor, sized from that measurement.
 
 Q1 drive. Q2 saturated pulls `BL_PB` to 0.1 V (assumed). Q1's base-emitter drop is about 0.8 V at 100 mA (typical, check). R22 carries (3.3 - 0.8 - 0.1) / 470 = 5.1 mA. R23 takes 0.8 V / 10 kOhm = 0.08 mA. Q1 gets 5.0 mA of base current, a forced gain of 100 / 5 = 20. A BC327-25 has a gain of 160 or more at 100 mA (from memory, to verify), so the margin is 8. Q1 then drops about 0.2 V (typical, check), and dissipates 0.2 V x 0.1 A = 20 mW. The module sees about 3.1 V. The backlight is a little dimmer than on a direct 3.3 V feed.
 
@@ -289,9 +290,11 @@ Series resistors: R40 to R48 limit current to 3.3 V / 1 kOhm = 3.3 mA if a cable
 
 Debounce: the software samples every pin at 100 Hz and debounces keys over 20 ms (Pip-OS `HARDWARE.md`). The keys need no hardware filter. C40 to C46 are footprints for a noisy panel cable: with one fitted, the line rises through the 50 kOhm pull-up with a time constant of 50 kOhm x 100 nF = 5 ms, inside the 20 ms window.
 
-Dial filter: C47 and C48 are fitted. A press discharges them through 1 kOhm: 1 kOhm x 10 nF = 10 us. A release recharges them through the pull-up: 50 kOhm x 10 nF = 0.5 ms, and the line crosses the input high level within about 1 ms. The decoder samples every 10 ms. Each A or B state must last one sample, so the software follows at most 100 transitions per second, 25 detents per second, about one turn per second of a 24-detent dial. The filter adds 1 ms against those 10 ms, so it does not lower that limit. It removes contact bounce shorter than about 0.5 ms (assumed) between samples. A faster spin loses steps in the software, not in the filter.
+Dial filter: C47 and C48 are fitted. The 10 nF with the pull-up slows only rising edges. A release recharges them through the pull-up: 50 kOhm x 10 nF = 0.5 ms. A press discharges them through 1 kOhm: 1 kOhm x 10 nF = 10 us, so falling edges stay fast. The filter masks bounce that opens the contact for less than about 0.4 ms: the line does not reach the input high level in that time. Longer bounce passes. The decoder tolerates bounce on one channel anyway: it moves one state forward and back.
 
-ESD: the keys sit behind plastic caps. J5 leads to a panel inside the same case. The 1 kOhm resistors and the Pi's pad clamps are the only protection. A TVS array in SOT-23-6 was rejected as not iron-friendly. A panel exposed to touch should add its own protection.
+Dial speed: the decoder samples every 10 ms, so each A or B state must last at least 10 ms. The four states of a real encoder are not equal in length (assumed, check the encoder's phase tolerance). The shortest one sets the limit. At 100 Hz sampling the safe limit is about 12 detents per second, half a turn per second of a 24-detent dial, not the 25 detents per second that equal states would give. A missed state shifts the detent phase until power-off, which is worse than a lost step: every later click may then count at the wrong point. The working limit is about 12 detents per second. The filter's 0.5 ms does not lower it. A faster dial needs a faster tick or an edge interrupt in the software, see the open items.
+
+ESD: the keys sit behind plastic caps. J5 leads to a panel inside the same case. The 1 kOhm resistors and the Pi's pad clamps are the only protection. A TVS array was rejected to keep the part count low on keys behind plastic caps. A panel exposed to touch should add its own protection.
 
 Layout for a wrist device, worn on the left forearm and used with the right hand. The keys and the dial sit on a strip to the right of the screen, nearest the hand:
 
@@ -320,7 +323,8 @@ Choice: the same filter and the same PAM8302A module as the terminal controller,
 | R30 | 270 Ohm | `AUDIO_PWM`, GPIO 18, header pin 12, to `AUD_F` |
 | C30 | 33 nF film or C0G | `AUD_F` to `GND` |
 | C31 | 10 uF, 16 V electrolytic or film | `AUD_F` to `AUD_DC`, DC block |
-| RV1 | 10 kOhm trimmer, through-hole | Ends `AUD_DC` and `GND`, wiper `AUD_IN` |
+| R31 | 33 kOhm | `AUD_DC` to `AUD_T`, sets RV1's range |
+| RV1 | 10 kOhm trimmer, through-hole | Ends `AUD_T` and `GND`, wiper `AUD_IN` |
 | M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected, outputs `SPK_P` and `SPK_N` |
 | C32 | 100 nF | M1 Vin to `GND` |
 | C33 | 47 uF, 16 V electrolytic | `+5V` to `GND`, near M1 |
@@ -328,19 +332,38 @@ Choice: the same filter and the same PAM8302A module as the terminal controller,
 | LS1 | Speaker, 8 Ohm, 0.5 W or more, 20 to 28 mm round | On J6, off the board |
 | TP6 | Test point | `AUD_IN` |
 
-Filter: the terminal controller arithmetic applies unchanged. f = 1 / (2 x pi x 270 x 33e-9) = 17.9 kHz, the values audio.md gives. The filtered square wave reaches about 1.1 Vrms at full level (terminal controller BRINGUP.md, step 17).
+Filter: the terminal controller arithmetic applies unchanged. f = 1 / (2 x pi x 270 x 33e-9) = 17.9 kHz, the values audio.md gives. Source level: the PWM swings 0 to 3.3 V. After C31 a full-scale signal is at most 1.65 V peak, either way of zero. A full-scale square wave is then 1.65 Vrms. A full-scale sine is 1.65 / 1.41 = 1.17 Vrms. Pip-OS tones are square waves: `audio_set_volume()` sets the duty cycle, and 100 gives 50 %, the loudest square wave (RobCo-Core `docs/guide/api/audio.md`). PCM samples are 8-bit, scaled by the volume around 128, so a full-scale sine is the loudest PCM case. The 1.1 Vrms of the terminal controller (BRINGUP.md, step 17) treated a square wave as a sine. This section uses the 1.65 V peak for clipping and power.
 
 Where it differs from the terminal controller:
 
 - No jack and no source jumper. Every supported Zero has its PWM on GPIO 18.
+- R31 sits above RV1, so the working point falls between 30 % and 50 % of the travel. See "Trimmer range" below.
 - RV1 is a ceiling, not a volume knob. Software volume exists: `[audio] volume` in `PIPOS.CFG`, 0 to 100, and Deitrix has a Volume row on its RADIO tab. RV1 sets the loudest level once, so volume 100 does not clip the amplifier or overload a small speaker or a power bank.
 - A smaller speaker: 8 Ohm only, no 4 Ohm. 8 Ohm halves the peak current.
 
 Why the PAM8302A module: the chip comes only in small packages that are hard to solder with an iron (typical, check: MSOP-8 or DFN). The module brings it ready-soldered, as on the first board. Rejected: the LM386 in DIP-8. It is hand-solderable, but class AB wastes more of a battery's energy and needs its own gain and output parts.
 
-Power: set RV1 so a full-volume square wave gives at most 2 V peak on the speaker, 2 V x 2 V / 8 Ohm = 0.5 W. The amplifier then draws 0.5 W / 0.85 / 5 V = 118 mA from `+5V` (efficiency 85 %, typical, check). Budget 150 mA. Unlimited, a clipped square wave in bridge mode at 5 V could put 5 V x 5 V / 8 Ohm = 3.1 W into the speaker and draw 3.1 / 0.85 / 5 = 0.74 A. That is why RV1 stays. Idle current about 4 mA (typical, check). SD stays open: the module pulls it high (typical, check the module), and a pin to shut it down would save 20 mW at most.
+Power: set RV1 so a full-volume square wave gives at most 2 V peak on the speaker, 2 V x 2 V / 8 Ohm = 0.5 W. A square wave's rms equals its peak, so this is the worst case and the speaker rating of 0.5 W is checked against it. A full-scale PCM sine at the same setting also peaks at 2 V and gives 2 V x 2 V / 2 / 8 Ohm = 0.25 W. The amplifier then draws 0.5 W / 0.85 / 5 V = 118 mA from `+5V` (efficiency 85 %, typical, check). Budget 150 mA. Unlimited, a clipped square wave in bridge mode at 5 V could put 5 V x 5 V / 8 Ohm = 3.1 W into the speaker and draw 3.1 / 0.85 / 5 = 0.74 A. That is why RV1 stays. Idle current about 4 mA (typical, check). SD stays open: the module pulls it high (typical, check the module), and a pin to shut it down would save 20 mW at most.
 
 The PAM8302A drives the speaker in bridge mode (typical, check). Neither speaker wire is ground.
+
+Trimmer range: the module's gain is about 24 dB, 15.8 times (from memory, to verify). 2 V peak at the speaker needs 2 V / 15.8 = 0.127 V peak at A+, 0.077 of the 1.65 V source. RV1 alone, unloaded, would sit at 8 % of its travel, too close to the end to set well. R31 divides first.
+
+The network: the source is the filtered PWM through R30, 270 Ohm, and C31. C31 is 16 Ohm at 1 kHz, and both are small next to R31, so this section ignores them. R31 feeds the top of RV1. The wiper splits RV1 at position x, 0 at `GND` and 1 at the top: (1 - x) x RV1 above the wiper, x x RV1 below it. The module's input impedance Zin sits in parallel with the lower part. With Rlow = (x x RV1) in parallel with Zin:
+
+V(A+) / V(source) = Rlow / (R31 + (1 - x) x RV1 + Rlow)
+
+Zin is about 10 kOhm (from memory, to verify) and could be well above it. This section takes 10 kOhm to 100 kOhm. Step 18 of BRINGUP.md measures it. R31 = 33 kOhm (E12) keeps the 2 V target between 30 % and 50 % of the travel across that range:
+
+| Zin | RV1 position for 2 V peak | Speaker peak at full travel, square wave |
+|---|---|---|
+| 10 kOhm | 47 % | 3.4 V |
+| 30 kOhm | 37 % | 4.8 V |
+| 100 kOhm | 34 % | 5.6 V asked, clipped near 5 V |
+
+R31 = 27 kOhm would put the 100 kOhm case at 29 %. R31 = 51 kOhm put the 10 kOhm case at 79 %, and its full travel gave only 2.3 V. At full travel with a high Zin the amplifier clips at its 5 V supply. That is acceptable for a ceiling set once at bring-up: the target sits well below the end, and step 18 stops at 2 V. Turned fully up by mistake, the speaker can see a clipped square wave near 5 V peak, about 3.1 W, as section "Power" says.
+
+C31 into the network: the lowest resistance it sees is R31 plus RV1 in parallel with 10 kOhm, at full travel, about 38 kOhm. The corner is 1 / (2 x pi x 38 kOhm x 10 uF) = 0.42 Hz.
 
 ### 4.6 Clock
 
@@ -388,34 +411,126 @@ Sources, one at a time:
 1. The Pi's micro USB power port. Use it on the bench and with a power bank and a cable.
 2. J3, a 2-pin 5 V input header, for a power bank lead or a ready-made charger and boost module inside the case.
 
-Never connect both. J3 feeds the Pi's 5 V rail through header pins 2 and 4, the same rail its USB power port feeds (typical, check the Zero schematic). Two sources on one rail fight. Silkscreen beside J3: "5 V IN. NOT WITH PI USB POWER."
+Never connect both. J3 feeds the Pi's 5 V rail through header pins 2 and 4, the same rail its USB power port feeds (typical, check the Zero schematic). Two sources on one rail fight.
+
+J3 takes a regulated 5 V source only, such as a USB power bank lead. The board does not protect against a continuous overvoltage. A 9 V or 12 V adapter on J3 damages the Pi and the amplifier within seconds. See "Overvoltage" below.
+
+Back-feed through the Pi's data port: on the Zero, the VBUS pin of the USB data port is tied to the 5 V rail (from memory, to verify on the Zero schematic). With J3 powered and a computer on the data port, this board feeds the computer's VBUS. Do not plug a USB cable into the Pi while J3 is powered.
+
+Silkscreen beside J3: "REGULATED 5 V IN. NO USB CABLE ON THE PI."
 
 | Ref | Part | Connection |
 |---|---|---|
 | J3 | 2-pin header, 2.54 mm, or a 2-pin JST PH, through-hole | Pin 1 `V_EXT`, pin 2 `GND`. Silkscreen "+5V" and "-". |
-| F1 | Radial polyfuse, 0.9 A hold, 1.8 A trip, 16 V or more, example Bourns MF-R090 | `V_EXT` to `+5V` |
+| F1 | Radial polyfuse, 0.9 A hold, 1.8 A trip, 16 V or more, example Bourns MF-R090 | `V_EXT` to `V_F` |
+| Q3 | P-channel MOSFET, SOT-23, see the ratings below | Drain `V_F`, source `+5V`, gate `RP_G` |
+| R1 | 10 kOhm | `RP_G` to `GND` |
+| D2 | 6.2 V zener, 500 mW, DO-35, example 1N5234B | Cathode `+5V`, anode `RP_G` |
 | D1 | TVS diode, 600 W, unidirectional, 5.8 V standoff, example P6KE6.8A, DO-15 | Cathode `+5V`, anode `GND` |
 | TP1, TP2, TP3 | Test points | `+3V3`, `+5V`, `GND` loop |
 
 The example parts are from memory, to verify.
 
-Reverse polarity: a reversed source on J3 drives D1 forward. D1 conducts amps at about 1 V and F1 trips (typical, check the trip curve). Nothing in series drops voltage in normal use. A series Schottky was rejected: its 0.3 V to 0.5 V drop would take a 5 V source below the Pi's undervoltage threshold, about 4.63 V (from memory, to verify). A P-channel MOSFET was rejected because no common through-hole part is specified at a -5 V gate drive.
+#### Reverse polarity
 
-Overvoltage: D1 stands off 5.8 V, above a 5.25 V source at +5 %. At its rated pulse it clamps near 10.5 V (typical, check). The first board's lesson is that every part on a protected rail is rated above the clamp. That holds for F1, 16 V or more, C33, 16 V, and the 50 V ceramics. It does not hold for the Pi or for the PAM8302A, whose absolute maximum is about 6 V (typical, check). D1 only absorbs short spikes and reversed leads. It does not make a wrong supply safe. Use a regulated 5 V USB source only.
+Choice: Q3, a P-channel MOSFET in the supply path after F1.
 
-Polyfuse size: the device draws 0.55 A at most, see the budget below. F1 holds 0.9 A at 25 C and about 80 % of that at 50 C (typical, check the derating), so 0.72 A, above 0.55 A. It trips at 1.8 A, below the 2.1 A to 2.4 A most power banks deliver (assumed), so a short trips F1 before the bank cuts out.
+How it works. A P-channel MOSFET has its body diode from drain to source: anode at the drain, cathode at the source. Q3's drain faces J3, through F1. Its source is `+5V`. Its gate sits at `GND` through R1.
+
+- Correct supply: `V_F` is at 5 V. The body diode conducts, and `+5V` rises to about 4.3 V. The gate is at 0 V, so Vgs is about -4.3 V and the channel turns on. The channel then shorts the body diode, and `+5V` follows `V_F` less the channel drop.
+- Reversed supply: `V_F` is at -5 V. The body diode is reverse biased and blocks. `+5V` stays at 0 V, the gate is at 0 V, Vgs is 0 V, and the channel stays off.
+
+D2 clamps the gate to source voltage. R1 limits D2's current. R1 also discharges the gate.
+
+Q3 ratings:
+
+| Parameter | Need |
+|---|---|
+| Drain to source voltage | -20 V or more in magnitude, to block a reversed 12 V adapter |
+| Gate to source voltage, maximum | ±8 V or more |
+| Rds(on) at Vgs = -4.5 V | 0.06 Ohm or less |
+| Rds(on) at Vgs = -2.5 V | 0.1 Ohm or less |
+| Gate threshold | -0.4 V to -1.3 V |
+| Drain current, continuous | 3 A or more, so a short carries the bank's current until F1 trips |
+| Package | SOT-23 |
+
+Examples, from memory, to verify: Alpha and Omega AO3401A, -30 V, ±12 V gate, about 0.05 Ohm at -4.5 V and 0.08 Ohm at -2.5 V. Diodes Inc. DMG2305UX, -20 V, ±8 V gate, about 0.05 Ohm at -4.5 V and 0.07 Ohm at -2.5 V. Check the SOT-23 pin order: gate 1, source 2, drain 3 is common, not universal.
+
+Arithmetic, with 0.1 Ohm for a hot Q3 (assumed, about 1.5 times the -4.5 V figure):
+
+- Drop at the 0.55 A design limit: 0.55 A x 0.1 Ohm = 0.055 V.
+- Dissipation: 0.55 A x 0.55 A x 0.1 Ohm = 30 mW. A SOT-23 takes about 300 mW on a small copper pad (typical, check).
+- Gate at a 4.75 V source: Vgs is about -4.7 V. Rds(on) sits near its -4.5 V figure.
+- Gate at a 5.25 V source: Vgs is about -5.2 V. D2 is below its knee and leaks a few uA (typical, check). R1 drops 5 uA x 10 kOhm = 0.05 V. Vgs barely moves.
+- With 12 V applied the right way round: D2 clamps Vgs at about -6.2 V, -6.5 V at its +5 % tolerance. That is inside ±8 V. R1 carries (12 - 6.2) / 10 kOhm = 0.58 mA. D2 dissipates 6.2 V x 0.58 mA = 3.6 mW. R1 dissipates 5.8 V x 0.58 mA = 3.4 mW. Q3 is on, so 12 V reaches `+5V`: see "Overvoltage".
+- With 12 V reversed: Vgs is 0 V. Q3's drain sits at -12 V, inside its -20 V rating.
+
+What a reversed supply does now, with Q3 off:
+
+- J3 and `V_EXT`: at the reversed voltage. No current flows, apart from Q3's leakage, 1 uA or less (typical, check).
+- F1: carries only that leakage. It stays cold and does not trip.
+- Q3: blocks with its drain at the reversed voltage.
+- `+5V`, D1, D2, the Pi and the amplifier: 0 V. D1 does not conduct.
+
+A reversed J3 with the Pi also powered from USB breaks the rule above. Q3 is then on, driven by the Pi's rail, and the USB supply drives a short into the reversed source through F1. F1 trips or the USB supply cuts out.
+
+D1 sits on `+5V`, after Q3. There it takes short spikes that come through J3 with the right polarity, and spikes on the rail from the Pi's side. A reversed supply never reaches it. Before Q3, a reversed supply would drive D1 forward through F1, which is the fault this change removes.
+
+D1's leakage at 5.25 V is negligible in the budget. Its leakage rating, about 1 mA at the 5.8 V standoff (from memory, to verify), falls steeply below the standoff.
+
+Back-feed through Q3: the channel conducts both ways when it is on. With the Pi powered from its USB port, `+5V` is at 5 V, Vgs is -5 V, and Q3 turns on. J3 pin 1 then sits at about 5 V through Q3 and F1. The old design without Q3 did the same through F1. It matters only when something is plugged into J3. A power bank switched off sees 5 V on its output. Most banks block it (assumed). A shorted J3 lead draws current through F1 until F1 trips. The rule stands: never connect both sources.
+
+Rejected:
+
+- D1 alone, as in the first draft of this spec. Reversed, D1 conducts at about 1 V and the Pi's rail sees about -1 V. Against a 2.1 A to 2.4 A power bank, F1 sees only 1.2 to 1.3 times its 1.8 A trip current. It may never trip, and the bank's own cut-off ends the fault first.
+- A series Schottky. Its 0.3 V to 0.5 V drop eats the margin of the voltage budget below.
+
+#### Overvoltage
+
+The board does not protect against a continuous overvoltage.
+
+D1 stands off 5.8 V, above a 5.25 V source at +5 %. It breaks down at 6.45 V to 7.14 V (from memory, to verify). Its 10.5 V clamp figure holds only at its rated 57 A pulse. On a continuous 9 V or 12 V source:
+
+- D1 breaks down and the rail sits at about 7 V to 7.5 V, set by D1 and the source's current limit.
+- At 2 A from the source, D1 dissipates about 7.5 V x 2 A = 15 W. Its steady-state rating is 5 W (from memory, to verify). It overheats.
+- F1 sees 2 A, 1.1 times its 1.8 A trip current. It takes tens of seconds to trip (from memory of the trip curve, to verify).
+- The PAM8302A and the Pi's regulators have absolute maxima of about 6 V (from memory, to verify). They fail within seconds.
+
+D1 is for short spikes only. The rule is: a regulated 5 V source only.
+
+A real overvoltage switch was rejected for this revision: the usual parts come in packages that a person cannot solder with an iron, and the supply is a USB power bank.
+
+Parts on `+5V` are rated above D1's breakdown: F1 at 16 V or more, Q3 at 20 V or more, C33 at 16 V, and the 50 V ceramics. The Pi and the PAM8302A are not.
+
+#### Voltage budget
+
+F1 and Q3 drop voltage in series. At the 0.55 A design limit:
+
+| Item | Value | Confidence |
+|---|---|---|
+| Source at its lowest | 4.75 V | USB limit, from memory, to verify |
+| Cable, 0.2 Ohm round trip for a thin lead | -0.11 V | assumed |
+| F1, 0.07 Ohm to 0.22 Ohm | -0.04 V to -0.12 V, about -0.15 V when warm | from memory, to verify; warm figure assumed |
+| Q3, 0.1 Ohm hot | -0.055 V | from the ratings above |
+| `+5V` at worst | 4.75 - 0.11 - 0.15 - 0.055 = 4.43 V | |
+
+The margin is thin. A typical bank at 5.05 V with a short lead gives about 5.05 - 0.05 - 0.05 - 0.03 = 4.92 V (assumed).
+
+The Pi's limit is not known here. The Zero has no 4.63 V undervoltage monitor (from memory, to verify). This spec assumes the Zero's switching regulators for 3.3 V and 1.8 V stay in regulation down to about 4.3 V (assumed, to verify on the Zero schematic). The PAM8302A runs down to about 2 V (from memory, to verify). If a board resets on a bank, use a shorter, thicker lead or a better bank.
+
+Polyfuse size: the device draws 0.55 A at most, see the budget below. F1 holds 0.9 A at 25 C and about 80 % of that at 50 C (typical, check the derating), so 0.72 A, above 0.55 A. It trips at 1.8 A. A short on `+5V` draws what the bank gives, 2.1 A to 2.4 A for most banks (assumed). That is only 1.2 to 1.3 times the trip current, so F1 may take a long time to trip, and the bank's own cut-off may act first. F1 still limits a fault from a source stronger than a power bank.
 
 Power switch: none on the board. A cut power always risks the SD card when Pip-OS writes, and Deitrix saves a moment after a tab changes (Deitrix). A switch would not make that safe. A small slide switch rated for 1 A is also hard to find in through-hole (assumed). Put a switch in the J3 lead, or use the power bank's own button, if the case wants one.
 
-Current budget at 5 V:
+Current budget at 5 V. The two amplifier rows exclude each other: sound playing includes the idle current.
 
 | Load | Pi Zero, Zero W | Pi Zero 2 W | Confidence |
 |---|---|---|---|
 | Pi, Pip-OS running, radio unused | 150 mA | 300 mA | assumed, to verify; the Zero 2 W figure is a guess for one core running |
 | `+3V3` loads of section 4.3, through the Pi's regulator | 93 mA | 93 mA | assumed efficiency |
-| Amplifier at the RV1 ceiling, full-volume square wave | 118 mA | 118 mA | from section 4.5 |
-| Amplifier idle | 4 mA | 4 mA | typical, check |
-| Total, sound playing | 361 mA | 511 mA | |
+| Amplifier, sound playing: 118 mA at the RV1 ceiling plus 4 mA idle | 122 mA | 122 mA | from section 4.5 |
+| Amplifier, silent: idle only | 4 mA | 4 mA | typical, check |
+| Total, sound playing | 365 mA | 515 mA | |
 | Total, silent | 247 mA | 397 mA | |
 
 Design limit: 0.55 A. A USB power bank or a charger and boost module rated 1 A or more covers it.
@@ -463,9 +578,11 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 | Net | What it joins |
 |---|---|
 | `+3V3` | Header pins 1 and 17, J2 VCC, Q1 emitter, R20, R23, U1, U2, pull-up footprints, TP1 |
-| `+5V` | Header pins 2 and 4, F1, D1, M1 Vin, C32, C33, TP2 |
+| `+5V` | Header pins 2 and 4, Q3 source, D2 cathode, D1, M1 Vin, C32, C33, TP2 |
 | `GND` | Every header ground pin and every ground |
 | `V_EXT` | J3 pin 1 to F1 |
+| `V_F` | F1 to Q3 drain |
+| `RP_G` | Q3 gate, R1, D2 anode |
 | `I2C_SDA`, `I2C_SCL` | GPIO 2 and 3 to U1, R10, R11, TP4, TP5 |
 | `SQW` | U1 pin 7, R15, TP8 |
 | `VBAT` | U1 pin 3, BT1, JP1 |
@@ -487,7 +604,8 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 | `BTN_UP_SW` to `BTN_BACK_SW`, `DIAL_A_SW`, `DIAL_B_SW`, `DIAL_PUSH_SW` | R40 to R48 to SW1 to SW7 and J5 |
 | `AUDIO_PWM` | GPIO 18 to R30 |
 | `AUD_F` | R30, C30, C31 |
-| `AUD_DC` | C31 to RV1 |
+| `AUD_DC` | C31 to R31 |
+| `AUD_T` | R31 to RV1 top |
 | `AUD_IN` | RV1 wiper to M1 A+, TP6 |
 | `SPK_P`, `SPK_N` | M1 outputs to J6 |
 | `UART_TX`, `UART_RX` | GPIO 14 and 15 to J4 |
@@ -543,13 +661,16 @@ The owner must decide with the case:
 | M1 | 1 | PAM8302A mono class-D breakout module | 2.54 mm pins | Check the module pinout |
 | Q1 | 1 | BC327-25, PNP | TO-92 | Check the pin order |
 | Q2 | 1 | 2N3904, NPN | TO-92 | Check the pin order |
-| D1 | 1 | TVS 600 W, 5.8 V standoff, unidirectional, example P6KE6.8A | DO-15 | |
+| D1 | 1 | TVS 600 W, 5.8 V standoff, unidirectional, example P6KE6.8A | DO-15 | Spikes only, see section 4.8 |
+| D2 | 1 | Zener 6.2 V, 500 mW, example 1N5234B | DO-35 | Q3 gate clamp |
+| Q3 | 1 | P-channel MOSFET, -20 V or more, ±8 V gate or more, 0.06 Ohm at -4.5 V, 0.1 Ohm at -2.5 V, threshold -0.4 V to -1.3 V, examples AO3401A or DMG2305UX | SOT-23 | Reverse polarity, see section 4.8. Check the pin order. |
 | F1 | 1 | Polyfuse, 0.9 A hold, 1.8 A trip, 16 V or more, example Bourns MF-R090 | Radial | |
 | Y1 | 1 | 32.768 kHz, 6 pF load | Cylindrical THT | Check the load capacitance |
 | BT1 | 1 | CR1220 holder | THT | Cell not included |
 | SW1 to SW6 | 6 | 12 x 12 mm tactile switch with cap, example Omron B3F-4055 | THT | |
 | SW7 | 1 | Rotary encoder, 24 detents, 24 pulses, push switch, example Bourns PEC11R-4215F-S0024 | THT | Pulses must equal detents |
 | LS1 | 1 | Speaker, 8 Ohm, 0.5 W or more, 20 to 28 mm | Off board | |
+| R1 | 1 | 10 kOhm | Axial | Q3 gate to `GND` |
 | R10, R11 | 2 | 4.7 kOhm | Axial | Not fitted |
 | R12, R13 | 2 | 3.9 kOhm | Axial | Not fitted. HAT design guide, to verify. |
 | R14 | 1 | 1 kOhm | Axial | Not fitted. WP pull-up. |
@@ -559,6 +680,7 @@ The owner must decide with the case:
 | R23 | 1 | 10 kOhm | Axial | Q1 base to emitter |
 | R24 | 1 | 33 Ohm | Axial | SPI clock |
 | R30 | 1 | 270 Ohm | Axial | Audio filter |
+| R31 | 1 | 33 kOhm | Axial | Above RV1, sets its range |
 | R40 to R48 | 9 | 1 kOhm | Axial | Input series |
 | RV1 | 1 | 10 kOhm trimmer | THT | Audio level ceiling |
 | C1 | 1 | 10 uF 10 V ceramic | THT | Display VCC |
@@ -579,7 +701,7 @@ The owner must decide with the case:
 | H1 to H4 | 4 | M3 hole | Hole | Display standoffs. Not a part to buy. |
 | H5 to H8 | 4 | M2.5 hole | Hole | Pi Zero standoffs, positions from the Zero drawing |
 
-Hand soldering: every part is through-hole except U1 and U2, SOIC-8 at 1.27 mm pitch, which a fine iron tip handles. Do not choose the DS1338 in a smaller package. The PAM8302A chip exists only in small packages, so the board takes the module.
+Hand soldering: every part is through-hole except U1 and U2, SOIC-8 at 1.27 mm pitch, and Q3, SOT-23 at 0.95 mm pitch. A fine iron tip handles both. Do not choose the DS1338 in a smaller package. The PAM8302A chip exists only in small packages, so the board takes the module.
 
 ## 8. Software mapping
 
@@ -615,11 +737,11 @@ Where hardware and software disagree:
 - Put Y1 within 5 mm of U1 pins 1 and 2. No traces under Y1 or between Y1 and U1 on either layer.
 - Put BT1 away from M1, which runs warm.
 - Put M1, J6, R30 and C30 together, away from the crystal and the I2C lines. Keep the speaker leads short.
-- Put J3, F1 and D1 together at the board edge. Use 1.0 mm for `V_EXT` and `+5V`.
+- Put J3, F1, Q3, R1, D2 and D1 together at the board edge. Use 1.0 mm for `V_EXT`, `V_F` and `+5V`. Give Q3's drain and source pads some copper for heat.
 - Put R40 to R48 and C46 to C48 near J1, on the Pi side of the switch lines.
 - Put J4 at an edge reachable in the case.
 - Use 0.25 mm for signals, 0.5 mm for `+3V3`, and a ground pour on the bottom layer. Two layers are enough.
-- Silkscreen: the key names beside each switch, the J2 pin names, "3.3 V ONLY" at J4, "5 V IN. NOT WITH PI USB POWER." at J3, the speaker note at J6, the board name and a version.
+- Silkscreen: the key names beside each switch, the J2 pin names, "3.3 V ONLY" at J4, "REGULATED 5 V IN. NO USB CABLE ON THE PI." at J3, the speaker note at J6, the board name and a version.
 
 ## 10. Bring-up
 
@@ -645,7 +767,7 @@ Every assumption in this spec, to check before the schematic step or at bring-up
 - Module size about 86 by 50 mm, its M3 corner holes and their positions: to verify.
 - The module's 3.3 V regulator and its bypass pad: to verify.
 - The module's logic at 3.3 V with no level shifter: to verify.
-- Backlight current 100 mA at 3.3 V: assumed, measured in bring-up step 6.
+- Backlight current 100 mA at 3.3 V: assumed, measured in bring-up step 6. It may be far lower at 3.1 V, or the LED pin may drive an on-module transistor. A later revision could feed it from `+5V` through a resistor.
 - Module SD slot height about 2.5 mm and on the module's back: to verify.
 - 2.8 inch active area about 57.6 by 43.2 mm: to verify.
 - Header heights: 8.5 mm female, 11 mm board spacing: assumed.
@@ -662,20 +784,28 @@ Every assumption in this spec, to check before the schematic step or at bring-up
 - Pi Zero current 150 mA and Zero 2 W current 300 mA with Pip-OS: assumed, to verify by measurement.
 - Pip-OS support for the Zero 2 W: not stated in Pip-OS `HARDWARE.md`.
 - The Zero's USB power port and header 5 V on one rail, with no diode: typical, check the Zero schematic.
-- Pi undervoltage threshold about 4.63 V: from memory, to verify.
-- P6KE6.8A standoff 5.8 V and clamp about 10.5 V: from memory, to verify.
+- The Zero has no 4.63 V undervoltage monitor, and it runs down to about 4.3 V on `+5V`: from memory and assumed, to verify.
+- `+5V` at worst 4.43 V from a bank at 4.75 V: cable 0.2 Ohm assumed, F1 0.07 Ohm to 0.22 Ohm and warm figure, Q3 0.1 Ohm hot. Checked in bring-up step 20.
+- Zero USB data port VBUS tied to the 5 V rail: from memory, to verify.
+- Q3 examples AO3401A and DMG2305UX, their ratings and SOT-23 pin order: from memory, to verify.
+- 1N5234B as a 6.2 V, 500 mW zener with a few uA of leakage at 5.25 V: from memory, to verify.
+- SOT-23 dissipation about 300 mW on a small pad: typical, check.
+- P6KE6.8A standoff 5.8 V, breakdown 6.45 V to 7.14 V, clamp 10.5 V at 57 A, 5 W steady state, leakage about 1 mA at standoff: from memory, to verify.
+- MF-R090 resistance 0.07 Ohm to 0.22 Ohm and tens of seconds to trip at 2 A: from memory, to verify.
 - MF-R090 hold 0.9 A, trip 1.8 A, voltage rating, derating to 80 % at 50 C: from memory, to verify.
 - Power bank output limit 2.1 A to 2.4 A and auto-off below 50 mA to 100 mA: assumed.
-- PAM8302A module pinout, SD pulled high on the module, efficiency 85 %, idle current 4 mA, absolute maximum about 6 V, bridge output: typical, check the module and chip data sheet.
+- PAM8302A module pinout, SD pulled high on the module, efficiency 85 %, idle current 4 mA, absolute maximum about 6 V, lowest supply about 2 V, bridge output: typical, check the module and chip data sheet.
 - PAM8302A package not hand-solderable: typical, check.
-- Filtered PWM level about 1.1 Vrms: from the terminal controller, to verify at bring-up.
+- Filtered PWM level at most 1.65 V peak after C31, from the 3.3 V swing: to verify at bring-up.
+- PAM8302A module gain about 24 dB and input impedance about 10 kOhm, which set R31 = 33 kOhm and the RV1 working point between 30 % and 50 %: the gain from memory, Zin taken as 10 kOhm to 100 kOhm, both to verify at step 18.
 - DS1338 pinout, 6 pF crystal with no capacitors, VBAT grounded with no cell, battery current under 1 uA: typical, check.
 - CR1220 capacity about 35 mAh and holder size: typical, check.
 - HAT EEPROM pull-ups 3.9 kOhm and WP pull-up 1 kOhm: from memory of the HAT design guide, check it.
 - Omron B3F-4055 as a 12 mm switch: from memory, to verify.
 - PEC11R-4215F-S0024: 24 detents, 24 pulses, push switch, pin order: from memory, to verify.
-- Contact bounce of the dial under 0.5 ms between samples: assumed.
-- Software dial limit of 25 detents per second at 100 Hz sampling: derived from Pip-OS `HARDWARE.md`.
+- Dial bounce: the filter masks openings under about 0.4 ms; the decoder tolerates one-channel bounce: assumed.
+- Dial working limit about 12 detents per second at 100 Hz sampling, from unequal state lengths: derived from Pip-OS `HARDWARE.md`, phase tolerance of the encoder assumed.
+- Software: sample the dial with a faster tick or an edge interrupt, so a fast spin cannot miss a state and shift the detent phase. Open item for Pip-OS.
 - Trace capacitance 20 pF on SPI clock: assumed.
 - The `[display]` keys and defaults come from an unmerged Pip-OS branch: check them once it merges.
 - Outline 130 by 62 mm, key strip position, Pi orientation: the owner decides with the case.

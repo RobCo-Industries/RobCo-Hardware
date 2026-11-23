@@ -29,3 +29,4 @@
 - Check `pins.yaml` against the SPI display table of BOARD_SUPPORT.md too. The toy and the terminal controller skip it for GPIO 25 and GPIO 4, which they use otherwise.
 - Find RobCo-Core two levels up in the tests too, so the real pin table tests run from a worktree.
 - Add the Pip-Boy HAT spec, its header map and its bring-up checklist. Specification only.
+- Apply the electrical review to the Pip-Boy spec: reverse-polarity MOSFET, plain overvoltage limits and voltage budget, dial speed limit, audio trimmer range, backlight notes.
