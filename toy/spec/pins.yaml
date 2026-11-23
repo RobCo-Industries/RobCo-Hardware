@@ -1,0 +1,22 @@
+# Header map of the toy board. One entry per pin of J1.
+# Fields: pin number, Pi-side name, net in the schematic, software use, source.
+# tools/check_pins.py reads this file. Keep to this simple YAML shape.
+board: toy
+connector: J1
+header: generic
+pins:
+  - pin: 1
+    name: 5V
+    net: +5V
+    use: power
+    source: toy test circuit
+  - pin: 2
+    name: GND
+    net: GND
+    use: ground
+    source: toy test circuit
+  - pin: 3
+    name: GPIO25
+    net: SIG
+    use: toy LED
+    source: toy test circuit
