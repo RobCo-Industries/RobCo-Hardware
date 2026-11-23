@@ -96,6 +96,8 @@ jobs:
         run: tools/build.sh pins toy
       - name: DRC
         run: tools/build.sh drc toy
+      - name: Terminal controller checks
+        run: tools/build.sh check terminal-controller
       - name: Schematic PDF, SVG, netlist and BOM
         if: always()
         run: tools/build.sh docs toy

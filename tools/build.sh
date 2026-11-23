@@ -9,6 +9,7 @@
 #   regen   only the "regenerated files equal committed files" check
 #   erc     only ERC
 #   pins    only the pin check
+#   pintable  only the check that the pin table in spec/SPEC.md matches pins.yaml
 #   drc     only DRC
 #   docs    schematic PDF and SVG, netlist, BOM
 #   render  3D renders: top, bottom, isometric
@@ -137,8 +138,14 @@ cmd_erc() {
 }
 
 cmd_pins() {
-  netlist
-  local args=(--pins "$BDIR/spec/pins.yaml" --netlist "$OUT/$BOARD.net")
+  local args=(--pins "$BDIR/spec/pins.yaml")
+  if [ -f "$(sch)" ]; then
+    netlist
+    args+=(--netlist "$OUT/$BOARD.net")
+  else
+    say "no schematic yet: pins.yaml checked against the software pin table only"
+    [ "$ROBCO_BOARD_SUPPORT" != skip ] || die "no schematic and ROBCO_BOARD_SUPPORT=skip: nothing to check"
+  fi
   if [ "$ROBCO_BOARD_SUPPORT" = skip ]; then
     say "pin check against the software pin table skipped: ROBCO_BOARD_SUPPORT=skip"
   elif [ -n "$ROBCO_BOARD_SUPPORT" ]; then
@@ -147,6 +154,16 @@ cmd_pins() {
     die "BOARD_SUPPORT.md not found: set ROBCO_BOARD_SUPPORT to its path, or to skip"
   fi
   "$KICAD_PY" "$REPO/tools/check_pins.py" "${args[@]}"
+}
+
+# The pin table in spec/SPEC.md must equal the one generated from pins.yaml.
+cmd_pintable() {
+  local doc="$BDIR/spec/SPEC.md"
+  if [ ! -f "$doc" ] || ! grep -q 'pin-table:start' "$doc"; then
+    say "no pin table markers in $BOARD/spec/SPEC.md, pin table check skipped"
+    return 0
+  fi
+  "$KICAD_PY" "$REPO/tools/gen_pin_table.py" --check "$BDIR/spec/pins.yaml" "$doc"
 }
 
 cmd_drc() {
@@ -164,6 +181,18 @@ cmd_drc() {
     kcli pcb drc --refill-zones --format report -o "$OUT/drc.rpt" "$pcbfile" >/dev/null
     say "DRC in report mode, board not routed yet: see build/$BOARD/drc.rpt"
   fi
+}
+
+cmd_check() {
+  if [ -d "$BDIR/gen" ]; then
+    cmd_regen
+    cmd_erc
+  else
+    say "no generator yet for $BOARD: regen-diff and ERC skipped"
+  fi
+  cmd_pins
+  cmd_pintable
+  cmd_drc
 }
 
 cmd_docs() {
@@ -210,8 +239,9 @@ case "$CMD" in
   regen) cmd_regen ;;
   erc) cmd_erc ;;
   pins) cmd_pins ;;
+  pintable) cmd_pintable ;;
   drc) cmd_drc ;;
-  check) cmd_regen; cmd_erc; cmd_pins; cmd_drc ;;
+  check) cmd_check ;;
   docs) cmd_docs ;;
   render) cmd_render ;;
   fab) cmd_fab ;;

@@ -1,0 +1,342 @@
+# Header map of the terminal controller. One entry per pin of J1, the Pi header.
+# Source: SPEC.md section 3, which tools/gen_pin_table.py writes from this file.
+# Fields: pin, name (Pi pin name), function (Pi function as the spec writes it),
+# net (net on this board; NC is not connected), use (the software's use, in the
+# words of RobCo-Core docs/spec/BOARD_SUPPORT.md), source (where that use comes
+# from), connects (what the pin reaches on this board), status.
+# tools/check_pins.py reads this file. Keep to this simple YAML shape.
+#
+# No ignore_sources. Each GPIO that BOARD_SUPPORT.md lists has that use here:
+# - Input example: the board brings all nine input lines to J5 as the example
+#   maps them, the six buttons and the three dial lines. Nothing to ignore.
+# - SPI0 on GPIO 7 to 11: not connected on this board, but the use stays the
+#   software's, so a later SPI device keeps the pins. The net is NC.
+# - Audio channel 1 on GPIO 18: the audio filter input.
+# Not checked by check_pins.py, because its parser reads only the Pins,
+# Audio and Input tables: the SPI display table in BOARD_SUPPORT.md puts the
+# ILI9341 D/C on GPIO 25 and RESET on GPIO 4. This board uses GPIO 25 for ARM
+# and brings GPIO 4 to J7, so a panel on the default TFT pins cannot share it.
+board: terminal-controller
+connector: J1
+header: pi40
+pins:
+  - pin: 1
+    name: 3V3
+    function: 3V3
+    net: +3V3
+    use: power
+    source: power
+    connects: Logic 3V3 rail: U1, U2, U3, pull-ups, TP1
+    status: used
+  - pin: 2
+    name: 5V
+    function: 5V
+    net: +5V
+    use: power
+    source: power
+    connects: 5V rail: M1, JP1, TP2
+    status: used
+  - pin: 3
+    name: GPIO2
+    function: GPIO 2, SDA1
+    net: I2C_SDA
+    use: I2C SDA
+    source: BOARD_SUPPORT.md Pins
+    connects: I2C SDA to U1, U2, U3, TP4
+    status: used
+  - pin: 4
+    name: 5V
+    function: 5V
+    net: +5V
+    use: power
+    source: power
+    connects: Joined to pin 2
+    status: used
+  - pin: 5
+    name: GPIO3
+    function: GPIO 3, SCL1
+    net: I2C_SCL
+    use: I2C SCL
+    source: BOARD_SUPPORT.md Pins
+    connects: I2C SCL to U1, U2, U3, TP5
+    status: used
+  - pin: 6
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 7
+    name: GPIO4
+    function: GPIO 4
+    net: GPIO4
+    use: free
+    source: UOS dev.md, free pin
+    connects: J7 free-pin header
+    status: free
+  - pin: 8
+    name: GPIO14
+    function: GPIO 14, TXD
+    net: UART_TX
+    use: PL011 TXD
+    source: BOARD_SUPPORT.md UART policy and Pins
+    connects: J6 pin 5
+    status: used
+  - pin: 9
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 10
+    name: GPIO15
+    function: GPIO 15, RXD
+    net: UART_RX
+    use: PL011 RXD
+    source: BOARD_SUPPORT.md UART policy and Pins
+    connects: J6 pin 4
+    status: used
+  - pin: 11
+    name: GPIO17
+    function: GPIO 17
+    net: BTN_LEFT
+    use: LEFT
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 LEFT via R
+    status: used
+  - pin: 12
+    name: GPIO18
+    function: GPIO 18
+    net: AUDIO_PWM
+    use: Audio channel 1
+    source: BOARD_SUPPORT.md Pins, audio table: Pi Zero at ALT5
+    connects: Audio filter input
+    status: used
+  - pin: 13
+    name: GPIO27
+    function: GPIO 27
+    net: BTN_BACK
+    use: BACK
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 BACK via R
+    status: used
+  - pin: 14
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 15
+    name: GPIO22
+    function: GPIO 22
+    net: BTN_RIGHT
+    use: RIGHT
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 RIGHT via R
+    status: used
+  - pin: 16
+    name: GPIO23
+    function: GPIO 23
+    net: DIAL_A
+    use: Dial A
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 DIAL_A via R
+    status: used
+  - pin: 17
+    name: 3V3
+    function: 3V3
+    net: +3V3
+    use: power
+    source: power
+    connects: Joined to pin 1
+    status: used
+  - pin: 18
+    name: GPIO24
+    function: GPIO 24
+    net: DIAL_B
+    use: Dial B
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 DIAL_B via R
+    status: used
+  - pin: 19
+    name: GPIO10
+    function: GPIO 10, MOSI
+    net: NC
+    use: SPI0 MOSI
+    source: BOARD_SUPPORT.md Pins
+    connects: Not connected. Reserved for SPI0.
+    status: free on board, refused
+  - pin: 20
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 21
+    name: GPIO9
+    function: GPIO 9, MISO
+    net: NC
+    use: SPI0 MISO
+    source: BOARD_SUPPORT.md Pins
+    connects: Not connected. Reserved for SPI0.
+    status: free on board, refused
+  - pin: 22
+    name: GPIO25
+    function: GPIO 25
+    net: ARM
+    use: ARM device in UOS DEVICES.CFG
+    source: UOS dev.md, free pin
+    connects: ARM signal to Q2
+    status: used
+  - pin: 23
+    name: GPIO11
+    function: GPIO 11, SCLK
+    net: NC
+    use: SPI0 SCLK
+    source: BOARD_SUPPORT.md Pins
+    connects: Not connected. Reserved for SPI0.
+    status: free on board, refused
+  - pin: 24
+    name: GPIO8
+    function: GPIO 8, CE0
+    net: NC
+    use: SPI0 CE0
+    source: BOARD_SUPPORT.md Pins
+    connects: Not connected. Reserved for SPI0.
+    status: free on board, refused
+  - pin: 25
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 26
+    name: GPIO7
+    function: GPIO 7, CE1
+    net: NC
+    use: SPI0 CE1
+    source: BOARD_SUPPORT.md Pins
+    connects: Not connected. Reserved for SPI0.
+    status: free on board, refused
+  - pin: 27
+    name: ID_SD
+    function: ID_SD, GPIO 0
+    net: ID_SD
+    use: ID EEPROM
+    source: BOARD_SUPPORT.md Pins; avoided by the input example
+    connects: U7 SDA footprint, not fitted
+    status: optional
+  - pin: 28
+    name: ID_SC
+    function: ID_SC, GPIO 1
+    net: ID_SC
+    use: ID EEPROM
+    source: BOARD_SUPPORT.md Pins; avoided by the input example
+    connects: U7 SCL footprint, not fitted
+    status: optional
+  - pin: 29
+    name: GPIO5
+    function: GPIO 5
+    net: BTN_UP
+    use: UP
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 UP via R
+    status: used
+  - pin: 30
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 31
+    name: GPIO6
+    function: GPIO 6
+    net: BTN_DOWN
+    use: DOWN
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 DOWN via R
+    status: used
+  - pin: 32
+    name: GPIO12
+    function: GPIO 12
+    net: GPIO12
+    use: free
+    source: UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: J7 free-pin header
+    status: free
+  - pin: 33
+    name: GPIO13
+    function: GPIO 13
+    net: GPIO13
+    use: free
+    source: UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: J7 free-pin header
+    status: free
+  - pin: 34
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 35
+    name: GPIO19
+    function: GPIO 19
+    net: GPIO19
+    use: free
+    source: UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: J7 free-pin header
+    status: free
+  - pin: 36
+    name: GPIO16
+    function: GPIO 16
+    net: DIAL_PUSH
+    use: Dial push
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 DIAL_PUSH via R
+    status: used
+  - pin: 37
+    name: GPIO26
+    function: GPIO 26
+    net: BTN_SELECT
+    use: SELECT
+    source: BOARD_SUPPORT.md Pins, input example
+    connects: J5 SELECT via R
+    status: used
+  - pin: 38
+    name: GPIO20
+    function: GPIO 20
+    net: GPIO20
+    use: free
+    source: UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: J7 free-pin header
+    status: free
+  - pin: 39
+    name: GND
+    function: GND
+    net: GND
+    use: ground
+    source: ground
+    connects: GND
+    status: used
+  - pin: 40
+    name: GPIO21
+    function: GPIO 21
+    net: GPIO21
+    use: free
+    source: UOS dev.md, free pin; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: J7 free-pin header
+    status: free
