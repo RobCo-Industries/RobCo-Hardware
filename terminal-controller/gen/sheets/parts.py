@@ -1,7 +1,7 @@
 """Symbols, footprints and small drawing helpers shared by the sheets.
 
-Every footprint named here exists in the KiCad 10.0.8 stock libraries. An
-empty footprint means no stock footprint fits: the board step must add one.
+Every stock footprint named here exists in the KiCad 10.0.8 stock libraries.
+The fuses and the amplifier module use own footprints in lib/RobCo.pretty.
 """
 
 from __future__ import annotations
@@ -30,8 +30,9 @@ TERM_2 = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_PT-1,5-2-3.5-H_1x02_P3.50m
 TERM_10 = "TerminalBlock_Phoenix:TerminalBlock_Phoenix_PT-1,5-10-3.5-H_1x10_P3.50mm_Horizontal"
 SJ3 = "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm"
 SJ2 = "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
-NO_FOOTPRINT = ""
-"""No stock footprint fits. The board step must add one. See the board README."""
+FUSE_1A1 = "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
+FUSE_200MA = "RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm"
+PAM8302A_MODULE = "RobCo:PAM8302A_Module_1x07_P2.54mm"
 
 # Fields of a vertical two-pin part, to its right.
 RIGHT = dict(ref_at=(g(2), g(-1)), value_at=(g(2), g(1)))

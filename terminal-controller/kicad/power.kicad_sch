@@ -4838,7 +4838,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
 			(at 68.58 45.72 0)
 			(hide yes)
 			(show_name no)
@@ -5783,7 +5783,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm"
 			(at 233.68 35.56 0)
 			(hide yes)
 			(show_name no)
