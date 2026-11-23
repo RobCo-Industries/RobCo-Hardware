@@ -8,7 +8,10 @@ the netlist, and every connected header pin in the netlist must be listed.
 
 With `--board-support`, every GPIO that the software uses, as listed in the
 "Pins" section of RobCo-Core `docs/spec/BOARD_SUPPORT.md`, must have the same
-use in `pins.yaml`. `ignore_sources` in `pins.yaml` lists source tables to
+use in `pins.yaml`. The section holds four kinds of table: the pin functions
+(source `Pins`), the audio pins (`Audio channels`), the input example
+(`Input example`) and the SPI display wiring (`SPI display`, uses named
+`TFT D/C`, `TFT RESET` and so on). `ignore_sources` in `pins.yaml` lists source tables to
 skip: a table name such as `Input example` skips the whole table, and
 `Input example:GPIO16` skips that table for GPIO 16 only. On a `pi40` header, every such GPIO must be present, and
 each pin name must match the Raspberry Pi pin at that number.
@@ -248,6 +251,15 @@ def parse_board_support(text: str) -> SoftwareUse:
                 for col in range(1, len(head)):
                     for g in _gpio_list(row[col]):
                         add(g, head[col], "Audio channels")
+        elif head[:1] == ["Panel pin"]:
+            for row in rows:
+                # 'GPIO 11, 10, 9: SPI0 at ALT0': the text after the colon is a note.
+                gpios = _gpio_list(row[1].split(":")[0])
+                names = [n.strip() for n in row[0].split(",")]
+                if len(names) != len(gpios):
+                    names = [row[0]] * len(gpios)
+                for g, n in zip(gpios, names):
+                    add(g, f"TFT {n}", "SPI display")
         elif head and head[0] == "Input":
             for row in rows:
                 for col in range(0, len(row) - 1, 2):

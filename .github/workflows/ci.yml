@@ -100,6 +100,8 @@ jobs:
         run: tools/build.sh check toy2
       - name: Terminal controller checks
         run: tools/build.sh check terminal-controller
+      - name: Pip-Boy HAT checks, spec only
+        run: tools/build.sh check pipboy-hat
       - name: Schematic PDF, SVG, netlist and BOM
         if: always()
         run: |

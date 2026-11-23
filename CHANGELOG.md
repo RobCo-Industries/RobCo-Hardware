@@ -26,3 +26,6 @@
 - Refuse units of one reference that use different library symbols, or differ in value, footprint or fitting, across all sheets.
 - Rate the terminal controller fuses F1 and F2 at 60 V or more, above the TVS clamp.
 - Add own footprints for the fuses F1 and F2 and the amplifier module M1, and a test that every footprint a schematic names exists. Measure the terminal controller parts against the HAT outline: they do not fit, so the board is not placed yet.
+- Check `pins.yaml` against the SPI display table of BOARD_SUPPORT.md too. The toy and the terminal controller skip it for GPIO 25 and GPIO 4, which they use otherwise.
+- Find RobCo-Core two levels up in the tests too, so the real pin table tests run from a worktree.
+- Add the Pip-Boy HAT spec, its header map and its bring-up checklist. Specification only.

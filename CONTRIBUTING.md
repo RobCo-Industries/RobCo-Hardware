@@ -6,7 +6,7 @@ Every board here is a proposal. Do not write that a board works, or was tested, 
 
 ```sh
 tools/build.sh test        # Python tests
-tools/build.sh check toy   # the board checks; also toy2, terminal-controller
+tools/build.sh check toy   # the board checks; also toy2, terminal-controller, pipboy-hat
 ```
 
 CI runs the same commands. See the README for the tools.

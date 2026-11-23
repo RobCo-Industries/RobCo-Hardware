@@ -11,8 +11,9 @@ This repository holds the board designs for the RobCo suite. Two boards are plan
 | `toy/` | Toolchain test: a 3-pin header, a resistor and an LED | Test bed. Schematic, routed board, renders. |
 | `toy2/` | Hierarchy test: an expander, a clock and eight LED channels on two sheets | Test bed. Schematic only. |
 | `terminal-controller/` | Terminal controller HAT | Schematic drawn, ERC clean. The parts do not fit the HAT yet. See its [README](terminal-controller/README.md). |
+| `pipboy-hat/` | Pip-Boy HAT: display, keys, dial, speaker and clock for a Pi Zero | Specification only. See its [README](pipboy-hat/README.md). |
 
-The terminal controller spec is in [terminal-controller/spec/SPEC.md](terminal-controller/spec/SPEC.md), with its bring-up checklist in [BRINGUP.md](terminal-controller/spec/BRINGUP.md) and its header map in [pins.yaml](terminal-controller/spec/pins.yaml).
+The terminal controller spec is in [terminal-controller/spec/SPEC.md](terminal-controller/spec/SPEC.md), with its bring-up checklist in [BRINGUP.md](terminal-controller/spec/BRINGUP.md) and its header map in [pins.yaml](terminal-controller/spec/pins.yaml). The Pip-Boy HAT spec is in [pipboy-hat/spec/SPEC.md](pipboy-hat/spec/SPEC.md), with [BRINGUP.md](pipboy-hat/spec/BRINGUP.md) and [pins.yaml](pipboy-hat/spec/pins.yaml).
 
 ## Safety
 
@@ -68,6 +69,8 @@ terminal-controller/
   spec/    SPEC.md, BRINGUP.md, pins.yaml
   gen/     circuit.py and one module per sheet in sheets/
   kicad/   generated KiCad files, committed
+pipboy-hat/
+  spec/    SPEC.md, BRINGUP.md, pins.yaml; no generator yet
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the conventions and [LICENSE.md](LICENSE.md) for the licences.
