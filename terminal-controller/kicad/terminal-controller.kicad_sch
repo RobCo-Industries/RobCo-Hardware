@@ -14,7 +14,7 @@
 	)
 	(lib_symbols)
 	(sheet
-		(at 101.6 50.8)
+		(at 25.4 66.04)
 		(size 71.12 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -30,7 +30,7 @@
 		)
 		(uuid "5e2be784-5850-5f5f-a683-e500566fa2fb")
 		(property "Sheetname" "Power and arm switch"
-			(at 101.6 50.0884 0)
+			(at 25.4 65.3284 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -39,7 +39,7 @@
 			)
 		)
 		(property "Sheetfile" "power.kicad_sch"
-			(at 101.6 69.1784 0)
+			(at 25.4 84.4184 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -57,7 +57,7 @@
 	)
 	(text "J2 load supply, F1, D1, D2 to V_PROT. F2 to +V_S.\nQ1, Q2 arm switch to V_SW. Pi rails, test points."
 		(exclude_from_sim no)
-		(at 102.87 57.15 0)
+		(at 26.67 72.39 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -67,7 +67,7 @@
 		(uuid "63a734f7-3279-5611-9ce7-3bd7f2498336")
 	)
 	(sheet
-		(at 190.5 50.8)
+		(at 127 66.04)
 		(size 71.12 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -83,7 +83,7 @@
 		)
 		(uuid "d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c")
 		(property "Sheetname" "Pi header and I2C"
-			(at 190.5 50.0884 0)
+			(at 127 65.3284 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -92,7 +92,7 @@
 			)
 		)
 		(property "Sheetfile" "pi_i2c.kicad_sch"
-			(at 190.5 69.1784 0)
+			(at 127 84.4184 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -110,7 +110,7 @@
 	)
 	(text "J1 Pi header. U1, U2 PCA9554 at 0x20, 0x21.\nU3 DS1338 clock at 0x68. U7 ID EEPROM, not fitted."
 		(exclude_from_sim no)
-		(at 191.77 57.15 0)
+		(at 128.27 72.39 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -120,7 +120,7 @@
 		(uuid "4248f469-b65c-5e50-a812-4d9694285f03")
 	)
 	(sheet
-		(at 101.6 88.9)
+		(at 25.4 101.6)
 		(size 71.12 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -136,7 +136,7 @@
 		)
 		(uuid "75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7")
 		(property "Sheetname" "Outputs"
-			(at 101.6 88.1884 0)
+			(at 25.4 100.8884 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -145,7 +145,7 @@
 			)
 		)
 		(property "Sheetfile" "outputs.kicad_sch"
-			(at 101.6 107.2784 0)
+			(at 25.4 119.9784 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -163,7 +163,7 @@
 	)
 	(text "U4 ULN2803A on X0.0 to X0.7, RN1 pull-downs.\nLED0 to LED7, J3 terminals OUT0 to OUT7."
 		(exclude_from_sim no)
-		(at 102.87 95.25 0)
+		(at 26.67 107.95 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -173,7 +173,7 @@
 		(uuid "b2df31c0-51fd-597b-be95-a90f285a69e6")
 	)
 	(sheet
-		(at 190.5 88.9)
+		(at 127 101.6)
 		(size 71.12 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -189,7 +189,7 @@
 		)
 		(uuid "6f853b67-19d9-5870-9845-d491d113a1af")
 		(property "Sheetname" "Inputs"
-			(at 190.5 88.1884 0)
+			(at 127 100.8884 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -198,7 +198,7 @@
 			)
 		)
 		(property "Sheetfile" "inputs.kicad_sch"
-			(at 190.5 107.2784 0)
+			(at 127 119.9784 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -216,7 +216,7 @@
 	)
 	(text "U5, U6 LTV-847: IN0 to IN7 from J4 to X1.0 to X1.7.\nJP10 field common, +V_S on J4."
 		(exclude_from_sim no)
-		(at 191.77 95.25 0)
+		(at 128.27 107.95 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -226,7 +226,7 @@
 		(uuid "35e99e12-f58a-57d2-9ff0-9a0055c11eb5")
 	)
 	(sheet
-		(at 101.6 127)
+		(at 25.4 137.16)
 		(size 71.12 17.78)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -242,7 +242,7 @@
 		)
 		(uuid "32c5f51c-3c83-56d8-bd97-d620f3e62b83")
 		(property "Sheetname" "Audio"
-			(at 101.6 126.2884 0)
+			(at 25.4 136.4484 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -251,7 +251,7 @@
 			)
 		)
 		(property "Sheetfile" "audio.kicad_sch"
-			(at 101.6 145.3784 0)
+			(at 25.4 155.5384 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -269,7 +269,7 @@
 	)
 	(text "AUDIO_PWM filter R30, C30 or jack J10, JP9 select.\nRV1 level, M1 PAM8302A module, J8 speaker."
 		(exclude_from_sim no)
-		(at 102.87 133.35 0)
+		(at 26.67 143.51 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -278,9 +278,62 @@
 		)
 		(uuid "69d7d158-55ae-50c4-b02f-293cff4a67b4")
 	)
+	(sheet
+		(at 127 137.16)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "319d37bb-67ad-5aca-a5dd-ead0b83d3dc0")
+		(property "Sheetname" "Headers"
+			(at 127 136.4484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "headers.kicad_sch"
+			(at 127 155.5384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b"
+					(page "7")
+				)
+			)
+		)
+	)
+	(text "J5 six buttons through R40 to R45. J6 serial\nconsole, 3.3 V only. J7 nine free Pi pins."
+		(exclude_from_sim no)
+		(at 128.27 143.51 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4bf0e2e0-f02a-5c81-9ca9-72a562e0247e")
+	)
 	(text "Terminal controller HAT for the Raspberry Pi"
 		(exclude_from_sim no)
-		(at 25.4 30.48 0)
+		(at 25.4 27.94 0)
 		(effects
 			(font
 				(size 2.5 2.5)
@@ -293,7 +346,7 @@
 	)
 	(text "Proposal. Not built, not validated on hardware.\nLow voltage only: 5 V to 24 V DC. No mains on any terminal, trace or header.\nSpec: terminal-controller/spec/SPEC.md. Header map: spec/pins.yaml.\nCross-sheet nets use global labels: I2C_SDA, I2C_SCL, X0.0 to X0.7, X1.0 to X1.7,\nARM, AUDIO_PWM, UART_TX, UART_RX, BTN_*, GPIOn. Rails use power symbols."
 		(exclude_from_sim no)
-		(at 25.4 40.64 0)
+		(at 25.4 50.8 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -301,17 +354,6 @@
 			(justify left bottom)
 		)
 		(uuid "334bf423-38bd-5296-a1fc-7ebfac9984bf")
-	)
-	(text "Not drawn yet: Headers."
-		(exclude_from_sim no)
-		(at 25.4 139.7 0)
-		(effects
-			(font
-				(size 2 2)
-			)
-			(justify left bottom)
-		)
-		(uuid "6bd7cf04-793f-5017-890e-287da67729ab")
 	)
 	(sheet_instances
 		(path "/"

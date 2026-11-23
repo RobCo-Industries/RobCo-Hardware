@@ -17,7 +17,7 @@ from common import g  # noqa: E402
 from project import write_project  # noqa: E402
 from sch import Hierarchy, Schematic  # noqa: E402
 
-from sheets import audio, inputs, outputs, pi_i2c, power  # noqa: E402
+from sheets import audio, headers, inputs, outputs, pi_i2c, power  # noqa: E402
 from sheets.parts import POWER_LIBS  # noqa: E402
 
 PROJECT = "terminal-controller"
@@ -25,23 +25,25 @@ BOARD = "Terminal controller HAT"
 
 # (sheet name, file, paper, draw function, root box position, note), in page order.
 SHEETS = [
-    ("Power and arm switch", "power.kicad_sch", "A4", power.draw, (g(80), g(40)),
+    ("Power and arm switch", "power.kicad_sch", "A4", power.draw, (g(20), g(52)),
      "J2 load supply, F1, D1, D2 to V_PROT. F2 to +V_S.\nQ1, Q2 arm switch to V_SW. Pi rails, test points."),
-    ("Pi header and I2C", "pi_i2c.kicad_sch", "A3", pi_i2c.draw, (g(150), g(40)),
+    ("Pi header and I2C", "pi_i2c.kicad_sch", "A3", pi_i2c.draw, (g(100), g(52)),
      "J1 Pi header. U1, U2 PCA9554 at 0x20, 0x21.\nU3 DS1338 clock at 0x68. U7 ID EEPROM, not fitted."),
-    ("Outputs", "outputs.kicad_sch", "A4", outputs.draw, (g(80), g(70)),
+    ("Outputs", "outputs.kicad_sch", "A4", outputs.draw, (g(20), g(80)),
      "U4 ULN2803A on X0.0 to X0.7, RN1 pull-downs.\nLED0 to LED7, J3 terminals OUT0 to OUT7."),
-    ("Inputs", "inputs.kicad_sch", "A4", inputs.draw, (g(150), g(70)),
+    ("Inputs", "inputs.kicad_sch", "A4", inputs.draw, (g(100), g(80)),
      "U5, U6 LTV-847: IN0 to IN7 from J4 to X1.0 to X1.7.\nJP10 field common, +V_S on J4."),
-    ("Audio", "audio.kicad_sch", "A4", audio.draw, (g(80), g(100)),
+    ("Audio", "audio.kicad_sch", "A4", audio.draw, (g(20), g(108)),
      "AUDIO_PWM filter R30, C30 or jack J10, JP9 select.\nRV1 level, M1 PAM8302A module, J8 speaker."),
+    ("Headers", "headers.kicad_sch", "A4", headers.draw, (g(100), g(108)),
+     "J5 six buttons through R40 to R45. J6 serial\nconsole, 3.3 V only. J7 nine free Pi pins."),
 ]
 
 
 # Sheets not drawn yet. While any is pending, the nets that J1 sends to them end
 # on one pin, so ERC would flag their labels as isolated. The project then
 # ignores that one rule. The last sheet empties this list and the rule is back.
-PENDING = ["Headers"]
+PENDING = []
 
 
 def build() -> Hierarchy:
@@ -56,14 +58,14 @@ def build() -> Hierarchy:
 
 
 def root(s: Schematic) -> None:
-    s.text("Terminal controller HAT for the Raspberry Pi", (g(20), g(24)), size=2.5, bold=True)
+    s.text("Terminal controller HAT for the Raspberry Pi", (g(20), g(22)), size=2.5, bold=True)
     s.text("Proposal. Not built, not validated on hardware.\n"
            "Low voltage only: 5 V to 24 V DC. No mains on any terminal, trace or header.\n"
            "Spec: terminal-controller/spec/SPEC.md. Header map: spec/pins.yaml.\n"
            "Cross-sheet nets use global labels: I2C_SDA, I2C_SCL, X0.0 to X0.7, X1.0 to X1.7,\n"
-           "ARM, AUDIO_PWM, UART_TX, UART_RX, BTN_*, GPIOn. Rails use power symbols.", (g(20), g(32)))
+           "ARM, AUDIO_PWM, UART_TX, UART_RX, BTN_*, GPIOn. Rails use power symbols.", (g(20), g(40)))
     if PENDING:
-        s.text("Not drawn yet: " + ", ".join(PENDING) + ".", (g(20), g(110)), size=2.0)
+        s.text("Not drawn yet: " + ", ".join(PENDING) + ".", (g(20), g(136)), size=2.0)
 
 
 def main() -> None:
