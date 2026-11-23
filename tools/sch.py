@@ -1,4 +1,4 @@
-"""Write a `.kicad_sch` from a circuit description with explicit placement.
+"""Write `.kicad_sch` files from a circuit description with explicit placement.
 
 The generator places every symbol where it is told. Connections are made with
 a short wire stub on the pin and a net label or a power symbol at the stub
@@ -7,6 +7,10 @@ end. The text then points away from the part, so it never covers pin numbers.
 Every position must be on the 1.27 mm grid. Every UUID comes from the
 project name and the item path, so the output is the same on every run.
 
+A board can be one sheet (`Schematic`) or a root sheet with one sub-sheet per
+block (`Hierarchy`). Nets that cross sheets use global labels or power
+symbols.
+
 Runs on Python 3.9 so KiCad's bundled Python can import it.
 """
 
@@ -14,11 +18,17 @@ from __future__ import annotations
 
 import copy
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import sexp
-from common import GRID, check_grid, own_lib_dir, stable_uuid, stock_dir, write_if_changed
+from common import GRID, check_grid, g, own_lib_dir, stable_uuid, stock_dir, write_if_changed
 from sexp import Sym
+
+PROPOSAL = "Proposal. Not built, not validated on hardware."
+"""The status line every sheet's title block carries."""
+
+LABEL_SHAPES = ("input", "output", "bidirectional", "tri_state", "passive")
+"""Global label shapes that KiCad knows."""
 
 FILE_VERSION = 20260306
 """The `.kicad_sch` format version that KiCad 10.0.8 writes."""
@@ -146,27 +156,39 @@ def _dir_name(dx: float, dy: float) -> str:
 class Placed:
     """A symbol placed on the sheet."""
 
-    def __init__(self, sch: "Schematic", lib_id: str, ref: str, at: Point, rot: int, pins):
+    def __init__(self, sch: "Schematic", lib_id: str, ref: str, at: Point, rot: int, pins,
+                 mirror: str = ""):
         self.sch = sch
         self.lib_id = lib_id
         self.ref = ref
         self.at = at
         self.rot = rot
+        self.mirror = mirror
         self._pins = pins
+
+    def _tf(self, x: float, y: float) -> Tuple[float, float]:
+        """Library vector (y up) to sheet vector (y down): rotate, then mirror."""
+        dx, dy = _rot(x, y, self.rot)
+        sx, sy = dx, -dy
+        if self.mirror == "x":  # flip top and bottom
+            sy = -sy
+        elif self.mirror == "y":  # flip left and right
+            sx = -sx
+        return sx, sy
 
     def pin(self, number: str) -> Point:
         """The pin's connection point in sheet coordinates."""
         px, py, _ = self._pin(number)
-        dx, dy = _rot(px, py, self.rot)
-        return (_r(self.at[0] + dx), _r(self.at[1] - dy))
+        sx, sy = self._tf(px, py)
+        return (_r(self.at[0] + sx), _r(self.at[1] + sy))
 
     def outward(self, number: str) -> str:
         """The direction from the pin end away from the body."""
         _, _, ang = self._pin(number)
         # The pin angle points from the end into the body, in library axes.
         body = {0: (1, 0), 90: (0, 1), 180: (-1, 0), 270: (0, -1)}[int(ang) % 360]
-        bx, by = _rot(body[0], body[1], self.rot)
-        return _dir_name(-bx, by)
+        bx, by = self._tf(*body)
+        return _dir_name(-bx, -by)
 
     def _pin(self, number: str):
         number = str(number)
@@ -192,8 +214,11 @@ class Schematic:
         comments: Optional[List[str]] = None,
         paper: str = "A4",
         libs: Optional[SymbolLibs] = None,
+        sheet: Optional[str] = None,
+        shared: Optional[dict] = None,
     ):
         self.project = project
+        self.sheet = sheet
         self.title = title
         self.date = date
         self.rev = rev
@@ -202,16 +227,23 @@ class Schematic:
         self.paper = paper
         self.libs = libs or SymbolLibs()
         self.root = self.uuid("root")
+        # The path of this sheet's instance, for symbol annotation. A sub-sheet
+        # gets "/<root uuid>/<sheet uuid>" from its Hierarchy.
+        self.instance_path = f"/{self.root}"
+        # Reference and power symbol counters, shared by every sheet of a design.
+        self.shared = shared if shared is not None else {"refs": set(), "power": 0, "flag": 0}
         self.lib_symbols: Dict[str, list] = {}
         self.items: List[list] = []
         self.symbols: List[list] = []
         self.refs: Dict[str, Placed] = {}
-        self._power_count = 0
-        self._flag_count = 0
         self._wire_count = 0
+        self._junctions: List[Point] = []
+        self._texts: set = set()
 
     def uuid(self, *path: object) -> str:
-        return stable_uuid(self.project, "sch", *path)
+        if self.sheet is None:
+            return stable_uuid(self.project, "sch", *path)
+        return stable_uuid(self.project, "sch", self.sheet, *path)
 
     # -- symbols ----------------------------------------------------------
 
@@ -229,20 +261,26 @@ class Schematic:
         value_at: Optional[Point] = None,
         hide_ref: bool = False,
         in_bom: bool = True,
+        mirror: str = "",
     ) -> Placed:
         """Place a symbol.
 
         `ref_at` and `value_at` are offsets from `at` for left-justified
         text. The default puts both to the right of the symbol. `ref_at="lib"`
-        keeps the library's centred field positions instead.
+        keeps the library's centred field positions instead. `mirror` is
+        "x" (flip top and bottom) or "y" (flip left and right), applied after
+        the rotation, as KiCad does. On a symbol mirrored left to right KiCad
+        right-justifies the fields, so `ref_at` then marks the end of the text.
         """
-        if ref in self.refs:
+        if ref in self.refs or ref in self.shared["refs"]:
             raise ValueError(f"duplicate reference {ref}")
+        if mirror not in ("", "x", "y"):
+            raise ValueError(f"mirror must be '', 'x' or 'y', got {mirror!r}")
         check_grid(f"{ref} position", *at)
         if lib_id not in self.lib_symbols:
             self.lib_symbols[lib_id] = self.libs.get(lib_id)
         pins = lib_pins(self.lib_symbols[lib_id])
-        placed = Placed(self, lib_id, ref, at, rot, pins)
+        placed = Placed(self, lib_id, ref, at, rot, pins, mirror)
         for num in pins:
             check_grid(f"{ref} pin {num}", *placed.pin(num))
         x, y = at
@@ -259,6 +297,10 @@ class Schematic:
             Sym("symbol"),
             [Sym("lib_id"), lib_id],
             [Sym("at"), x, y, rot],
+        ]
+        if mirror:
+            node.append([Sym("mirror"), Sym(mirror)])
+        node += [
             [Sym("unit"), 1],
             [Sym("body_style"), 1],
             [Sym("exclude_from_sim"), Sym("no")],
@@ -276,18 +318,11 @@ class Schematic:
         ]
         for num in sorted(pins, key=_pin_key):
             node.append([Sym("pin"), num, [Sym("uuid"), self.uuid("pin", ref, num)]])
-        node.append(
-            [
-                Sym("instances"),
-                [
-                    Sym("project"),
-                    self.project,
-                    [Sym("path"), f"/{self.root}", [Sym("reference"), ref], [Sym("unit"), 1]],
-                ],
-            ]
-        )
+        # The instance path is filled in at output time: a Hierarchy may set
+        # instance_path after the symbols are placed.
         self.symbols.append(node)
         self.refs[ref] = placed
+        self.shared["refs"].add(ref)
         return placed
 
     def _prop(self, name: str, value: str, at: Point, hide: bool = False, left: bool = False,
@@ -367,8 +402,8 @@ class Schematic:
         self.power_symbol(net, end)
 
     def power_symbol(self, net: str, at: Point, rot: int = 0) -> Placed:
-        self._power_count += 1
-        ref = f"#PWR{self._power_count:02d}"
+        self.shared["power"] += 1
+        ref = f"#PWR{self.shared['power']:02d}"
         return self.symbol(f"power:{net}", ref, net, at, rot=rot, hide_ref=True, ref_at="lib",
                            in_bom=False, description=f"Power symbol for the {net} rail")
 
@@ -377,8 +412,8 @@ class Schematic:
 
         Draws the rail's power symbol at `at`, a short wire and a PWR_FLAG.
         """
-        self._flag_count += 1
-        ref = f"#FLG{self._flag_count:02d}"
+        self.shared["flag"] += 1
+        ref = f"#FLG{self.shared['flag']:02d}"
         x, y = at
         if net == "GND":
             top = (x, _r(y - 2 * GRID))
@@ -393,21 +428,157 @@ class Schematic:
             self.symbol("power:PWR_FLAG", ref, "PWR_FLAG", bottom, rot=180, hide_ref=True,
                         ref_at="lib", in_bom=False)
 
-    def text(self, body: str, at: Point, size: float = 1.27) -> None:
+    def text(self, body: str, at: Point, size: float = 1.27, bold: bool = False) -> None:
+        """A text note. The point is the bottom left corner of the first line."""
+        font = _font(size)
+        if bold:
+            font += [[Sym("thickness"), _r(size / 6)], [Sym("bold"), Sym("yes")]]
         self.items.append(
             [
                 Sym("text"),
                 body,
                 [Sym("exclude_from_sim"), Sym("no")],
                 [Sym("at"), _r(at[0]), _r(at[1]), 0],
-                [Sym("effects"), _font(size), [Sym("justify"), Sym("left"), Sym("bottom")]],
-                [Sym("uuid"), self.uuid("text", body)],
+                [Sym("effects"), font, [Sym("justify"), Sym("left"), Sym("bottom")]],
+                [Sym("uuid"), self._text_uuid(body, at)],
             ]
         )
 
+    def _text_uuid(self, body: str, at: Point) -> str:
+        # The body alone keys the first note with that text; repeats add the position.
+        key = ("text", body) if body not in self._texts else ("text", body, _r(at[0]), _r(at[1]))
+        self._texts.add(body)
+        return self.uuid(*key)
+
+    def global_label(self, part: Placed, pin: str, net: str, shape: str = "passive",
+                     stub: float = 2 * GRID, then=()) -> None:
+        """Connect a pin to a net that crosses sheets, with a stub and a global label.
+
+        `shape` is one of LABEL_SHAPES, seen from this sheet: "input" for a
+        signal that comes in, "output" for one that leaves.
+        """
+        end, d = self._stub(part, pin, stub, then)
+        self.global_label_at(net, end, d, shape, key=(part.ref, pin))
+
+    def global_label_at(self, net: str, at: Point, direction: str = "right", shape: str = "passive",
+                        key=None) -> None:
+        """A global label whose connection point is `at`, text running `direction`."""
+        if shape not in LABEL_SHAPES:
+            raise ValueError(f"label shape must be one of {LABEL_SHAPES}, got {shape!r}")
+        check_grid(f"global label {net}", *at)
+        angle = 180 if direction == "left" else 0
+        just = Sym("right" if angle == 180 else "left")
+        self.items.append(
+            [
+                Sym("global_label"),
+                net,
+                [Sym("shape"), Sym(shape)],
+                [Sym("at"), _r(at[0]), _r(at[1]), angle],
+                [Sym("fields_autoplaced"), Sym("yes")],
+                [Sym("effects"), _font(), [Sym("justify"), just]],
+                [Sym("uuid"), self.uuid("global_label", *(key or (net, at[0], at[1])))],
+                [
+                    Sym("property"), "Intersheetrefs", "${INTERSHEET_REFS}",
+                    [Sym("at"), _r(at[0]), _r(at[1]), 0],
+                    [Sym("effects"), _font(), [Sym("justify"), just], [Sym("hide"), Sym("yes")]],
+                ],
+            ]
+        )
+
+    def no_connect(self, part: Placed, pin: str) -> None:
+        """Mark a pin as left open on purpose. ERC then accepts it."""
+        at = part.pin(pin)
+        self.items.append([Sym("no_connect"), [Sym("at"), at[0], at[1]],
+                           [Sym("uuid"), self.uuid("no_connect", part.ref, pin)]])
+
+    def junction(self, at: Point) -> None:
+        """A junction dot. Needed where a wire ends on the middle of another wire."""
+        check_grid("junction", *at)
+        at = (_r(at[0]), _r(at[1]))
+        if at in self._junctions:
+            return
+        self._junctions.append(at)
+        self.items.append([Sym("junction"), [Sym("at"), at[0], at[1]], [Sym("diameter"), 0],
+                           [Sym("color"), 0, 0, 0, 0], [Sym("uuid"), self.uuid("junction", *at)]])
+
+    def frame(self, title: str, start: Point, end: Point) -> None:
+        """A dashed rectangle around a block, with its title above the top left corner."""
+        check_grid(f"frame {title}", *start, *end)
+        self.items.append(
+            [
+                Sym("rectangle"),
+                [Sym("start"), _r(start[0]), _r(start[1])],
+                [Sym("end"), _r(end[0]), _r(end[1])],
+                [Sym("stroke"), [Sym("width"), 0], [Sym("type"), Sym("dash")]],
+                [Sym("fill"), [Sym("type"), Sym("none")]],
+                [Sym("uuid"), self.uuid("frame", title)],
+            ]
+        )
+        self.text(title, (start[0] + GRID, start[1] - GRID / 2), size=2.0, bold=True)
+
+    def repeat(self, count: int, origin: Point, step: Point, channel: Callable[[int, Point], None]) -> None:
+        """Place `count` copies of a channel, the i-th at origin + i * step.
+
+        `channel(i, at)` draws one channel at `at`. Use i in reference and
+        net names, such as R1{i} and X0.{i}.
+        """
+        check_grid("repeat origin", *origin)
+        check_grid("repeat step", *step)
+        for i in range(count):
+            channel(i, (_r(origin[0] + i * step[0]), _r(origin[1] + i * step[1])))
+
+    # -- checks -------------------------------------------------------------
+
+    def _wire_segments(self) -> List[Tuple[Point, Point]]:
+        segs = []
+        for it in self.items:
+            if sexp.tag(it) == "wire":
+                pts = sexp.child(it, "pts")
+                a, b = pts[1], pts[2]
+                segs.append(((float(a[1]), float(a[2])), (float(b[1]), float(b[2]))))
+        return segs
+
+    def missing_junctions(self) -> List[Point]:
+        """Points where wires form a T or a cross of three or more ends, with no junction.
+
+        A wire end on the middle of another wire needs a junction, and so do
+        three or more wire ends at one point. Without the dot KiCad may leave
+        the nets apart, and a reader cannot tell a crossing from a join.
+        """
+        segs = self._wire_segments()
+        ends: Dict[Point, int] = {}
+        for a, b in segs:
+            for p in (a, b):
+                ends[p] = ends.get(p, 0) + 1
+        need = set()
+        for p, n in ends.items():
+            if n >= 3:
+                need.add(p)
+            for a, b in segs:
+                if p != a and p != b and _inside(p, a, b):
+                    need.add(p)
+        have = set(self._junctions)
+        return sorted(p for p in need if p not in have)
+
     # -- output -------------------------------------------------------------
 
+    def _with_instance(self, node: list) -> list:
+        ref = next(p[2] for p in sexp.children(node, "property") if p[1] == "Reference")
+        return node + [
+            [
+                Sym("instances"),
+                [
+                    Sym("project"),
+                    self.project,
+                    [Sym("path"), self.instance_path, [Sym("reference"), ref], [Sym("unit"), 1]],
+                ],
+            ]
+        ]
+
     def tree(self) -> list:
+        missing = self.missing_junctions()
+        if missing:
+            raise ValueError(f"sheet {self.sheet or 'root'}: wires meet without a junction at {missing}")
         tb = [Sym("title_block"), [Sym("title"), self.title], [Sym("date"), self.date],
               [Sym("rev"), self.rev], [Sym("company"), self.company]]
         for i, c in enumerate(self.comments[:9], start=1):
@@ -424,12 +595,18 @@ class Schematic:
                 [Sym("lib_symbols")] + [self.lib_symbols[k] for k in sorted(self.lib_symbols)],
             ]
             + self.items
-            + self.symbols
-            + [
+            + [self._with_instance(s) for s in self.symbols]
+            + self._tail()
+        )
+
+    def _tail(self) -> list:
+        # Only the root file carries sheet_instances. A sub-sheet file has none.
+        if self.sheet is None:
+            return [
                 [Sym("sheet_instances"), [Sym("path"), "/", [Sym("page"), "1"]]],
                 [Sym("embedded_fonts"), Sym("no")],
             ]
-        )
+        return [[Sym("embedded_fonts"), Sym("no")]]
 
     def text_out(self) -> str:
         return sexp.dump_file(self.tree())
@@ -448,6 +625,108 @@ def _lib_field(sym: list, name: str, rot: int) -> Point:
             dx, dy = _rot(float(at[1]), float(at[2]), rot)
             return (_r(dx), _r(-dy))
     return (0.0, 0.0)
+
+
+def _inside(p: Point, a: Point, b: Point) -> bool:
+    """True when p lies on the axis-parallel segment a-b, strictly between its ends."""
+    (x, y), (ax, ay), (bx, by) = p, a, b
+    if ax == bx == x:
+        return min(ay, by) < y < max(ay, by)
+    if ay == by == y:
+        return min(ax, bx) < x < max(ax, bx)
+    return False
+
+
+# ---------------------------------------------------------------------------
+# Hierarchy
+
+
+class Hierarchy:
+    """A root sheet with one sheet symbol per block, each block in its own file.
+
+    The root sheet shows the blocks as boxes. Each block sheet is a
+    `Schematic` with its own title block. Reference designators and power
+    symbol numbers are unique across the design.
+    """
+
+    def __init__(self, project: str, board: str, date: str, rev: str,
+                 comments: Optional[List[str]] = None, libs: Optional[SymbolLibs] = None,
+                 paper: str = "A4"):
+        self.project = project
+        self.board = board
+        self.date = date
+        self.rev = rev
+        self.libs = libs or SymbolLibs()
+        self.paper = paper
+        self.shared: dict = {"refs": set(), "power": 0, "flag": 0}
+        self.comments = comments or []
+        self.root = Schematic(project, title=board, date=date, rev=rev,
+                              comments=[PROPOSAL] + self.comments, libs=self.libs,
+                              paper=paper, shared=self.shared)
+        self.sheets: List[Tuple[str, str, Schematic]] = []
+
+    def sheet(self, name: str, file: str, at: Point, size: Point = (g(30), g(12)),
+              paper: Optional[str] = None, notes: str = "") -> Schematic:
+        """Add a block: a sheet symbol on the root at `at`, and its own file.
+
+        `notes` is a short text drawn inside the sheet symbol, such as the
+        parts and nets the block holds.
+        """
+        if any(n == name for n, _, _ in self.sheets):
+            raise ValueError(f"duplicate sheet name {name}")
+        if any(f == file for _, f, _ in self.sheets):
+            raise ValueError(f"duplicate sheet file {file}")
+        check_grid(f"sheet {name}", *at, *size)
+        page = str(len(self.sheets) + 2)
+        sheet_uuid = self.root.uuid("sheet", name)
+        child = Schematic(self.project, title=f"{name}", date=self.date, rev=self.rev,
+                          comments=[self.board, PROPOSAL] + self.comments, libs=self.libs,
+                          paper=paper or self.paper, sheet=name, shared=self.shared)
+        child.instance_path = f"/{self.root.root}/{sheet_uuid}"
+        x, y = at
+        w, h = size
+        self.root.items.append(
+            [
+                Sym("sheet"),
+                [Sym("at"), _r(x), _r(y)],
+                [Sym("size"), _r(w), _r(h)],
+                [Sym("exclude_from_sim"), Sym("no")],
+                [Sym("in_bom"), Sym("yes")],
+                [Sym("on_board"), Sym("yes")],
+                [Sym("dnp"), Sym("no")],
+                [Sym("fields_autoplaced"), Sym("yes")],
+                [Sym("stroke"), [Sym("width"), 0.1524], [Sym("type"), Sym("solid")]],
+                [Sym("fill"), [Sym("color"), 0, 0, 0, 0.0]],
+                [Sym("uuid"), sheet_uuid],
+                [Sym("property"), "Sheetname", name, [Sym("at"), _r(x), _r(y - 0.7116), 0],
+                 [Sym("effects"), _font(), [Sym("justify"), Sym("left"), Sym("bottom")]]],
+                [Sym("property"), "Sheetfile", file, [Sym("at"), _r(x), _r(y + h + 0.5984), 0],
+                 [Sym("effects"), _font(), [Sym("justify"), Sym("left"), Sym("top")]]],
+                [Sym("instances"), [Sym("project"), self.project,
+                                    [Sym("path"), f"/{self.root.root}", [Sym("page"), page]]]],
+            ]
+        )
+        if notes:
+            self.root.text(notes, (x + GRID, y + (3 + 2 * notes.count("\n")) * GRID))
+        self.sheets.append((name, file, child))
+        return child
+
+    def files(self) -> Dict[str, str]:
+        """{file name: text} for the root and every block sheet."""
+        out = {f"{self.project}.kicad_sch": self.root.text_out()}
+        for _, file, child in self.sheets:
+            out[file] = child.text_out()
+        return out
+
+    def write(self, folder: str) -> None:
+        for name, text in self.files().items():
+            write_if_changed(os.path.join(folder, name), text)
+
+    def stock_libs(self) -> List[str]:
+        libs = set(self.root.stock_libs())
+        for _, _, child in self.sheets:
+            libs.update(child.stock_libs())
+        return sorted(libs)
 
 
 def _pin_key(num: str):
