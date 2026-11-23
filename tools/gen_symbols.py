@@ -29,7 +29,12 @@ LIB_VERSION = 20251024
 
 PROPOSAL = "Proposal, pinout to verify against the data sheet of the part bought."
 
-# name: (stock lib, stock symbol, fields, {pin number: new pin name})
+POWER = "Power rail symbol, own net name. Not a part."
+
+# name: (stock lib, stock symbol, fields, {pin number: new pin name}[, options])
+# Options: "numbers" {old pin number: new pin number}, for a package whose pads
+# differ from the stock symbol; "pin_names": True shows pin names that the
+# stock symbol hides; "status": the Status field, PROPOSAL when absent.
 SYMBOLS = {
     "PCA9554": (
         "Interface_Expansion", "TCA9554DW",
@@ -65,6 +70,74 @@ SYMBOLS = {
         },
         {},
     ),
+    "Q_PMOS_GDS": (
+        "Device", "Q_PMOS",
+        {
+            "Value": "Q_PMOS_GDS",
+            "Footprint": "Package_TO_SOT_THT:TO-220-3_Vertical",
+            "Datasheet": "",
+            "Description": (
+                "P-channel MOSFET, TO-220, pads 1 gate, 2 drain, 3 source. Drawn from the stock "
+                "Q_PMOS with its letter pins numbered for the TO-220 pad order that parts such as "
+                "the IRF9540N use. Pin order assumed. To check against the data sheet of the part bought."
+            ),
+            "ki_keywords": "PMOS P-MOS P-MOSFET transistor TO-220",
+            "ki_fp_filters": "TO?220*",
+        },
+        {},
+        {"numbers": {"G": "1", "D": "2", "S": "3"}},
+    ),
+    "D_TVS_Unidir": (
+        "Diode", "SMAJ26A",
+        {
+            "Value": "D_TVS_Unidir",
+            "Footprint": "Diode_THT:D_DO-15_P12.70mm_Horizontal",
+            "Datasheet": "",
+            "Description": (
+                "Unidirectional TVS diode, 600 W class, DO-15, pad 1 cathode, pad 2 anode. "
+                "Drawn from the stock SMAJ26A with a through-hole footprint. "
+                "Standoff voltage and pad order to check against the data sheet of the part bought."
+            ),
+            "ki_keywords": "TVS unidirectional diode transient voltage suppressor DO-15",
+            "ki_fp_filters": "D*DO?15*",
+        },
+        {"1": "K", "2": "A"},
+    ),
+    "PAM8302A_Module": (
+        "Connector_Generic", "Conn_01x07",
+        {
+            "Reference": "M",
+            "Value": "PAM8302A_Module",
+            "Footprint": "",
+            "Datasheet": "",
+            "Description": (
+                "PAM8302A mono class-D amplifier breakout module, seven pins on 2.54 mm: 1 VIN, "
+                "2 GND, 3 SD, 4 A+, 5 A-, 6 OUT+, 7 OUT-. Drawn from the stock Conn_01x07 with "
+                "named pins. Pin order assumed; take it from the module bought. No stock footprint."
+            ),
+            "ki_keywords": "PAM8302 amplifier class-D module breakout",
+        },
+        {"1": "VIN", "2": "GND", "3": "SD", "4": "A+", "5": "A-", "6": "OUT+", "7": "OUT-"},
+        {"pin_names": True},
+    ),
+    "V_PROT": (
+        "power", "+5V",
+        {"Value": "V_PROT", "Description": "Power symbol: the protected load supply V_PROT, after F1 and D1."},
+        {},
+        {"status": POWER},
+    ),
+    "V_SW": (
+        "power", "+5V",
+        {"Value": "V_SW", "Description": "Power symbol: the switched load rail V_SW, after the arm switch Q1."},
+        {},
+        {"status": POWER},
+    ),
+    "+V_S": (
+        "power", "+5V",
+        {"Value": "+V_S", "Description": "Power symbol: the sensor supply +V_S, V_PROT through F2."},
+        {},
+        {"status": POWER},
+    ),
 }
 
 
@@ -78,21 +151,46 @@ def _field(name: str, value: str, like: list) -> list:
 
 
 def own_symbol(libs: SymbolLibs, name: str) -> list:
-    lib, stock, fields, renames = SYMBOLS[name]
-    node = copy.deepcopy(libs.raw(lib, stock))
+    lib, stock, fields, renames = SYMBOLS[name][:4]
+    opts = SYMBOLS[name][4] if len(SYMBOLS[name]) > 4 else {}
+    # get() merges a derived stock symbol into its parent and names it lib:stock.
+    node = libs.get(f"{lib}:{stock}")
     node[1] = name
     props = {p[1]: p for p in sexp.children(node, "property")}
     for key, val in fields.items():
-        props[key][2] = val
+        if key in props:
+            props[key][2] = val
+        else:
+            last = max(i for i, it in enumerate(node) if sexp.tag(it) == "property")
+            props[key] = _field(key, val, props["Datasheet"])
+            node.insert(last + 1, props[key])
     # A user field with the proposal note, where KiCad puts user fields.
-    node.insert(node.index(props["Description"]) + 1, _field("Status", PROPOSAL, props["Datasheet"]))
+    status = opts.get("status", PROPOSAL)
+    node.insert(node.index(props["Description"]) + 1, _field("Status", status, props["Datasheet"]))
+    if opts.get("pin_names"):
+        names = sexp.child(node, "pin_names")
+        if names is not None:
+            node[node.index(names)] = [Sym("pin_names"), [Sym("offset"), 1.016]]
+    numbers = opts.get("numbers", {})
     for unit in sexp.children(node, "symbol"):
         unit[1] = name + unit[1][len(stock):]
         for pin in sexp.children(unit, "pin"):
             num = sexp.value(pin, "number")
             if num in renames:
                 sexp.child(pin, "name")[1] = renames[num]
+            if num in numbers:
+                sexp.child(pin, "number")[1] = numbers[num]
+        if numbers:
+            # KiCad keeps the pins of a unit in pin number order.
+            pins = [i for i, it in enumerate(unit) if sexp.tag(it) == "pin"]
+            ordered = sorted((unit[i] for i in pins), key=lambda p: _num_key(sexp.value(p, "number")))
+            for i, p in zip(pins, ordered):
+                unit[i] = p
     return node
+
+
+def _num_key(num: str):
+    return (0, int(num), "") if num.isdigit() else (1, 0, num)
 
 
 def library(libs: SymbolLibs) -> list:

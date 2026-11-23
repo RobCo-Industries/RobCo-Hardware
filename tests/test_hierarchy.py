@@ -164,3 +164,39 @@ def test_mirror_moves_pins(mirror, rot, want, out):
 def test_bad_mirror_fails():
     with pytest.raises(ValueError, match="mirror"):
         _sch().symbol("Device:R", "R1", "1k", (g(10), g(10)), mirror="z")
+
+
+def test_units_of_a_part_are_placed_once_each():
+    s = _sch()
+    u1 = s.symbol("Isolator:LTV-847", "U5", "LTV-847", (g(10), g(10)), unit=1)
+    u2 = s.symbol("Isolator:LTV-847", "U5", "LTV-847", (g(30), g(10)), unit=2)
+    assert sorted(u1._pins) == sorted(["1", "2", "15", "16"])
+    assert sorted(u2._pins) == sorted(["3", "4", "13", "14"])
+    with pytest.raises(ValueError, match="duplicate reference U5 unit 2"):
+        s.symbol("Isolator:LTV-847", "U5", "LTV-847", (g(50), g(10)), unit=2)
+    with pytest.raises(ValueError, match="has no unit 5"):
+        s.symbol("Isolator:LTV-847", "U6", "LTV-847", (g(50), g(10)), unit=5)
+    tree = sexp.parse(s.text_out())
+    syms = sexp.children(tree, "symbol")
+    assert [str(sexp.value(x, "unit")) for x in syms] == ["1", "2"]
+    paths = [sexp.child(sexp.child(sexp.child(x, "instances"), "project"), "path") for x in syms]
+    assert [str(sexp.value(p, "unit")) for p in paths] == ["1", "2"]
+    assert sexp.value(syms[0], "uuid") != sexp.value(syms[1], "uuid")
+
+
+def test_dnp_flag():
+    s = _sch()
+    s.symbol("Device:R", "R1", "4k7", (g(10), g(10)), dnp=True)
+    s.symbol("Device:R", "R2", "4k7", (g(20), g(10)))
+    syms = sexp.children(sexp.parse(s.text_out()), "symbol")
+    assert [str(sexp.value(x, "dnp")) for x in syms] == ["yes", "no"]
+
+
+def test_label_at_and_own_power_library():
+    s = _sch(power_libs={"V_SW": "RobCo"})
+    s.label_at("ARM_G", (g(10), g(10)), "left")
+    s.power_symbol("V_SW", (g(20), g(20)))
+    s.power_symbol("GND", (g(30), g(20)))
+    labels = _items(s, "label")
+    assert labels[0][1] == "ARM_G" and sexp.child(labels[0], "at")[3] == 180
+    assert sorted(s.lib_symbols) == ["RobCo:V_SW", "power:GND"]

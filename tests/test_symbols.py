@@ -51,3 +51,26 @@ def test_fields_mark_the_proposal():
         assert "To check against the data sheet" in props["Description"]
         assert props["Status"].startswith("Proposal, pinout to verify")
         assert lib_pins(sym)
+
+
+def test_pmos_gds_pad_order():
+    pins = _pins(_sym("Q_PMOS_GDS"))
+    assert pins == {"1": "G", "2": "D", "3": "S"}
+
+
+def test_tvs_unidirectional_has_cathode_and_anode():
+    assert _pins(_sym("D_TVS_Unidir")) == {"1": "K", "2": "A"}
+
+
+def test_pam8302a_module_pins_are_named_and_shown():
+    sym = _sym("PAM8302A_Module")
+    assert _pins(sym) == {"1": "VIN", "2": "GND", "3": "SD", "4": "A+", "5": "A-", "6": "OUT+", "7": "OUT-"}
+    assert sexp.child(sexp.child(sym, "pin_names"), "hide") is None
+
+
+def test_own_power_symbols_name_their_rail():
+    for name in ("V_PROT", "V_SW", "+V_S"):
+        sym = _sym(name)
+        props = {p[1]: p[2] for p in sexp.children(sym, "property")}
+        assert props["Value"] == name
+        assert sexp.child(sym, "power") is not None
