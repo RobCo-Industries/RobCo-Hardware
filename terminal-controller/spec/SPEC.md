@@ -384,9 +384,9 @@ Door contacts and motion sensors in a prop often run on 12 V and sit on long cab
 | Ref | Part | Connection |
 |---|---|---|
 | U5, U6 | LTV-847 quad optocoupler, DIP-16 | Channels 0 to 3 and 4 to 7 |
-| R60 to R67 | 2.2 kOhm, 0.5 W | J4 `INn` to opto anode n |
+| R60 to R67 | 2.2 kOhm or 1 kOhm by field voltage, 0.5 W | J4 `INn` to opto anode n |
 | D10 to D17 | 1N4148, DO-35 | Across each opto LED, anode at the opto cathode |
-| R70 to R77 | 10 kOhm | `XINn` to `3V3` |
+| R70 to R77 | 47 kOhm | `XINn` to `3V3` |
 | C10, C11 | 100 nF | U2 area decoupling and `3V3` near the pull-ups |
 | C40 to C47 | 10 nF, not fitted | `XINn` to `GND`, optional filter |
 | JP10 | 2-pin header with shunt | `IN_COM` to `GND`. Silkscreen "COM-GND". |
@@ -427,25 +427,68 @@ What happens in a sustained short from `+V_S` to `IN_COM` with JP10 fitted:
 
 R78 is retired. A small series resistor is not a protection device: in a short it takes the full fault power. The old 100 Ohm part would have dissipated 24 V x 24 V / 100 Ohm = 5.76 W against its 0.5 W rating. F2 needs no series resistor.
 
-Optocoupler arithmetic, LED forward voltage 1.2 V (typical, check):
+Values to fit:
 
-| Field voltage | LED current through 2.2 kOhm | Resistor power |
+| Field voltage on `+V_S` | R60 to R67 | R70 to R77 |
 |---|---|---|
-| 5 V | (5 - 1.2) / 2200 = 1.7 mA | 6.6 mW |
-| 12 V | (12 - 1.2) / 2200 = 4.9 mA | 53 mW |
-| 24 V | (24 - 1.2) / 2200 = 10.4 mA | 238 mW |
+| 5 V | 1 kOhm | 47 kOhm |
+| 12 V | 2.2 kOhm | 47 kOhm |
+| 24 V | 2.2 kOhm | 47 kOhm |
 
-At 24 V the resistor dissipates 238 mW. That is why R60 to R67 are 0.5 W parts. LED current 10.4 mA is well below the 50 mA rating (typical, check).
+Mark the fitted input resistor on the board. Never put 24 V on 1 kOhm inputs: (25.2 - 0.3 - 1.0) / 1000 = 23.9 mA, and 23.9 mA x 23.9 V = 0.57 W, above the 0.5 W rating.
 
-Transfer ratio margin: the pull-up needs 3.3 V / 10 kOhm = 0.33 mA to pull `XINn` low. The LTV-847 has a minimum current transfer ratio of 50 % at 5 mA (typical, check). The ratio falls at low LED current. Assume 50 % of the 5 mA figure at 1.7 mA, so 25 % (assumed).
+Figures used in the worst case:
 
-| Field voltage | LED current | Collector current at worst ratio | Margin over 0.33 mA |
+| Figure | Value | Confidence |
+|---|---|---|
+| Supply tolerance | plus or minus 5 % | assumed |
+| D1 drop at under 0.2 A | 0.3 V to 0.45 V | typical, check |
+| F2 resistance after a trip | 8 Ohm at most | assumed, a requirement on F2 |
+| Sensor load sharing F2 | 50 mA | assumed |
+| LED forward voltage | 1.0 V to 1.4 V | typical, check |
+| LTV-847 minimum transfer ratio | 50 % at 5 mA LED current, 5 V collector voltage | typical, check |
+| Derating below 5 mA LED current | x 0.5 | assumed |
+| Derating for age and temperature | x 0.7 | assumed |
+| `3V3` highest | 3.3 V + 5 % = 3.47 V | assumed |
+| Opto low level at these currents | 0.4 V at most | assumed. The data sheet gives about 0.2 V at 20 mA and 1 mA collector current (typical, check). |
+| PCA9554 internal pull-up | 100 kOhm, 50 kOhm at least | typical, check; the minimum is assumed |
+| PCA9554 input low threshold at 3.3 V | 0.3 x 3.3 = 0.99 V | typical, check |
+| PCA9554 input high threshold at 3.3 V | 0.7 x 3.3 = 2.31 V | typical, check |
+| PCA9554 input leakage | 1 uA | typical, check |
+| Opto dark current | 0.1 uA | typical, check |
+
+Worst-case transfer ratio: 50 % x 0.7 = 35 % at 5 mA or more. 50 % x 0.5 x 0.7 = 17.5 % below 5 mA.
+
+Current the transistor must sink to hold `XINn` at 0.4 V: through R70 to R77, (3.47 - 0.4) / 47 kOhm = 0.065 mA. Through the internal pull-up, (3.47 - 0.4) / 50 kOhm = 0.061 mA. Total 0.13 mA.
+
+Lowest `+V_S`: supply at -5 %, minus 0.45 V in D1, minus the drop in F2. The drop is (50 mA + n x LED current) x 8 Ohm, with n the number of active inputs. LED current: (`+V_S` - 1.4 V) / R60.
+
+| Field voltage | Active | Lowest `+V_S` | LED current | Collector current | Margin over 0.13 mA |
+|---|---|---|---|---|---|
+| 5 V, 1 kOhm | 1 | 4.75 - 0.45 - 52.5 mA x 8 Ohm = 3.88 V | (3.88 - 1.4) / 1000 = 2.48 mA | 2.48 x 0.175 = 0.43 mA | 3.4 |
+| 5 V, 1 kOhm | 8 | 4.75 - 0.45 - 68.8 mA x 8 Ohm = 3.75 V | (3.75 - 1.4) / 1000 = 2.35 mA | 2.35 x 0.175 = 0.41 mA | 3.2 |
+| 12 V, 2.2 kOhm | 1 | 11.4 - 0.45 - 54.1 mA x 8 Ohm = 10.52 V | (10.52 - 1.4) / 2200 = 4.14 mA | 4.14 x 0.175 = 0.72 mA | 5.7 |
+| 12 V, 2.2 kOhm | 8 | 11.4 - 0.45 - 82.3 mA x 8 Ohm = 10.29 V | (10.29 - 1.4) / 2200 = 4.04 mA | 4.04 x 0.175 = 0.71 mA | 5.6 |
+| 24 V, 2.2 kOhm | 1 | 22.8 - 0.45 - 59.3 mA x 8 Ohm = 21.88 V | (21.88 - 1.4) / 2200 = 9.31 mA | 9.31 x 0.35 = 3.26 mA | 25 |
+| 24 V, 2.2 kOhm | 8 | 22.8 - 0.45 - 122.6 mA x 8 Ohm = 21.37 V | (21.37 - 1.4) / 2200 = 9.08 mA | 9.08 x 0.35 = 3.18 mA | 25 |
+
+The margin is at least 3.2 at every voltage with all eight inputs active. The 2.2 kOhm parts at 5 V, with `+V_S` at its lowest of 3.82 V, would give (3.82 - 1.4) / 2200 = 1.1 mA and 1.1 x 0.175 = 0.19 mA, a margin of 1.5. That is why 5 V takes 1 kOhm.
+
+Input resistor dissipation at the highest voltage. The supply is at +5 %, D1 drops 0.3 V and the LED 1.0 V:
+
+| Field voltage | R60 to R67 | Highest current | Power |
 |---|---|---|---|
-| 5 V | 1.7 mA | 1.7 x 0.25 = 0.43 mA | 1.3 times |
-| 12 V | 4.9 mA | 4.9 x 0.5 = 2.4 mA | 7 times |
-| 24 V | 10.4 mA | 10.4 x 0.5 = 5.2 mA | 16 times |
+| 5 V | 1 kOhm | (5.25 - 0.3 - 1.0) / 1000 = 3.95 mA | 3.95 mA x 3.95 V = 16 mW |
+| 12 V | 2.2 kOhm | (12.6 - 0.3 - 1.0) / 2200 = 5.1 mA | 5.1 mA x 11.3 V = 58 mW |
+| 24 V | 2.2 kOhm | (25.2 - 0.3 - 1.0) / 2200 = 10.9 mA | 10.9 mA x 23.9 V = 0.26 W |
 
-The 5 V margin is thin. For 5 V sensors, fit 1 kOhm for R60 to R67: (5 - 1.2) / 1000 = 3.8 mA, and 3.8 x 0.5 = 1.9 mA, a margin of 5.8. Do not then apply 24 V: 22.8 mA in a 1 kOhm resistor is 0.52 W. Mark the fitted value on the board.
+At 24 V each resistor dissipates 0.26 W. That is why R60 to R67 are 0.5 W parts. 10.9 mA is well below the LED's 50 mA rating (typical, check).
+
+Expander side:
+
+- Low level: the transistor holds `XINn` at 0.4 V or less (assumed). The input low threshold is 0.99 V. The margin is 0.59 V.
+- High level: leakage of 1 uA plus 0.1 uA dark current in 47 kOhm drops 1.1 uA x 47 kOhm = 0.05 V. With `3V3` at 3.3 V - 5 % = 3.14 V, `XINn` sits at 3.09 V or more. The internal pull-up only raises it. The input high threshold is 2.31 V. The margin is 0.78 V.
+- Noise: 47 kOhm in parallel with the internal pull-up is about 24 kOhm. The trace from the opto to U2 is short and on the board. If a long field cable couples noise across the opto, fit C40 to C47. 24 kOhm x 10 nF = 0.24 ms, still fast for a door contact.
 
 Reverse voltage: the opto LED stands about 6 V reverse (typical, check). D10 to D17 clamp a reversed input to about 0.7 V.
 
@@ -558,7 +601,8 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | BT1 | 1 | CR2032 holder | THT | Cell not included |
 | RN1 | 1 | 10 kOhm x 8, bussed | SIP-9 | Pin 1 common |
 | R1, R2, R4 | 3 | 4.7 kOhm, 4.7 kOhm, 10 kOhm | Axial | Not fitted |
-| R3, R70 to R77 | 9 | 10 kOhm | Axial | |
+| R3 | 1 | 10 kOhm | Axial | |
+| R70 to R77 | 8 | 47 kOhm | Axial | Input pull-ups |
 | R10 to R17, R24 | 9 | 1.5, 4.7 or 10 kOhm by load supply | Axial | See section 4.3 |
 | R20 | 1 | 10 kOhm | Axial | |
 | R21 | 1 | 1 kOhm | Axial | |
@@ -569,7 +613,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | R40 to R48 | 9 | 1 kOhm | Axial | |
 | R50 to R58 | 9 | 10 kOhm | Axial | Not fitted |
 | R59 | 1 | 100 Ohm | Axial | J5 pin 12 limit |
-| R60 to R67 | 8 | 2.2 kOhm, 0.5 W | Axial | 1 kOhm for 5 V sensors |
+| R60 to R67 | 8 | 2.2 kOhm, 0.5 W, or 1 kOhm, 0.5 W for a 5 V field supply | Axial | See section 4.8 |
 | R80, R81 | 2 | Per HAT specification | Axial or 0805 | Not fitted |
 | RV1 | 1 | 10 kOhm trimmer | THT | |
 | C1, C9 | 2 | 100 uF 35 V electrolytic | Radial | |
@@ -669,7 +713,7 @@ Placement:
 - Put BT1 away from U4, Q1, D1 and M1, which run warm.
 - Put M1 and J8 away from the I2C lines and the crystal.
 - Put J5, J6 and J7 along the header side, reachable with the HAT fitted.
-- Put R60 to R67 at least 2 mm apart: each can dissipate 0.24 W at 24 V.
+- Put R60 to R67 at least 2 mm apart: each can dissipate 0.26 W at 24 V.
 
 Trace widths, rule of thumb from IPC-2221 for outer layers, 1 oz copper, 10 C rise: I = 0.048 x dT^0.44 x A^0.725, A in square mils.
 
@@ -714,7 +758,10 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 - D2 standoff voltage against the highest supply you use: check.
 - DS1338 crystal load 6 pF and no external capacitors: check.
 - DS1338 3.3 V grade suffix: check.
-- LTV-847 transfer ratio at 1.7 mA: assumed 25 %. Check the curve, or fit 1 kOhm for 5 V sensors.
+- LTV-847 minimum transfer ratio 50 % at 5 mA: check. Derating x 0.5 below 5 mA and x 0.7 for age and temperature: assumed. Check the curve against LED current.
+- Opto low level 0.4 V at most at the currents used: assumed. Check the saturation curve.
+- PCA9554 input thresholds 0.3 and 0.7 x VDD, input leakage 1 uA, internal pull-up at least 50 kOhm: check.
+- Supply tolerance plus or minus 5 % and D1 drop 0.3 V to 0.45 V at low current: check against the supply and the 1N5822 curve.
 - LTV-847 pin order: check.
 - PAM8302A module pinout and footprint: check the module you buy.
 - PAM8302A chip package: check whether a hand-solderable version exists.
