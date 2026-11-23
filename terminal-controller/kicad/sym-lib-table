@@ -7,6 +7,7 @@
 	(lib (name "Jumper")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Jumper.kicad_sym")(options "")(descr ""))
 	(lib (name "Mechanical")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Mechanical.kicad_sym")(options "")(descr ""))
 	(lib (name "Memory_EEPROM")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Memory_EEPROM.kicad_sym")(options "")(descr ""))
+	(lib (name "Transistor_Array")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Transistor_Array.kicad_sym")(options "")(descr ""))
 	(lib (name "Transistor_BJT")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Transistor_BJT.kicad_sym")(options "")(descr ""))
 	(lib (name "power")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/power.kicad_sym")(options "")(descr ""))
 	(lib (name "RobCo")(type "KiCad")(uri "${KIPRJMOD}/../../lib/RobCo.kicad_sym")(options "")(descr "RobCo own symbols"))

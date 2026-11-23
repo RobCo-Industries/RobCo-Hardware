@@ -119,6 +119,59 @@
 		)
 		(uuid "4248f469-b65c-5e50-a812-4d9694285f03")
 	)
+	(sheet
+		(at 101.6 88.9)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7")
+		(property "Sheetname" "Outputs"
+			(at 101.6 88.1884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "outputs.kicad_sch"
+			(at 101.6 107.2784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b"
+					(page "4")
+				)
+			)
+		)
+	)
+	(text "U4 ULN2803A on X0.0 to X0.7, RN1 pull-downs.\nLED0 to LED7, J3 terminals OUT0 to OUT7."
+		(exclude_from_sim no)
+		(at 102.87 95.25 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b2df31c0-51fd-597b-be95-a90f285a69e6")
+	)
 	(text "Terminal controller HAT for the Raspberry Pi"
 		(exclude_from_sim no)
 		(at 25.4 30.48 0)
@@ -143,7 +196,7 @@
 		)
 		(uuid "334bf423-38bd-5296-a1fc-7ebfac9984bf")
 	)
-	(text "Not drawn yet: Outputs, Inputs, Audio, Headers."
+	(text "Not drawn yet: Inputs, Audio, Headers."
 		(exclude_from_sim no)
 		(at 25.4 139.7 0)
 		(effects
@@ -152,7 +205,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "012940d8-590b-5d86-99ee-b177380580e9")
+		(uuid "c937d115-3f0b-54df-a9d2-fc1ae879cd23")
 	)
 	(sheet_instances
 		(path "/"
