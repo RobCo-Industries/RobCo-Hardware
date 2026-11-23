@@ -25,3 +25,4 @@
 - Fix terminal controller review findings: 60 V diodes and Q1, 50 V reservoir capacitors above the TVS clamp; R20 at 100 kOhm and the real gate drive at 5 V; WP, ID_SD and ID_SC pull-ups; footprints for C13 and a VBAT jumper; notes on GPIO 25, back-fed loads, arming inrush and audio level.
 - Refuse units of one reference that use different library symbols, or differ in value, footprint or fitting, across all sheets.
 - Rate the terminal controller fuses F1 and F2 at 60 V or more, above the TVS clamp.
+- Add own footprints for the fuses F1 and F2 and the amplifier module M1, and a test that every footprint a schematic names exists. Measure the terminal controller parts against the HAT outline: they do not fit, so the board is not placed yet.
