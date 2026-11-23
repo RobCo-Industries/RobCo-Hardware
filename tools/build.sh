@@ -22,7 +22,10 @@
 # Variables, all optional:
 #   KICAD_CLI            path to kicad-cli
 #   KICAD_PY             a Python that can import pcbnew
-#   ROBCO_BOARD_SUPPORT  path to RobCo-Core docs/spec/BOARD_SUPPORT.md, or "skip"
+#   ROBCO_BOARD_SUPPORT  path to RobCo-Core docs/spec/BOARD_SUPPORT.md, or "skip".
+#                        Unset, the script looks for a RobCo-Core clone next to
+#                        this repository, then two levels up, which finds it
+#                        from a worktree under .worktrees/.
 #   KICAD10_SYMBOL_DIR, KICAD10_FOOTPRINT_DIR, KICAD10_3DMODEL_DIR
 #                        stock library folders; found from known places if unset
 #
@@ -73,7 +76,8 @@ for kind in symbols footprints 3dmodels; do
 done
 
 if [ -z "${ROBCO_BOARD_SUPPORT:-}" ]; then
-  ROBCO_BOARD_SUPPORT="$(first_existing "$REPO/../RobCo-Core/docs/spec/BOARD_SUPPORT.md" || echo "")"
+  ROBCO_BOARD_SUPPORT="$(first_existing "$REPO/../RobCo-Core/docs/spec/BOARD_SUPPORT.md" \
+    "$REPO/../../RobCo-Core/docs/spec/BOARD_SUPPORT.md" || echo "")"
 fi
 
 ROUTED=no

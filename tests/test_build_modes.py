@@ -133,3 +133,50 @@ def test_owner_routed_board_compares_the_schematic_only(board):
     _write(str(board / "b" / "kicad" / "b.kicad_sch"), "edited by hand\n")
     r = _run(board, "regen")
     assert r.returncode != 0 and "b.kicad_sch differs" in r.stderr
+
+
+def _copy_build(tmp):
+    """A copy of build.sh in <tmp>/org/.worktrees/repo/tools, and a fake KICAD_PY that logs its arguments."""
+    repo = tmp / "org" / ".worktrees" / "repo"
+    os.makedirs(str(repo / "tools"))
+    shutil.copy(BUILD, str(repo / "tools" / "build.sh"))
+    _write(str(tmp / "py"), '#!/bin/sh\necho "$@" >> "$FAKE_LOG"\n', exe=True)
+    os.makedirs(str(tmp / "b" / "spec"))
+    _write(str(tmp / "b" / "spec" / "pins.yaml"), "board: b\n")
+    return repo
+
+
+def _run_copy(tmp, repo, **extra):
+    env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": str(tmp),
+           "ROBCO_BOARD_DIR": str(tmp / "b"), "KICAD_PY": str(tmp / "py"),
+           "KICAD_CLI": str(tmp / "no-cli"), "FAKE_LOG": str(tmp / "calls.log"),
+           "KICAD10_3DMODEL_DIR": str(tmp)}
+    env.update(extra)
+    return subprocess.run(["bash", str(repo / "tools" / "build.sh"), "pins", "b"], env=env,
+                          capture_output=True, text=True)
+
+
+def test_board_support_found_two_levels_up(tmp_path):
+    repo = _copy_build(tmp_path)
+    core = tmp_path / "org" / "RobCo-Core" / "docs" / "spec" / "BOARD_SUPPORT.md"
+    _write(str(core), "## Pins\n")
+    r = _run_copy(tmp_path, repo)
+    assert r.returncode == 0, r.stderr
+    assert f"--board-support {repo}/../../RobCo-Core/docs/spec/BOARD_SUPPORT.md" in _calls(tmp_path)
+
+
+def test_board_support_variable_overrides_the_search(tmp_path):
+    repo = _copy_build(tmp_path)
+    _write(str(tmp_path / "org" / "RobCo-Core" / "docs" / "spec" / "BOARD_SUPPORT.md"), "## Pins\n")
+    other = tmp_path / "other.md"
+    _write(str(other), "## Pins\n")
+    r = _run_copy(tmp_path, repo, ROBCO_BOARD_SUPPORT=str(other))
+    assert r.returncode == 0, r.stderr
+    assert f"--board-support {other}" in _calls(tmp_path)
+
+
+def test_board_support_missing_fails(tmp_path):
+    repo = _copy_build(tmp_path)
+    r = _run_copy(tmp_path, repo)
+    assert r.returncode != 0
+    assert "BOARD_SUPPORT.md not found" in r.stderr
