@@ -53,6 +53,9 @@ def test_toy_passes_both_checks():
 
 def test_toy_against_real_board_support():
     if not os.path.exists(REAL_SPEC):
+        # CI sets ROBCO_REQUIRE_BOARD_SUPPORT=1: a missing file fails there.
+        if os.environ.get("ROBCO_REQUIRE_BOARD_SUPPORT") == "1":
+            pytest.fail("BOARD_SUPPORT.md not found at " + REAL_SPEC)
         pytest.skip("set ROBCO_BOARD_SUPPORT or check out RobCo-Core next to this repository")
     assert cp.run(TOY_PINS, NET, REAL_SPEC) == (cp.OK, [])
 
