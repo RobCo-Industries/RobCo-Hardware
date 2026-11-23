@@ -26,15 +26,23 @@
 #   KICAD10_SYMBOL_DIR, KICAD10_FOOTPRINT_DIR, KICAD10_3DMODEL_DIR
 #                        stock library folders; found from known places if unset
 #
-# A board folder may hold board.env with ROUTED=yes. DRC then fails on any
-# violation or unrouted net. Without it DRC runs in report mode.
+# A board folder may hold board.env with these flags:
+#   ROUTED=yes        DRC fails on any violation or unrouted net. Without it
+#                     DRC runs in report mode.
+#   OWNER_ROUTED=yes  the owner routed the board in KiCad: the committed board
+#                     file is the source. gen and regen then cover the
+#                     schematic and project files only, never the board file.
+# A board with no board file yet is checked as a schematic: regen, ERC and pin
+# checks run, DRC and renders are skipped with a line that says so.
+#
+# ROBCO_BOARD_DIR overrides the board folder, for tests.
 
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CMD="${1:-}"
 BOARD="${2:-toy}"
-BDIR="$REPO/$BOARD"
+BDIR="${ROBCO_BOARD_DIR:-$REPO/$BOARD}"
 OUT="$REPO/build/$BOARD"
 
 first_existing() {
@@ -69,6 +77,7 @@ if [ -z "${ROBCO_BOARD_SUPPORT:-}" ]; then
 fi
 
 ROUTED=no
+OWNER_ROUTED=no
 if [ -f "$BDIR/board.env" ]; then
   # shellcheck disable=SC1090,SC1091
   . "$BDIR/board.env"
@@ -96,7 +105,9 @@ gen_into() {
   local dest="$1"
   [ -d "$BDIR/gen" ] || die "no generator folder $BDIR/gen"
   "$KICAD_PY" "$BDIR/gen/circuit.py" "$dest"
-  if [ -f "$BDIR/gen/board.py" ]; then
+  if [ "$OWNER_ROUTED" = yes ]; then
+    say "board routed by the owner: the board generator does not run, $BOARD.kicad_pcb is the source"
+  elif [ -f "$BDIR/gen/board.py" ]; then
     mkdir -p "$OUT"
     "$KICAD_CLI" sch export netlist -o "$OUT/gen.net" "$dest/$BOARD.kicad_sch" >/dev/null 2>>"$OUT/kicad-cli.log"
     "$KICAD_PY" "$BDIR/gen/board.py" "$OUT/gen.net" "$dest" 2>>"$OUT/pcbnew.log"
@@ -118,12 +129,18 @@ cmd_regen() {
     local name
     name="$(basename "$f")"
     case "$name" in *.kicad_prl) continue ;; esac
+    if [ "$OWNER_ROUTED" = yes ]; then
+      case "$name" in *.kicad_pcb) continue ;; esac
+    fi
     if ! cmp -s "$f" "$BDIR/kicad/$name"; then
       echo "build.sh: $BOARD/kicad/$name differs from a fresh generation" >&2
       diff -u "$BDIR/kicad/$name" "$f" | head -40 >&2 || true
       bad=1
     fi
   done
+  if [ "$OWNER_ROUTED" = yes ]; then
+    say "board routed by the owner: $BOARD.kicad_pcb not compared"
+  fi
   [ "$bad" = 0 ] || die "regenerated files differ from the committed files: run tools/build.sh gen $BOARD and commit"
   say "regenerated files equal the committed files"
 }
@@ -170,7 +187,7 @@ cmd_drc() {
   mkdir -p "$OUT"
   local pcbfile
   pcbfile="$(pcb)"
-  [ -f "$pcbfile" ] || { say "no board file, DRC skipped"; return 0; }
+  [ -f "$pcbfile" ] || { say "no board file yet, schematic only: DRC skipped"; return 0; }
   if [ "$ROUTED" = yes ]; then
     if ! kcli pcb drc --exit-code-violations --refill-zones --format report -o "$OUT/drc.rpt" "$pcbfile" >/dev/null; then
       cat "$OUT/drc.rpt" >&2
@@ -205,6 +222,7 @@ cmd_docs() {
 }
 
 cmd_render() {
+  [ -f "$(pcb)" ] || { say "no board file yet, schematic only: renders skipped"; return 0; }
   mkdir -p "$OUT/render"
   [ -d "${KICAD10_3DMODEL_DIR:-/nonexistent}" ] || say "warning: no 3D model folder, renders will show bare pads"
   kcli pcb render --side top -w 1600 -h 900 -o "$OUT/render/$BOARD-top.png" "$(pcb)" >/dev/null
@@ -218,6 +236,7 @@ cmd_render() {
 }
 
 cmd_fab() {
+  [ -f "$(pcb)" ] || { say "no board file yet, schematic only: gerbers and drill skipped"; return 0; }
   mkdir -p "$OUT/fab"
   kcli pcb export gerbers -o "$OUT/fab/" "$(pcb)" >/dev/null
   kcli pcb export drill -o "$OUT/fab/" "$(pcb)" >/dev/null
