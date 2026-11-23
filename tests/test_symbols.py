@@ -76,3 +76,25 @@ def test_own_power_symbols_name_their_rail():
         props = {p[1]: p[2] for p in sexp.children(sym, "property")}
         assert props["Value"] == name
         assert sexp.child(sym, "power") is not None
+
+
+def test_pmos_sot23_pad_order():
+    sym = _sym("Q_PMOS_GSD_SOT23")
+    assert _pins(sym) == {"1": "G", "2": "S", "3": "D"}
+    props = {p[1]: p[2] for p in sexp.children(sym, "property")}
+    assert props["Footprint"] == "Package_TO_SOT_SMD:SOT-23"
+    assert "to verify" in props["Description"]
+
+
+def test_ili9341_socket_pins_follow_the_spec_order():
+    sym = _sym("ILI9341_Socket_1x14")
+    names = ["VCC", "GND", "CS", "RESET", "DC/RS", "SDI(MOSI)", "SCK", "LED", "SDO(MISO)",
+             "T_CLK", "T_CS", "T_DIN", "T_DO", "T_IRQ"]
+    assert _pins(sym) == {str(i + 1): n for i, n in enumerate(names)}
+    assert sexp.child(sexp.child(sym, "pin_names"), "hide") is None
+
+
+def test_ili9341_module_has_no_pins():
+    sym = _sym("ILI9341_Module")
+    props = {p[1]: p[2] for p in sexp.children(sym, "property")}
+    assert _pins(sym) == {} and props["Reference"] == "DS"

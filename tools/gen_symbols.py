@@ -88,6 +88,59 @@ SYMBOLS = {
         {},
         {"numbers": {"G": "1", "D": "2", "S": "3"}},
     ),
+    "Q_PMOS_GSD_SOT23": (
+        "Device", "Q_PMOS",
+        {
+            "Value": "Q_PMOS_GSD_SOT23",
+            "Footprint": "Package_TO_SOT_SMD:SOT-23",
+            "Datasheet": "",
+            "Description": (
+                "P-channel MOSFET, SOT-23, pads 1 gate, 2 source, 3 drain. Drawn from the stock "
+                "Q_PMOS with its letter pins numbered for the SOT-23 pad order that parts such as "
+                "the AO3401A and DMG2305UX use, from memory. Common, not universal: to verify "
+                "against the data sheet of the part bought."
+            ),
+            "ki_keywords": "PMOS P-MOS P-MOSFET transistor SOT-23",
+            "ki_fp_filters": "SOT?23*",
+        },
+        {},
+        {"numbers": {"G": "1", "S": "2", "D": "3"}},
+    ),
+    "ILI9341_Socket_1x14": (
+        "Connector_Generic", "Conn_01x14",
+        {
+            "Value": "ILI9341_Socket_1x14",
+            "Footprint": "Connector_PinSocket_2.54mm:PinSocket_1x14_P2.54mm_Vertical",
+            "Datasheet": "",
+            "Description": (
+                "Socket for a 2.8 inch ILI9341 SPI display module, one row of 14 on 2.54 mm: "
+                "1 VCC, 2 GND, 3 CS, 4 RESET, 5 DC/RS, 6 SDI(MOSI), 7 SCK, 8 LED, 9 SDO(MISO), "
+                "10 T_CLK, 11 T_CS, 12 T_DIN, 13 T_DO, 14 T_IRQ. Drawn from the stock Conn_01x14 "
+                "with named pins. Order typical of MSP2807 class modules, from memory: "
+                "to verify against the module bought."
+            ),
+            "ki_keywords": "ILI9341 TFT display module socket header",
+        },
+        {"1": "VCC", "2": "GND", "3": "CS", "4": "RESET", "5": "DC/RS", "6": "SDI(MOSI)", "7": "SCK",
+         "8": "LED", "9": "SDO(MISO)", "10": "T_CLK", "11": "T_CS", "12": "T_DIN", "13": "T_DO", "14": "T_IRQ"},
+        {"pin_names": True, "body_right": 13.97},
+    ),
+    "ILI9341_Module": (
+        "Mechanical", "Housing",
+        {
+            "Reference": "DS",
+            "Value": "ILI9341_Module",
+            "Datasheet": "",
+            "Description": (
+                "2.8 inch ILI9341 SPI display module, 240 x 320, bought, not soldered. It plugs "
+                "into its socket and has no pins of its own on the schematic. Drawn from the "
+                "stock Housing symbol. Module size and pin order to verify against the module bought."
+            ),
+            "ki_keywords": "ILI9341 TFT display module",
+            "ki_fp_filters": "",
+        },
+        {},
+    ),
     "D_TVS_Unidir": (
         "Diode", "SMAJ26A",
         {
