@@ -438,12 +438,16 @@ class Schematic:
         end, _ = self._stub(part, pin, stub, then)
         self.power_symbol(net, end)
 
-    def power_symbol(self, net: str, at: Point, rot: int = 0) -> Placed:
+    def power_symbol(self, net: str, at: Point, rot: int = 0, value_at: Optional[Point] = None) -> Placed:
+        """A power symbol. `value_at` places the rail name, left-justified, as an
+        offset from `at`: use it on a symbol turned sideways, where the library
+        position would put the name on the symbol."""
         self.shared["power"] += 1
         ref = f"#PWR{self.shared['power']:02d}"
         lib = self.power_libs.get(net, "power")
-        return self.symbol(f"{lib}:{net}", ref, net, at, rot=rot, hide_ref=True, ref_at="lib",
-                           in_bom=False, description=f"Power symbol for the {net} rail")
+        fields = {"ref_at": "lib"} if value_at is None else {"ref_at": (0, 0), "value_at": value_at}
+        return self.symbol(f"{lib}:{net}", ref, net, at, rot=rot, hide_ref=True,
+                           in_bom=False, description=f"Power symbol for the {net} rail", **fields)
 
     def power_flag(self, net: str, at: Point) -> None:
         """Mark a rail as driven, so ERC knows a source feeds it.

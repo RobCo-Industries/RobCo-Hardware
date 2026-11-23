@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Optional
 
 from common import write_if_changed
 
@@ -28,8 +28,12 @@ RULES: Dict[str, float] = {
 }
 
 
-def kicad_pro(name: str, rules: Dict[str, float] = RULES) -> str:
-    """Return the `.kicad_pro` JSON text with the design rules."""
+def kicad_pro(name: str, rules: Dict[str, float] = RULES, erc_severities: Optional[Dict[str, str]] = None) -> str:
+    """Return the `.kicad_pro` JSON text with the design rules.
+
+    `erc_severities` sets ERC rule severities, such as
+    {"isolated_pin_label": "ignore"}, for a board drawn in steps.
+    """
     annular = round((rules["via_diameter"] - rules["via_drill"]) / 2, 4)
     data = {
         "board": {
@@ -56,6 +60,7 @@ def kicad_pro(name: str, rules: Dict[str, float] = RULES) -> str:
             }
         },
         "boards": [],
+        **({"erc": {"rule_severities": dict(erc_severities)}} if erc_severities else {}),
         "libraries": {"pinned_footprint_libs": [], "pinned_symbol_libs": []},
         "meta": {"filename": f"{name}.kicad_pro", "version": 3},
         "net_settings": {
@@ -108,10 +113,11 @@ def fp_lib_table(stock: Iterable[str], own: bool = True) -> str:
     return "(fp_lib_table\n\t(version 7)\n" + "\n".join(rows) + "\n)\n"
 
 
-def write_project(folder: str, name: str, sym_libs: Iterable[str], fp_libs: Iterable[str]) -> None:
+def write_project(folder: str, name: str, sym_libs: Iterable[str], fp_libs: Iterable[str],
+                  erc_severities: Optional[Dict[str, str]] = None) -> None:
     """Write the three project files into folder."""
     sym = [s for s in sym_libs if s != "RobCo"]
     fp = [f for f in fp_libs if f != "RobCo"]
-    write_if_changed(os.path.join(folder, f"{name}.kicad_pro"), kicad_pro(name))
+    write_if_changed(os.path.join(folder, f"{name}.kicad_pro"), kicad_pro(name, erc_severities=erc_severities))
     write_if_changed(os.path.join(folder, "sym-lib-table"), sym_lib_table(sym))
     write_if_changed(os.path.join(folder, "fp-lib-table"), fp_lib_table(fp))

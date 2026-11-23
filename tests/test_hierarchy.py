@@ -200,3 +200,12 @@ def test_label_at_and_own_power_library():
     labels = _items(s, "label")
     assert labels[0][1] == "ARM_G" and sexp.child(labels[0], "at")[3] == 180
     assert sorted(s.lib_symbols) == ["RobCo:V_SW", "power:GND"]
+
+
+def test_power_symbol_value_position():
+    s = _sch()
+    p = s.power_symbol("GND", (g(10), g(10)), rot=270, value_at=(g(3), 0))
+    node = next(n for n in s.symbols if sexp.value(n, "lib_id") == "power:GND")
+    val = next(x for x in sexp.children(node, "property") if x[1] == "Value")
+    assert [float(v) for v in sexp.child(val, "at")[1:3]] == [g(13), g(10)]
+    assert p.ref.startswith("#PWR")
