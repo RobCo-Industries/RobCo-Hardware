@@ -323,7 +323,7 @@ Choice: the same filter and the same PAM8302A module as the terminal controller,
 | R30 | 270 Ohm | `AUDIO_PWM`, GPIO 18, header pin 12, to `AUD_F` |
 | C30 | 33 nF film or C0G | `AUD_F` to `GND` |
 | C31 | 10 uF, 16 V electrolytic or film | `AUD_F` to `AUD_DC`, DC block |
-| R31 | 51 kOhm | `AUD_DC` to `AUD_T`, sets RV1's range |
+| R31 | 33 kOhm | `AUD_DC` to `AUD_T`, sets RV1's range |
 | RV1 | 10 kOhm trimmer, through-hole | Ends `AUD_T` and `GND`, wiper `AUD_IN` |
 | M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected, outputs `SPK_P` and `SPK_N` |
 | C32 | 100 nF | M1 Vin to `GND` |
@@ -332,24 +332,38 @@ Choice: the same filter and the same PAM8302A module as the terminal controller,
 | LS1 | Speaker, 8 Ohm, 0.5 W or more, 20 to 28 mm round | On J6, off the board |
 | TP6 | Test point | `AUD_IN` |
 
-Filter: the terminal controller arithmetic applies unchanged. f = 1 / (2 x pi x 270 x 33e-9) = 17.9 kHz, the values audio.md gives. The filtered square wave reaches about 1.1 Vrms at full level (terminal controller BRINGUP.md, step 17).
+Filter: the terminal controller arithmetic applies unchanged. f = 1 / (2 x pi x 270 x 33e-9) = 17.9 kHz, the values audio.md gives. Source level: the PWM swings 0 to 3.3 V. After C31 a full-scale signal is at most 1.65 V peak, either way of zero. A full-scale square wave is then 1.65 Vrms. A full-scale sine is 1.65 / 1.41 = 1.17 Vrms. Pip-OS tones are square waves: `audio_set_volume()` sets the duty cycle, and 100 gives 50 %, the loudest square wave (RobCo-Core `docs/guide/api/audio.md`). PCM samples are 8-bit, scaled by the volume around 128, so a full-scale sine is the loudest PCM case. The 1.1 Vrms of the terminal controller (BRINGUP.md, step 17) treated a square wave as a sine. This section uses the 1.65 V peak for clipping and power.
 
 Where it differs from the terminal controller:
 
 - No jack and no source jumper. Every supported Zero has its PWM on GPIO 18.
-- R31 sits above RV1, so the working point falls near mid-travel. See "Trimmer range" below.
+- R31 sits above RV1, so the working point falls between 30 % and 50 % of the travel. See "Trimmer range" below.
 - RV1 is a ceiling, not a volume knob. Software volume exists: `[audio] volume` in `PIPOS.CFG`, 0 to 100, and Deitrix has a Volume row on its RADIO tab. RV1 sets the loudest level once, so volume 100 does not clip the amplifier or overload a small speaker or a power bank.
 - A smaller speaker: 8 Ohm only, no 4 Ohm. 8 Ohm halves the peak current.
 
 Why the PAM8302A module: the chip comes only in small packages that are hard to solder with an iron (typical, check: MSOP-8 or DFN). The module brings it ready-soldered, as on the first board. Rejected: the LM386 in DIP-8. It is hand-solderable, but class AB wastes more of a battery's energy and needs its own gain and output parts.
 
-Power: set RV1 so a full-volume square wave gives at most 2 V peak on the speaker, 2 V x 2 V / 8 Ohm = 0.5 W. The amplifier then draws 0.5 W / 0.85 / 5 V = 118 mA from `+5V` (efficiency 85 %, typical, check). Budget 150 mA. Unlimited, a clipped square wave in bridge mode at 5 V could put 5 V x 5 V / 8 Ohm = 3.1 W into the speaker and draw 3.1 / 0.85 / 5 = 0.74 A. That is why RV1 stays. Idle current about 4 mA (typical, check). SD stays open: the module pulls it high (typical, check the module), and a pin to shut it down would save 20 mW at most.
+Power: set RV1 so a full-volume square wave gives at most 2 V peak on the speaker, 2 V x 2 V / 8 Ohm = 0.5 W. A square wave's rms equals its peak, so this is the worst case and the speaker rating of 0.5 W is checked against it. A full-scale PCM sine at the same setting also peaks at 2 V and gives 2 V x 2 V / 2 / 8 Ohm = 0.25 W. The amplifier then draws 0.5 W / 0.85 / 5 V = 118 mA from `+5V` (efficiency 85 %, typical, check). Budget 150 mA. Unlimited, a clipped square wave in bridge mode at 5 V could put 5 V x 5 V / 8 Ohm = 3.1 W into the speaker and draw 3.1 / 0.85 / 5 = 0.74 A. That is why RV1 stays. Idle current about 4 mA (typical, check). SD stays open: the module pulls it high (typical, check the module), and a pin to shut it down would save 20 mW at most.
 
 The PAM8302A drives the speaker in bridge mode (typical, check). Neither speaker wire is ground.
 
-Trimmer range: the module's gain is about 24 dB, 15.8 times (from memory, to verify). 2 V peak at the speaker needs 2 V / 15.8 = 0.127 V peak at A+. The filtered PWM is about 1.1 Vrms, 1.56 V peak. RV1 alone would sit at 0.127 / 1.56 = 8 % of its travel, too close to the end to set well. R31 divides first. For the working point at mid-travel, the top of RV1 must sit at 2 x 0.127 = 0.254 V. 1.56 V x 10 kOhm / (R31 + 10 kOhm) = 0.254 V gives R31 = 51.4 kOhm. R31 = 51 kOhm (E24) puts 1.56 x 10 / 61 = 0.256 V at the top of RV1. The working point is at 0.127 / 0.256 = 50 % of the travel. Full travel gives 0.256 V x 15.8 = 4.0 V peak, so RV1 still reaches the clipping level.
+Trimmer range: the module's gain is about 24 dB, 15.8 times (from memory, to verify). 2 V peak at the speaker needs 2 V / 15.8 = 0.127 V peak at A+, 0.077 of the 1.65 V source. RV1 alone, unloaded, would sit at 8 % of its travel, too close to the end to set well. R31 divides first.
 
-Input impedance: the module's input impedance loads the wiper. This spec assumes about 10 kOhm (assumed, to verify on the module). At mid-travel the wiper's source resistance is about (51 + 5) kOhm in parallel with 5 kOhm = 4.6 kOhm. A 10 kOhm load then gives 0.127 x 10 / 14.6 = 0.087 V. The working point moves up to about 60 % of the travel. That is still inside the range. C31 into the 61 kOhm chain gives a corner of 1 / (2 x pi x 61 kOhm x 10 uF) = 0.26 Hz.
+The network: the source is the filtered PWM through R30, 270 Ohm, and C31. C31 is 16 Ohm at 1 kHz, and both are small next to R31, so this section ignores them. R31 feeds the top of RV1. The wiper splits RV1 at position x, 0 at `GND` and 1 at the top: (1 - x) x RV1 above the wiper, x x RV1 below it. The module's input impedance Zin sits in parallel with the lower part. With Rlow = (x x RV1) in parallel with Zin:
+
+V(A+) / V(source) = Rlow / (R31 + (1 - x) x RV1 + Rlow)
+
+Zin is about 10 kOhm (from memory, to verify) and could be well above it. This section takes 10 kOhm to 100 kOhm. Step 18 of BRINGUP.md measures it. R31 = 33 kOhm (E12) keeps the 2 V target between 30 % and 50 % of the travel across that range:
+
+| Zin | RV1 position for 2 V peak | Speaker peak at full travel, square wave |
+|---|---|---|
+| 10 kOhm | 47 % | 3.4 V |
+| 30 kOhm | 37 % | 4.8 V |
+| 100 kOhm | 34 % | 5.6 V asked, clipped near 5 V |
+
+R31 = 27 kOhm would put the 100 kOhm case at 29 %. R31 = 51 kOhm put the 10 kOhm case at 79 %, and its full travel gave only 2.3 V. At full travel with a high Zin the amplifier clips at its 5 V supply. That is acceptable for a ceiling set once at bring-up: the target sits well below the end, and step 18 stops at 2 V. Turned fully up by mistake, the speaker can see a clipped square wave near 5 V peak, about 3.1 W, as section "Power" says.
+
+C31 into the network: the lowest resistance it sees is R31 plus RV1 in parallel with 10 kOhm, at full travel, about 38 kOhm. The corner is 1 / (2 x pi x 38 kOhm x 10 uF) = 0.42 Hz.
 
 ### 4.6 Clock
 
@@ -666,7 +680,7 @@ The owner must decide with the case:
 | R23 | 1 | 10 kOhm | Axial | Q1 base to emitter |
 | R24 | 1 | 33 Ohm | Axial | SPI clock |
 | R30 | 1 | 270 Ohm | Axial | Audio filter |
-| R31 | 1 | 51 kOhm | Axial | Above RV1, sets its range |
+| R31 | 1 | 33 kOhm | Axial | Above RV1, sets its range |
 | R40 to R48 | 9 | 1 kOhm | Axial | Input series |
 | RV1 | 1 | 10 kOhm trimmer | THT | Audio level ceiling |
 | C1 | 1 | 10 uF 10 V ceramic | THT | Display VCC |
@@ -782,8 +796,8 @@ Every assumption in this spec, to check before the schematic step or at bring-up
 - Power bank output limit 2.1 A to 2.4 A and auto-off below 50 mA to 100 mA: assumed.
 - PAM8302A module pinout, SD pulled high on the module, efficiency 85 %, idle current 4 mA, absolute maximum about 6 V, lowest supply about 2 V, bridge output: typical, check the module and chip data sheet.
 - PAM8302A package not hand-solderable: typical, check.
-- Filtered PWM level about 1.1 Vrms, 1.56 V peak: from the terminal controller, to verify at bring-up.
-- PAM8302A module gain about 24 dB and input impedance about 10 kOhm, which set R31 = 51 kOhm and the RV1 working point near 50 % to 60 %: from memory and assumed, to verify.
+- Filtered PWM level at most 1.65 V peak after C31, from the 3.3 V swing: to verify at bring-up.
+- PAM8302A module gain about 24 dB and input impedance about 10 kOhm, which set R31 = 33 kOhm and the RV1 working point between 30 % and 50 %: the gain from memory, Zin taken as 10 kOhm to 100 kOhm, both to verify at step 18.
 - DS1338 pinout, 6 pF crystal with no capacitors, VBAT grounded with no cell, battery current under 1 uA: typical, check.
 - CR1220 capacity about 35 mAh and holder size: typical, check.
 - HAT EEPROM pull-ups 3.9 kOhm and WP pull-up 1 kOhm: from memory of the HAT design guide, check it.
