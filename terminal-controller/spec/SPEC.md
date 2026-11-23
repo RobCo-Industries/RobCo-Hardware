@@ -387,7 +387,8 @@ Door contacts and motion sensors in a prop often run on 12 V and sit on long cab
 | R60 to R67 | 2.2 kOhm or 1 kOhm by field voltage, 0.5 W | J4 `INn` to opto anode n |
 | D10 to D17 | 1N4148, DO-35 | Across each opto LED, anode at the opto cathode |
 | R70 to R77 | 47 kOhm | `XINn` to `3V3` |
-| C10, C11 | 100 nF | U2 area decoupling and `3V3` near the pull-ups |
+| C10 | Retired, not on the board | Duplicated C6 on U2 VDD. The designator stays unused. |
+| C11 | 100 nF | `3V3` to `GND` at the R70 to R77 pull-ups |
 | C40 to C47 | 10 nF, not fitted | `XINn` to `GND`, optional filter |
 | JP10 | 2-pin header with shunt | `IN_COM` to `GND`. Silkscreen "COM-GND". |
 | F2 | Radial polyfuse, hold 200 mA or more, trip 400 mA or less, 30 V or more | `V_PROT` to `+V_S` |
@@ -617,7 +618,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | R80, R81 | 2 | Per HAT specification | Axial or 0805 | Not fitted |
 | RV1 | 1 | 10 kOhm trimmer | THT | |
 | C1, C9 | 2 | 100 uF 35 V electrolytic | Radial | |
-| C2, C5 to C8, C10 to C12, C32 | 10 | 100 nF X7R 50 V | THT | C12 not fitted |
+| C2, C5 to C8, C11, C12, C32 | 8 | 100 nF X7R 50 V | THT | C12 not fitted, so 7 fitted. C10 retired. |
 | C3 | 1 | 10 uF 10 V | THT | |
 | C4 | 1 | 47 uF 10 V electrolytic | Radial | |
 | C30 | 1 | 33 nF film or C0G | THT | |
