@@ -133,7 +133,10 @@ jobs:
     needs: tests
     runs-on: ubuntu-24.04
     container:
-      image: kicad/kicad:10.0
+      # The -full image adds the stock 3D models, 3.2 GB, in
+      # /usr/share/kicad/3dmodels. kicad/kicad:10.0 has none, so its renders
+      # show bare pads. The render step warns for each model it cannot find.
+      image: kicad/kicad:10.0-full
       options: --user root
     env:
       HOME: /tmp/home

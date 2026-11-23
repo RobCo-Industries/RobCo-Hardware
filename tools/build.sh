@@ -224,7 +224,8 @@ cmd_docs() {
 cmd_render() {
   [ -f "$(pcb)" ] || { say "no board file yet, schematic only: renders skipped"; return 0; }
   mkdir -p "$OUT/render"
-  [ -d "${KICAD10_3DMODEL_DIR:-/nonexistent}" ] || say "warning: no 3D model folder, renders will show bare pads"
+  # Warns, with a ::warning:: line per missing model and the count.
+  "$KICAD_PY" "$REPO/tools/check_models.py" "$(pcb)"
   kcli pcb render --side top -w 1600 -h 900 -o "$OUT/render/$BOARD-top.png" "$(pcb)" >/dev/null
   kcli pcb render --side bottom -w 1600 -h 900 -o "$OUT/render/$BOARD-bottom.png" "$(pcb)" >/dev/null
   kcli pcb render --rotate '-45,0,45' --quality high --floor --perspective -w 1600 -h 900 \
