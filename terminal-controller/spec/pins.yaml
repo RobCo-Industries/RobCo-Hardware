@@ -19,6 +19,10 @@
 # Audio and Input tables: the SPI display table in BOARD_SUPPORT.md puts the
 # ILI9341 D/C on GPIO 25 and RESET on GPIO 4. This board uses GPIO 25 for ARM
 # and brings GPIO 4 to J7, so a panel on the default TFT pins cannot share it.
+# That display belongs to the Pip-Boy board, not to the terminal, so GPIO 25
+# stays ARM. An SPI display added to this board later must not use the default
+# D/C pin, GPIO 25, or the default reset pin, GPIO 4: toggling GPIO 25 would
+# switch the load rail V_SW.
 board: terminal-controller
 connector: J1
 header: pi40
