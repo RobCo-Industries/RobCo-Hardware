@@ -6,12 +6,12 @@ import pytest
 
 import check_pins as cp
 import gen_pin_table as gpt
-from conftest import ROOT
+from conftest import ROOT, real_board_support
 
 TC = os.path.join(ROOT, "terminal-controller", "spec")
 PINS = os.path.join(TC, "pins.yaml")
 DOC = os.path.join(TC, "SPEC.md")
-REAL_SPEC = os.environ.get("ROBCO_BOARD_SUPPORT") or os.path.join(ROOT, "..", "RobCo-Core", "docs", "spec", "BOARD_SUPPORT.md")
+REAL_SPEC = real_board_support()
 
 
 def test_spec_table_matches_pins_yaml():

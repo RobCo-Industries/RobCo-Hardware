@@ -3,13 +3,13 @@ import os
 import pytest
 
 import check_pins as cp
-from conftest import FIXTURES, ROOT
+from conftest import FIXTURES, ROOT, real_board_support
 
 NET = os.path.join(FIXTURES, "toy.net")
 SPEC = os.path.join(FIXTURES, "board_support.md")
 TOY_PINS = os.path.join(ROOT, "toy", "spec", "pins.yaml")
 # Set ROBCO_BOARD_SUPPORT to the real file to check the toy against it.
-REAL_SPEC = os.environ.get("ROBCO_BOARD_SUPPORT") or os.path.join(ROOT, "..", "RobCo-Core", "docs", "spec", "BOARD_SUPPORT.md")
+REAL_SPEC = real_board_support()
 
 
 def toy_yaml(**override):
@@ -132,11 +132,34 @@ def test_parse_board_support_table_shapes():
     uses = cp.parse_board_support(open(SPEC, encoding="utf-8").read())
     assert uses[14] == [("PL011 TXD", "Pins")]
     assert uses[3] == [("I2C SCL", "Pins")]
-    assert uses[11] == [("SPI0 SCLK", "Pins")]
+    assert uses[11][0] == ("SPI0 SCLK", "Pins")
     assert uses[18] == [("Audio channel 1", "Audio channels")]
     assert uses[27] == [("BACK", "Input example")]
     assert 34 not in uses and 40 not in uses  # not on the header
-    assert 4 not in uses  # outside the Pins section
+    assert 21 not in uses  # outside the Pins section
+
+
+def test_parse_spi_display_table():
+    uses = cp.parse_board_support(open(SPEC, encoding="utf-8").read())
+    assert uses[25] == [("TFT D/C", "SPI display")]
+    assert uses[4] == [("TFT RESET", "SPI display")]
+    assert uses[8] == [("SPI0 CE0", "Pins"), ("TFT CS", "SPI display")]
+    assert uses[9] == [("SPI0 MISO", "Pins"), ("TFT SDO", "SPI display")]
+    assert uses[11] == [("SPI0 SCLK", "Pins"), ("TFT SCK", "SPI display")]
+    assert 3 in uses and ("TFT LED", "SPI display") not in sum(uses.values(), [])
+
+
+def test_display_pin_with_another_use_fails(tmp_path):
+    code, problems = run(tmp_path, pi40_yaml(change={22: ("GPIO25", "ARM")}), spec=SPEC)
+    assert code == cp.WRONG_USE
+    assert problems[0].text == "GPIO25 (pin 22): the software uses it as 'TFT D/C', pins.yaml says 'ARM'"
+    text = pi40_yaml(change={22: ("GPIO25", "ARM")}).replace(
+        "header: pi40", "header: pi40\nignore_sources: [SPI display:GPIO25]")
+    assert run(tmp_path, text, spec=SPEC) == (cp.OK, [])
+
+
+def test_spi_pin_may_carry_either_name(tmp_path):
+    assert run(tmp_path, pi40_yaml(change={24: ("GPIO8", "TFT CS")}), spec=SPEC) == (cp.OK, [])
 
 
 def test_gpio_list():

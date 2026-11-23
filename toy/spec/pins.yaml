@@ -4,6 +4,9 @@
 board: toy
 connector: J1
 header: generic
+# The toy LED sits on GPIO 25, the default D/C pin of the SPI display. The toy
+# has no display, so the pin check skips that table for GPIO 25.
+ignore_sources: [SPI display:GPIO25]
 pins:
   - pin: 1
     name: 5V

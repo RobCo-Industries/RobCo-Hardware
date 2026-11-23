@@ -22,8 +22,18 @@ A trimmed copy of the table shapes in RobCo-Core `docs/spec/BOARD_SUPPORT.md`.
 | UP | GPIO 5 | BACK | GPIO 27 |
 | SELECT | GPIO 26 | | |
 
+### SPI display
+
+| Panel pin | Pin |
+|---|---|
+| SCK, SDI, SDO | GPIO 11, 10, 9: SPI0 at ALT0 |
+| CS | GPIO 8, CE0 |
+| D/C | GPIO 25 |
+| RESET | GPIO 4 |
+| LED | 3.3 V. No backlight GPIO by default. |
+
 ## Next section
 
 | Pins | Function | Set by |
 |---|---|---|
-| GPIO 4 | Not in the Pins section | none |
+| GPIO 21 | Not in the Pins section | none |

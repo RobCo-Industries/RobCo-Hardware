@@ -15,9 +15,8 @@
 # - SPI0 on GPIO 7 to 11: not connected on this board, but the use stays the
 #   software's, so a later SPI device keeps the pins. The net is NC.
 # - Audio channel 1 on GPIO 18: the audio filter input.
-# Not checked by check_pins.py, because its parser reads only the Pins,
-# Audio and Input tables: the SPI display table in BOARD_SUPPORT.md puts the
-# ILI9341 D/C on GPIO 25 and RESET on GPIO 4. This board uses GPIO 25 for ARM
+# ignore_sources also skips the SPI display table for GPIO 4 and 25. That
+# table in BOARD_SUPPORT.md puts the ILI9341 D/C on GPIO 25 and RESET on GPIO 4. This board uses GPIO 25 for ARM
 # and brings GPIO 4 to J7, so a panel on the default TFT pins cannot share it.
 # That display belongs to the Pip-Boy board, not to the terminal, so GPIO 25
 # stays ARM. An SPI display added to this board later must not use the default
@@ -26,7 +25,7 @@
 board: terminal-controller
 connector: J1
 header: pi40
-ignore_sources: [Input example:GPIO16, Input example:GPIO23, Input example:GPIO24]
+ignore_sources: [Input example:GPIO16, Input example:GPIO23, Input example:GPIO24, SPI display:GPIO4, SPI display:GPIO25]
 pins:
   - pin: 1
     name: 3V3
