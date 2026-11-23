@@ -10,7 +10,7 @@ This repository holds the board designs for the RobCo suite. Two boards are plan
 |---|---|---|
 | `toy/` | Toolchain test: a 3-pin header, a resistor and an LED | Test bed. Schematic, routed board, renders. |
 | `toy2/` | Hierarchy test: an expander, a clock and eight LED channels on two sheets | Test bed. Schematic only. |
-| `terminal-controller/` | Terminal controller HAT | Schematic drawn, ERC clean; board not started. See its [README](terminal-controller/README.md). |
+| `terminal-controller/` | Terminal controller HAT | Schematic drawn, ERC clean. The parts do not fit the HAT yet. See its [README](terminal-controller/README.md). |
 
 The terminal controller spec is in [terminal-controller/spec/SPEC.md](terminal-controller/spec/SPEC.md), with its bring-up checklist in [BRINGUP.md](terminal-controller/spec/BRINGUP.md) and its header map in [pins.yaml](terminal-controller/spec/pins.yaml).
 

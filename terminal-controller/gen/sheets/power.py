@@ -8,7 +8,7 @@ from __future__ import annotations
 from common import g
 from sch import Schematic
 
-from sheets.parts import (C_DISC, CP_5MM, CP_8MM, DO35, DO201, HDR, LED_3MM, NO_FOOTPRINT, TERM_2, TP_LOOP,
+from sheets.parts import (FUSE_1A1, FUSE_200MA, C_DISC, CP_5MM, CP_8MM, DO35, DO201, HDR, LED_3MM, TERM_2, TP_LOOP,
                           TP_LOOP_BIG, cap, decoupling, note, res, testpoint)
 
 # Horizontal parts are turned 90 degrees: KiCad then right-justifies their
@@ -29,7 +29,7 @@ def supply(s: Schematic) -> None:
     s.label_at("V_EXT", (g(26), g(24)))
     s.power(j2, "2", "GND", stub=g(2), then=[(0, g(4))])
     s.power(jp1, "3", "+5V", stub=g(4), then=[(0, g(-4))])
-    f1 = s.symbol("Device:Polyfuse", "F1", "1.1 A hold, 60 V", (g(54), y), rot=90, footprint=NO_FOOTPRINT,
+    f1 = s.symbol("Device:Polyfuse", "F1", "1.1 A hold, 60 V", (g(54), y), rot=90, footprint=FUSE_1A1,
                   description="Radial PPTC fuse, 1.1 A hold, trip about 2.2 A, 60 V or more", **H_FIELDS)
     pin2 = jp1.pin("2")
     s.wire(pin2, (pin2[0], y), f1.pin("1"))
@@ -74,7 +74,7 @@ def supply(s: Schematic) -> None:
 
 def sensor_supply(s: Schematic) -> None:
     s.frame("Sensor supply", (g(156), g(12)), (g(224), g(52)))
-    f2 = s.symbol("Device:Polyfuse", "F2", "200 mA hold, 60 V", (g(184), g(28)), rot=90, footprint=NO_FOOTPRINT,
+    f2 = s.symbol("Device:Polyfuse", "F2", "200 mA hold, 60 V", (g(184), g(28)), rot=90, footprint=FUSE_200MA,
                   description="Radial PPTC fuse, hold 200 mA or more, trip 400 mA or less, 60 V or more, "
                               "example Bourns MF-R020", **H_FIELDS)
     s.power(f2, "1", "V_PROT", stub=g(4), then=[(0, g(-2))])
