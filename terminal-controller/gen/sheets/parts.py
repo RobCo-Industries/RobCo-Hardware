@@ -66,11 +66,15 @@ def decoupling(s: Schematic, ref: str, value: str, at, rail: str, fp: str = C_DI
     return c
 
 
-def testpoint(s: Schematic, ref: str, net: str, at, fp: str = TP_LOOP,
+def testpoint(s: Schematic, ref: str, net: str, at, fp: str = TP_LOOP, rot: int = 0,
               desc: str = "") -> Placed:
-    """A test point loop. The loop is on top, the pin points down to a rail or a label."""
-    tp = s.symbol("Connector:TestPoint", ref, f"{net}", at, footprint=fp,
-                  ref_at=(g(2), g(-3)), value_at=(g(2), g(-1)), description=desc or f"Test point on {net}")
+    """A test point loop. The loop is on top and the pin points down to a rail or a
+    label; with rot=180 the loop hangs below and the pin points up."""
+    # Turned 180 degrees, KiCad right-justifies the fields: the anchor is the text end.
+    fields = dict(ref_at=(g(2), g(-3)), value_at=(g(2), g(-1))) if rot == 0 else \
+        dict(ref_at=(g(6), g(1)), value_at=(g(8), g(3)))
+    tp = s.symbol("Connector:TestPoint", ref, f"{net}", at, rot=rot, footprint=fp,
+                  description=desc or f"Test point on {net}", **fields)
     return tp
 
 
@@ -91,4 +95,6 @@ def wire_l(s: Schematic, a, b, first: str = "h") -> None:
 
 
 def note(s: Schematic, body: str, at, size: Optional[float] = None) -> None:
+    """A text note. KiCad puts a multi-line note above its anchor: `at` is the
+    bottom left corner of the last line."""
     s.text(body, at, size=size or 1.27)
