@@ -172,6 +172,59 @@
 		)
 		(uuid "b2df31c0-51fd-597b-be95-a90f285a69e6")
 	)
+	(sheet
+		(at 190.5 88.9)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "6f853b67-19d9-5870-9845-d491d113a1af")
+		(property "Sheetname" "Inputs"
+			(at 190.5 88.1884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "inputs.kicad_sch"
+			(at 190.5 107.2784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b"
+					(page "5")
+				)
+			)
+		)
+	)
+	(text "U5, U6 LTV-847: IN0 to IN7 from J4 to X1.0 to X1.7.\nJP10 field common, +V_S on J4."
+		(exclude_from_sim no)
+		(at 191.77 95.25 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "35e99e12-f58a-57d2-9ff0-9a0055c11eb5")
+	)
 	(text "Terminal controller HAT for the Raspberry Pi"
 		(exclude_from_sim no)
 		(at 25.4 30.48 0)
@@ -196,7 +249,7 @@
 		)
 		(uuid "334bf423-38bd-5296-a1fc-7ebfac9984bf")
 	)
-	(text "Not drawn yet: Inputs, Audio, Headers."
+	(text "Not drawn yet: Audio, Headers."
 		(exclude_from_sim no)
 		(at 25.4 139.7 0)
 		(effects
@@ -205,7 +258,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "c937d115-3f0b-54df-a9d2-fc1ae879cd23")
+		(uuid "565c317f-2914-5ecd-bb38-0d4c2f00475c")
 	)
 	(sheet_instances
 		(path "/"

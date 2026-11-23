@@ -4,6 +4,7 @@
 	(lib (name "Connector_Generic")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Connector_Generic.kicad_sym")(options "")(descr ""))
 	(lib (name "Device")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Device.kicad_sym")(options "")(descr ""))
 	(lib (name "Diode")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Diode.kicad_sym")(options "")(descr ""))
+	(lib (name "Isolator")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Isolator.kicad_sym")(options "")(descr ""))
 	(lib (name "Jumper")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Jumper.kicad_sym")(options "")(descr ""))
 	(lib (name "Mechanical")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Mechanical.kicad_sym")(options "")(descr ""))
 	(lib (name "Memory_EEPROM")(type "KiCad")(uri "${KICAD10_SYMBOL_DIR}/Memory_EEPROM.kicad_sym")(options "")(descr ""))
