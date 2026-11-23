@@ -240,6 +240,7 @@ class Schematic:
         # Reference and power symbol counters, shared by every sheet of a design.
         self.shared = shared if shared is not None else {"refs": set(), "power": 0, "flag": 0}
         self.shared.setdefault("units", set())
+        self.shared.setdefault("parts", {})
         # Rails whose power symbol is not in the stock "power" library: {net: library}.
         self.power_libs = power_libs or {}
         self.lib_symbols: Dict[str, list] = {}
@@ -285,12 +286,29 @@ class Schematic:
         right-justifies the fields, so `ref_at` then marks the end of the text.
 
         `unit` places one unit of a multi-unit part, such as one channel of a
-        quad optocoupler. Each unit of a reference is placed once. `dnp`
+        quad optocoupler. Each unit of a reference is placed once, from the
+        same library symbol with the same value, footprint and fitting. `dnp`
         marks a part that is not fitted: it stays in the netlist and the BOM
         with KiCad's "do not populate" flag.
         """
-        if (ref, unit) in self.shared["units"]:
-            raise ValueError(f"duplicate reference {ref}" + (f" unit {unit}" if unit != 1 else ""))
+        # Every unit of one reference is one component to KiCad, on any sheet.
+        # It must come from one library symbol with one value, footprint and
+        # fitting, and each unit is placed once.
+        here = f"sheet {self.sheet or 'root'}"
+        first = self.shared["parts"].get(ref)
+        if first is not None:
+            there = f"sheet {first['sheet'] or 'root'}"
+            both = f"{there} ({first['lib_id']}) and {here} ({lib_id})"
+            if first["lib_id"] != lib_id:
+                raise ValueError(f"{ref} uses two library symbols: {both}")
+            if (ref, unit) in self.shared["units"]:
+                raise ValueError(f"duplicate reference {ref}" + (f" unit {unit}" if unit != 1 else "")
+                                 + f": {both}")
+            mine = {"value": value, "footprint": footprint, "dnp": dnp, "in_bom": in_bom}
+            for key, val in mine.items():
+                if first[key] != val:
+                    raise ValueError(f"{ref} units differ in {key}, {first[key]!r} and {val!r}: {both}. "
+                                     "All units of a reference must match.")
         if mirror not in ("", "x", "y"):
             raise ValueError(f"mirror must be '', 'x' or 'y', got {mirror!r}")
         check_grid(f"{ref} position", *at)
@@ -298,7 +316,7 @@ class Schematic:
             self.lib_symbols[lib_id] = self.libs.get(lib_id)
         units = {int(s[1].rsplit("_", 2)[-2]) for s in sexp.children(self.lib_symbols[lib_id], "symbol")}
         if unit not in units and not (unit == 1 and units <= {0, 1}):
-            raise ValueError(f"{ref}: {lib_id} has no unit {unit}")
+            raise ValueError(f"{ref} on {here}: {lib_id} has no unit {unit}")
         pins = lib_pins(self.lib_symbols[lib_id], unit if max(units) > 1 else None)
         placed = Placed(self, lib_id, ref, at, rot, pins, mirror)
         for num in pins:
@@ -344,6 +362,8 @@ class Schematic:
         self.refs[ref if unit == 1 else f"{ref}:{unit}"] = placed
         self.shared["refs"].add(ref)
         self.shared["units"].add((ref, unit))
+        self.shared["parts"].setdefault(ref, {"lib_id": lib_id, "sheet": self.sheet, "value": value,
+                                              "footprint": footprint, "dnp": dnp, "in_bom": in_bom})
         return placed
 
     def _prop(self, name: str, value: str, at: Point, hide: bool = False, left: bool = False,
@@ -701,7 +721,7 @@ class Hierarchy:
         self.rev = rev
         self.libs = libs or SymbolLibs()
         self.paper = paper
-        self.shared: dict = {"refs": set(), "units": set(), "power": 0, "flag": 0}
+        self.shared: dict = {"refs": set(), "units": set(), "parts": {}, "power": 0, "flag": 0}
         self.power_libs = power_libs or {}
         self.comments = comments or []
         self.root = Schematic(project, title=board, date=date, rev=rev,

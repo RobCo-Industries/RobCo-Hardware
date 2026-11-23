@@ -23,3 +23,4 @@
 - Draw the terminal controller schematic on six sheets. ERC is clean with no waiver.
 - Add netlist tests for the terminal controller: BOM against the spec, address straps, driver pull-downs, expander lines, `ARM`, rails and I2C. `tools/build.sh check` runs them.
 - Fix terminal controller review findings: 60 V diodes and Q1, 50 V reservoir capacitors above the TVS clamp; R20 at 100 kOhm and the real gate drive at 5 V; WP, ID_SD and ID_SC pull-ups; footprints for C13 and a VBAT jumper; notes on GPIO 25, back-fed loads, arming inrush and audio level.
+- Refuse units of one reference that use different library symbols, or differ in value, footprint or fitting, across all sheets.

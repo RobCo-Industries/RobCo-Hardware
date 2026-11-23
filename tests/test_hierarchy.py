@@ -65,6 +65,47 @@ def test_references_and_power_numbers_are_unique_across_sheets():
     assert refs == ["#PWR01", "#PWR02"]
 
 
+OPTO = (g(10), g(10))
+
+
+def test_units_of_one_reference_use_one_symbol_across_sheets():
+    h, a, b = _hier()
+    a.symbol("Isolator:LTV-847", "U5", "LTV-847", OPTO, unit=1)
+    with pytest.raises(ValueError, match=r"U5 uses two library symbols: sheet Power \(Isolator:LTV-847\) "
+                                         r"and sheet Outputs \(Isolator:PC847\)"):
+        b.symbol("Isolator:PC847", "U5", "PC847", OPTO, unit=2)
+    b.symbol("Isolator:LTV-847", "U5", "LTV-847", OPTO, unit=2)
+
+
+@pytest.mark.parametrize("field, kw", [
+    ("value", {"value": "LTV-846"}),
+    ("footprint", {"footprint": "Package_DIP:DIP-16_W10.16mm"}),
+    ("dnp", {"dnp": True}),
+])
+def test_units_of_one_reference_match_in_value_footprint_and_fitting(field, kw):
+    h, a, b = _hier()
+    base = {"value": "LTV-847", "footprint": "Package_DIP:DIP-16_W7.62mm"}
+    a.symbol("Isolator:LTV-847", "U5", base["value"], OPTO, unit=1, footprint=base["footprint"])
+    args = {**base, **kw}
+    with pytest.raises(ValueError, match=rf"U5 units differ in {field}.*sheet Power .*sheet Outputs "
+                                         r"\(Isolator:LTV-847\)\. All units of a reference must match"):
+        b.symbol("Isolator:LTV-847", "U5", args.pop("value"), OPTO, unit=2, **args)
+
+
+def test_unit_the_symbol_lacks_fails_with_its_sheet():
+    h, a, b = _hier()
+    with pytest.raises(ValueError, match="U5 on sheet Outputs: Isolator:LTV-847 has no unit 5"):
+        b.symbol("Isolator:LTV-847", "U5", "LTV-847", OPTO, unit=5)
+
+
+def test_single_unit_symbol_twice_across_sheets_names_both():
+    h, a, b = _hier()
+    a.symbol("Device:R", "R1", "1k", OPTO)
+    with pytest.raises(ValueError, match=r"duplicate reference R1: sheet Power \(Device:R\) "
+                                         r"and sheet Outputs \(Device:R\)"):
+        b.symbol("Device:R", "R1", "1k", OPTO)
+
+
 def test_duplicate_sheet_fails():
     h, _, _ = _hier()
     with pytest.raises(ValueError, match="duplicate sheet name"):
