@@ -34,9 +34,10 @@ def supply(s: Schematic) -> None:
     pin2 = jp1.pin("2")
     s.wire(pin2, (pin2[0], y), f1.pin("1"))
     s.label_at("V_IN", (g(44), y))
-    d1 = s.symbol("Diode:1N5822", "D1", "1N5822", (g(70), y), rot=180, footprint=DO201,
+    d1 = s.symbol("Device:D_Schottky", "D1", "SB360", (g(70), y), rot=180, footprint=DO201,
                   ref_at=(g(-3), g(-3)), value_at=(g(-3), g(3)),
-                  description="Reverse polarity diode, Schottky 3 A 40 V. Anode V_FUSED, cathode V_PROT.")
+                  description="Reverse polarity diode, Schottky 3 A 60 V, SB360 class, DO-201AD. "
+                              "Anode V_FUSED, cathode V_PROT.")
     s.wire(f1.pin("2"), d1.pin("2"))
     s.label_at("V_FUSED", (g(59), y))
     # V_PROT line: D1 cathode to the right, the clamp and the reservoir hang below.
@@ -49,7 +50,7 @@ def supply(s: Schematic) -> None:
                   ref_at=(g(2), g(-1)), value_at=(g(2), g(1)),
                   footprint="Diode_THT:D_DO-15_P12.70mm_Horizontal",
                   description="TVS, 600 W, unidirectional, about 26 V standoff, DO-15. Cathode V_PROT.")
-    c1 = cap(s, "C1", "100u 35V", (g(108), y + g(8)), fp=CP_8MM, polar=True, desc="V_PROT reservoir")
+    c1 = cap(s, "C1", "100u 50V", (g(108), y + g(8)), fp=CP_8MM, polar=True, desc="V_PROT reservoir")
     c2 = cap(s, "C2", "100n", (g(120), y + g(8)), desc="V_PROT decoupling")
     tp6 = testpoint(s, "TP6", "V_PROT", (g(130), y - g(6)))
     s.wire(tp6.pin("1"), (xe, y))
@@ -64,7 +65,9 @@ def supply(s: Schematic) -> None:
             "JP1 1-2: J2 feeds the loads. JP1 2-3: the Pi 5 V feeds them,\n"
             "300 mA at most (assumed). Only one source reaches V_IN.\n"
             "D1 blocks a reversed supply. D2 clamps spikes on V_PROT;\n"
-            "its 26 V standoff stays above 24 V + 5 % = 25.2 V.\n"
+            "its 26 V standoff stays above 24 V + 5 % = 25.2 V. It clamps\n"
+            "near 42 V at its rated pulse (to verify): D1, D4 and Q1 are\n"
+            "rated 60 V, C1 and C9 50 V.\n"
             "F1 limits a short on V_SW. Footprints of F1, F2: none in the\n"
             "stock library, to add in the board step.", (g(14), g(63)))
 
@@ -85,9 +88,10 @@ def sensor_supply(s: Schematic) -> None:
 def arm_switch(s: Schematic) -> None:
     s.frame("Arm switch: the load rail V_SW is live only while ARM is high", (g(10), g(74)), (g(136), g(154)))
     x, y = g(50), g(90)
-    q1 = s.symbol("RobCo:Q_PMOS_GDS", "Q1", "P-channel MOSFET, 40 V", (x, y), rot=90, mirror="y",
+    q1 = s.symbol("RobCo:Q_PMOS_GDS", "Q1", "P-channel MOSFET, 60 V", (x, y), rot=90, mirror="y",
                   footprint="Package_TO_SOT_THT:TO-220-3_Vertical", ref_at=(g(2), g(5)), value_at=(g(2), g(7)),
-                  description="P-channel MOSFET, 40 V or more, Vgs max 20 V, Rds(on) 0.1 Ohm or less at -4.5 V. "
+                  description="P-channel MOSFET, 60 V or more, |Vgs(th)| 2.5 V or less, Vgs max 20 V, "
+                              "Rds(on) 0.1 Ohm or less specified at -4.5 V or lower drive. "
                               "Source V_PROT, drain V_SW.")
     src, drn, gate = q1.pin("3"), q1.pin("2"), q1.pin("1")
     ys = src[1]
@@ -95,7 +99,7 @@ def arm_switch(s: Schematic) -> None:
     s.wire(src, (xs, ys), (xs, ys - g(4)))
     s.power_symbol("V_PROT", (xs, ys - g(4)))
     # R20 and D3 from V_PROT to ARM_G, side by side.
-    r20 = res(s, "R20", "10k", (x - g(20), ys + g(6)), desc="Holds Q1 off: gate to source")
+    r20 = res(s, "R20", "100k", (x - g(20), ys + g(6)), desc="Holds Q1 off: gate to source")
     d3 = s.symbol("Device:D_Zener", "D3", "12 V, 500 mW", (x - g(12), ys + g(6)), rot=270, footprint=DO35,
                   ref_at=(g(2), g(-1)), value_at=(g(2), g(1)),
                   description="Gate clamp, 12 V zener, DO-35. Cathode V_PROT, anode ARM_G.")
@@ -111,6 +115,13 @@ def arm_switch(s: Schematic) -> None:
     s.junction((x - g(12), yg))
     s.wire(gate, (x, yg))
     s.label_at("ARM_G", (x - g(10), yg))
+    # C13, gate to drain, not fitted: slows the turn-on if arming dips the supply.
+    xc = x + g(23)
+    c13 = cap(s, "C13", "47n", (xc, ys + g(6)), dnp=True,
+              desc="Q1 gate to drain, not fitted. 10 nF to 47 nF, 50 V, slows the turn-on. Spec 4.4.")
+    s.wire((xc, ys), c13.pin("1"))
+    s.junction((xc, ys))
+    s.wire(c13.pin("2"), (xc, yg), (x, yg))
     r21 = res(s, "R21", "1k", (x, yg + g(6)), desc="Q1 gate to Q2 collector")
     s.wire((x, yg), r21.pin("1"))
     s.junction((x, yg))
@@ -140,9 +151,10 @@ def arm_switch(s: Schematic) -> None:
     s.wire((x + g(16), ys), (x + g(16), ys - g(6)))
     s.junction((x + g(16), ys))
     s.power_symbol("V_SW", (x + g(16), ys - g(6)))
-    d4 = s.symbol("Diode:1N5822", "D4", "1N5822", (x + g(26), ys + g(8)), rot=270, footprint=DO201,
+    d4 = s.symbol("Device:D_Schottky", "D4", "SB360", (x + g(30), ys + g(8)), rot=270, footprint=DO201,
                   ref_at=(g(2), g(-1)), value_at=(g(2), g(1)),
-                  description="Coil current path when Q1 opens. Anode GND, cathode V_SW.")
+                  description="Coil current path when Q1 opens. Schottky 3 A 60 V, SB360 class. "
+                              "Anode GND, cathode V_SW.")
     r24 = res(s, "R24", "1k5/4k7/10k", (x + g(40), ys + g(6)), desc="LED8 current, value by load supply as R10")
     led8 = s.symbol("Device:LED", "LED8", "Green", (x + g(40), ys + g(16)), rot=90, footprint=LED_3MM,
                     ref_at=(g(-2), g(-1)), value_at=(g(-2), g(1)), description="Armed indicator, 3 mm green")
@@ -160,7 +172,9 @@ def arm_switch(s: Schematic) -> None:
             "ARM low or floating: R23 holds Q2 off, R20 holds Q1 off, V_SW dead.\n"
             "A Pi reset returns GPIO 25 to an input with a pull-down: the loads\n"
             "lose power through every reboot. Power-on safety: spec section 5.\n"
-            "D3 clamps Vgs: at 24 V the R20/R21 divider gives -21.8 V, D3 holds -12 V.\n"
+            "D3 clamps Vgs: at 24 V the R20/R21 divider gives -23 V, D3 holds -12 V.\n"
+            "At a 5 V supply Vgs is only about -4.0 V: spec section 4.4.\n"
+            "C13 not fitted: 10 nF to 47 nF slows Q1 turn-on if arming dips +5V.\n"
             "D4: when Q1 opens with coils energised, their current flows through D4.\n"
             "JP8: no shunt. Fitted, it bypasses the arm switch. Test only.", (x + g(10), g(134)))
     note(s, "To verify: Q1 pin order assumed for TO-220 as\n"

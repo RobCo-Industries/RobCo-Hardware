@@ -675,6 +675,172 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:D_Schottky"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D_Schottky"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Schottky diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "diode Schottky"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "D_Schottky_0_1"
+				(polyline
+					(pts
+						(xy -1.905 0.635) (xy -1.905 1.27) (xy -1.27 1.27) (xy -1.27 -1.27) (xy -0.635 -1.27) (xy -0.635 -0.635)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 0) (xy -1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "D_Schottky_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "K"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:D_Zener"
 			(pin_numbers
 				(hide yes)
@@ -1330,172 +1496,6 @@
 					(at 0 -3.81 90)
 					(length 1.27)
 					(name ""
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "Diode:1N5822"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "D"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "1N5822"
-				(at 0 -2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "Diode_THT:D_DO-201AD_P15.24mm_Horizontal"
-				(at 0 -4.445 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" "http://www.vishay.com/docs/88526/1n5820.pdf"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "40V 3A Schottky Barrier Rectifier Diode, DO-201AD"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "diode Schottky"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "D*DO?201AD*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "1N5822_0_1"
-				(polyline
-					(pts
-						(xy -1.905 0.635) (xy -1.905 1.27) (xy -1.27 1.27) (xy -1.27 -1.27) (xy -0.635 -1.27) (xy -0.635 -0.635)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 1.27) (xy 1.27 -1.27) (xy -1.27 0) (xy 1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 0) (xy -1.27 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "1N5822_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "K"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "A"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -3872,7 +3872,7 @@
 		)
 		(uuid "2ea93dc0-b320-5a61-82e0-ba80ff664768")
 	)
-	(text "LOW VOLTAGE ONLY: 5 V to 24 V DC. No mains on any terminal.\nJP1 1-2: J2 feeds the loads. JP1 2-3: the Pi 5 V feeds them,\n300 mA at most (assumed). Only one source reaches V_IN.\nD1 blocks a reversed supply. D2 clamps spikes on V_PROT;\nits 26 V standoff stays above 24 V + 5 % = 25.2 V.\nF1 limits a short on V_SW. Footprints of F1, F2: none in the\nstock library, to add in the board step."
+	(text "LOW VOLTAGE ONLY: 5 V to 24 V DC. No mains on any terminal.\nJP1 1-2: J2 feeds the loads. JP1 2-3: the Pi 5 V feeds them,\n300 mA at most (assumed). Only one source reaches V_IN.\nD1 blocks a reversed supply. D2 clamps spikes on V_PROT;\nits 26 V standoff stays above 24 V + 5 % = 25.2 V. It clamps\nnear 42 V at its rated pulse (to verify): D1, D4 and Q1 are\nrated 60 V, C1 and C9 50 V.\nF1 limits a short on V_SW. Footprints of F1, F2: none in the\nstock library, to add in the board step."
 		(exclude_from_sim no)
 		(at 17.78 80.01 0)
 		(effects
@@ -3881,7 +3881,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "34698fc5-1309-55d3-9ce7-1d03d1aee1ae")
+		(uuid "bc403883-724c-59bf-893c-7b65510c5243")
 	)
 	(rectangle
 		(start 198.12 15.24)
@@ -4105,13 +4105,49 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 127) (xy 63.5 130.81)
+			(xy 92.71 111.76) (xy 92.71 115.57)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "42cc412c-d0c5-567d-b1aa-f6d10b241ae5")
+	)
+	(junction
+		(at 92.71 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9e90d25e-89d9-58ab-b201-86d140bce031")
+	)
+	(wire
+		(pts
+			(xy 92.71 123.19) (xy 92.71 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2af95eea-94e4-515d-beec-49b437588631")
+	)
+	(wire
+		(pts
+			(xy 92.71 127) (xy 63.5 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "217c97e7-a79d-5887-a35d-ef102e6b2b42")
+	)
+	(wire
+		(pts
+			(xy 63.5 127) (xy 63.5 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "059668de-e455-5b97-b1c1-07469ba979ce")
 	)
 	(junction
 		(at 63.5 127)
@@ -4127,7 +4163,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2af95eea-94e4-515d-beec-49b437588631")
+		(uuid "2be8fc96-14a2-5670-9cd5-6a79c09cc4bd")
 	)
 	(wire
 		(pts
@@ -4137,7 +4173,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "217c97e7-a79d-5887-a35d-ef102e6b2b42")
+		(uuid "d569206a-3ae5-502d-86a7-4290fd58fc54")
 	)
 	(wire
 		(pts
@@ -4147,7 +4183,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "059668de-e455-5b97-b1c1-07469ba979ce")
+		(uuid "d1028061-5b60-5b62-bb40-ec29d930ad46")
 	)
 	(wire
 		(pts
@@ -4157,7 +4193,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2be8fc96-14a2-5670-9cd5-6a79c09cc4bd")
+		(uuid "a84f835e-e72a-57e4-b2a3-efadd6f630bb")
 	)
 	(global_label "ARM"
 		(shape input)
@@ -4189,7 +4225,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d569206a-3ae5-502d-86a7-4290fd58fc54")
+		(uuid "8a9f975c-4648-517a-8b00-376aba02a01b")
 	)
 	(junction
 		(at 50.8 147.32)
@@ -4205,7 +4241,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d1028061-5b60-5b62-bb40-ec29d930ad46")
+		(uuid "c71165af-eeb2-50d4-a739-d7d7f5d9035a")
 	)
 	(wire
 		(pts
@@ -4215,7 +4251,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a84f835e-e72a-57e4-b2a3-efadd6f630bb")
+		(uuid "c908fa25-331f-52fa-8e9f-a033d84587ca")
 	)
 	(wire
 		(pts
@@ -4225,7 +4261,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8a9f975c-4648-517a-8b00-376aba02a01b")
+		(uuid "d21d862b-bdf1-5416-ac4e-3c077259d94c")
 	)
 	(wire
 		(pts
@@ -4235,7 +4271,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c71165af-eeb2-50d4-a739-d7d7f5d9035a")
+		(uuid "7c494213-adba-5ba2-b4b4-792914eb1729")
 	)
 	(wire
 		(pts
@@ -4245,7 +4281,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c908fa25-331f-52fa-8e9f-a033d84587ca")
+		(uuid "12637a6f-13c8-5977-845e-6864cffceb05")
 	)
 	(junction
 		(at 83.82 111.76)
@@ -4261,7 +4297,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d21d862b-bdf1-5416-ac4e-3c077259d94c")
+		(uuid "572f868b-7176-5db7-a2e0-fd29bfe9da66")
 	)
 	(wire
 		(pts
@@ -4271,7 +4307,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7c494213-adba-5ba2-b4b4-792914eb1729")
+		(uuid "c99747e5-01c1-559e-9aa9-1bff61fd3799")
 	)
 	(wire
 		(pts
@@ -4281,23 +4317,23 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "12637a6f-13c8-5977-845e-6864cffceb05")
+		(uuid "256b437d-3ee7-58a7-a675-942fb9bec9a9")
 	)
 	(wire
 		(pts
-			(xy 96.52 111.76) (xy 96.52 118.11)
+			(xy 101.6 111.76) (xy 101.6 118.11)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "572f868b-7176-5db7-a2e0-fd29bfe9da66")
+		(uuid "18551ff6-f1d9-5541-8797-c49f8b8c9249")
 	)
 	(junction
-		(at 96.52 111.76)
+		(at 101.6 111.76)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "7898a6ea-d69c-52eb-bde4-ea8aab7f46f0")
+		(uuid "82e4cffb-0156-504e-8628-4a14f7ada115")
 	)
 	(wire
 		(pts
@@ -4307,7 +4343,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c99747e5-01c1-559e-9aa9-1bff61fd3799")
+		(uuid "b83eb0d2-9a6e-55bf-9937-41bb17fbd293")
 	)
 	(junction
 		(at 114.3 111.76)
@@ -4317,13 +4353,13 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 125.73) (xy 96.52 127)
+			(xy 101.6 125.73) (xy 101.6 127)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "256b437d-3ee7-58a7-a675-942fb9bec9a9")
+		(uuid "68aee29e-d733-5e22-b93f-fcd1c7f67d5d")
 	)
 	(wire
 		(pts
@@ -4333,9 +4369,9 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "18551ff6-f1d9-5541-8797-c49f8b8c9249")
+		(uuid "c6154f42-ef27-5ea1-8184-42af46c4ba01")
 	)
-	(text "ARM high: Q2 on, ARM_G pulled down, Q1 on, V_SW = V_PROT.\nARM low or floating: R23 holds Q2 off, R20 holds Q1 off, V_SW dead.\nA Pi reset returns GPIO 25 to an input with a pull-down: the loads\nlose power through every reboot. Power-on safety: spec section 5.\nD3 clamps Vgs: at 24 V the R20/R21 divider gives -21.8 V, D3 holds -12 V.\nD4: when Q1 opens with coils energised, their current flows through D4.\nJP8: no shunt. Fitted, it bypasses the arm switch. Test only."
+	(text "ARM high: Q2 on, ARM_G pulled down, Q1 on, V_SW = V_PROT.\nARM low or floating: R23 holds Q2 off, R20 holds Q1 off, V_SW dead.\nA Pi reset returns GPIO 25 to an input with a pull-down: the loads\nlose power through every reboot. Power-on safety: spec section 5.\nD3 clamps Vgs: at 24 V the R20/R21 divider gives -23 V, D3 holds -12 V.\nAt a 5 V supply Vgs is only about -4.0 V: spec section 4.4.\nC13 not fitted: 10 nF to 47 nF slows Q1 turn-on if arming dips +5V.\nD4: when Q1 opens with coils energised, their current flows through D4.\nJP8: no shunt. Fitted, it bypasses the arm switch. Test only."
 		(exclude_from_sim no)
 		(at 76.2 170.18 0)
 		(effects
@@ -4344,7 +4380,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "aba4680e-5429-55c6-9cf3-df75b7a917ce")
+		(uuid "96600ef1-ab83-5cbf-b71e-e87e000e50f8")
 	)
 	(text "To verify: Q1 pin order assumed for TO-220 as\n1 gate, 2 drain, 3 source (IRF9540N style).\nQ2 2N3904, TO-92: 1 emitter, 2 base, 3 collector.\nCheck both against the parts bought."
 		(exclude_from_sim no)
@@ -4390,7 +4426,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b83eb0d2-9a6e-55bf-9937-41bb17fbd293")
+		(uuid "69ef48c3-a2d9-55f9-8f20-76f5b481b951")
 	)
 	(wire
 		(pts
@@ -4400,7 +4436,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "68aee29e-d733-5e22-b93f-fcd1c7f67d5d")
+		(uuid "9c1b0573-b882-535a-9bc1-128ef57825ab")
 	)
 	(wire
 		(pts
@@ -4410,7 +4446,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c6154f42-ef27-5ea1-8184-42af46c4ba01")
+		(uuid "095fd689-fa96-503e-a48c-6061aaf2e9c0")
 	)
 	(wire
 		(pts
@@ -4420,7 +4456,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "69ef48c3-a2d9-55f9-8f20-76f5b481b951")
+		(uuid "cb6905d6-3bc6-59ec-be6d-a6f633f5f46d")
 	)
 	(wire
 		(pts
@@ -4430,7 +4466,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9c1b0573-b882-535a-9bc1-128ef57825ab")
+		(uuid "03cf70d4-243d-5cde-8645-3b99182d2fba")
 	)
 	(wire
 		(pts
@@ -4440,7 +4476,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "095fd689-fa96-503e-a48c-6061aaf2e9c0")
+		(uuid "f76a3ede-4995-5a43-8ae0-3d97a149706d")
 	)
 	(wire
 		(pts
@@ -4450,7 +4486,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cb6905d6-3bc6-59ec-be6d-a6f633f5f46d")
+		(uuid "3e32514d-e0c6-5b1a-9786-59f96772fbd9")
 	)
 	(text "The board has no regulator. +3V3 and +5V\ncome from the Pi. TP3 is a loop\nfor a probe clip."
 		(exclude_from_sim no)
@@ -4865,7 +4901,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Diode:1N5822")
+		(lib_id "Device:D_Schottky")
 		(at 88.9 45.72 180)
 		(unit 1)
 		(body_style 1)
@@ -4886,7 +4922,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1N5822"
+		(property "Value" "SB360"
 			(at 85.09 49.53 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4919,7 +4955,7 @@
 				)
 			)
 		)
-		(property "Description" "Reverse polarity diode, Schottky 3 A 40 V. Anode V_FUSED, cathode V_PROT."
+		(property "Description" "Reverse polarity diode, Schottky 3 A 60 V, SB360 class, DO-201AD. Anode V_FUSED, cathode V_PROT."
 			(at 88.9 45.72 0)
 			(hide yes)
 			(show_name no)
@@ -5125,7 +5161,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100u 35V"
+		(property "Value" "100u 50V"
 			(at 139.7 57.15 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6140,7 +6176,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "P-channel MOSFET, 40 V"
+		(property "Value" "P-channel MOSFET, 60 V"
 			(at 66.04 123.19 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6173,7 +6209,7 @@
 				)
 			)
 		)
-		(property "Description" "P-channel MOSFET, 40 V or more, Vgs max 20 V, Rds(on) 0.1 Ohm or less at -4.5 V. Source V_PROT, drain V_SW."
+		(property "Description" "P-channel MOSFET, 60 V or more, |Vgs(th)| 2.5 V or less, Vgs max 20 V, Rds(on) 0.1 Ohm or less specified at -4.5 V or lower drive. Source V_PROT, drain V_SW."
 			(at 63.5 114.3 0)
 			(hide yes)
 			(show_name no)
@@ -6301,7 +6337,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10k"
+		(property "Value" "100k"
 			(at 40.64 120.65 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6436,6 +6472,87 @@
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/5e2be784-5850-5f5f-a683-e500566fa2fb"
 					(reference "D3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 92.71 119.38 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp yes)
+		(uuid "242c6764-cada-5b29-acc5-9120e3407e23")
+		(property "Reference" "C13"
+			(at 95.25 118.11 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "47n"
+			(at 95.25 120.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
+			(at 92.71 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 92.71 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Q1 gate to drain, not fitted. 10 nF to 47 nF, 50 V, slows the turn-on. Spec 4.4."
+			(at 92.71 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "172d2f6d-fa18-5363-a693-bbbd388bfe9b")
+		)
+		(pin "2"
+			(uuid "453d2912-2281-5863-a2df-82107cd41976")
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/5e2be784-5850-5f5f-a683-e500566fa2fb"
+					(reference "C13")
 					(unit 1)
 				)
 			)
@@ -7081,8 +7198,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Diode:1N5822")
-		(at 96.52 121.92 270)
+		(lib_id "Device:D_Schottky")
+		(at 101.6 121.92 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7092,7 +7209,7 @@
 		(dnp no)
 		(uuid "b4972e7c-0c60-59be-9dce-5c7b4c65fb14")
 		(property "Reference" "D4"
-			(at 99.06 120.65 90)
+			(at 104.14 120.65 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7102,8 +7219,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1N5822"
-			(at 99.06 123.19 90)
+		(property "Value" "SB360"
+			(at 104.14 123.19 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7114,7 +7231,7 @@
 			)
 		)
 		(property "Footprint" "Diode_THT:D_DO-201AD_P15.24mm_Horizontal"
-			(at 96.52 121.92 0)
+			(at 101.6 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7125,7 +7242,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 96.52 121.92 0)
+			(at 101.6 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7135,8 +7252,8 @@
 				)
 			)
 		)
-		(property "Description" "Coil current path when Q1 opens. Anode GND, cathode V_SW."
-			(at 96.52 121.92 0)
+		(property "Description" "Coil current path when Q1 opens. Schottky 3 A 60 V, SB360 class. Anode GND, cathode V_SW."
+			(at 101.6 121.92 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7480,7 +7597,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 96.52 127 0)
+		(at 101.6 127 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7490,7 +7607,7 @@
 		(dnp no)
 		(uuid "0f751091-7647-583b-8773-a608724536e7")
 		(property "Reference" "#PWR16"
-			(at 96.52 133.35 0)
+			(at 101.6 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7501,7 +7618,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 96.52 130.81 0)
+			(at 101.6 130.81 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7511,7 +7628,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 96.52 127 0)
+			(at 101.6 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7522,7 +7639,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 96.52 127 0)
+			(at 101.6 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7533,7 +7650,7 @@
 			)
 		)
 		(property "Description" "Power symbol for the GND rail"
-			(at 96.52 127 0)
+			(at 101.6 127 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

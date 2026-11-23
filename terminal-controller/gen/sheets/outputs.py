@@ -80,7 +80,7 @@ def terminals(s: Schematic) -> None:
     for pin in ("9", "10"):
         end, _ = s._stub(j3, pin, g(3))
         s.power_symbol("V_SW", end, rot=90, value_at=(-g(8), 0))
-    decoupling(s, "C9", "100u 35V", (g(200), g(70)), "V_SW", fp=CP_8MM, polar=True,
+    decoupling(s, "C9", "100u 50V", (g(200), g(70)), "V_SW", fp=CP_8MM, polar=True,
                desc="V_SW reservoir near J3")
     note(s, "Silkscreen: X0.0 to X0.7,\n"
             "then +V, +V. A load goes\n"

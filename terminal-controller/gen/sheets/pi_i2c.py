@@ -54,6 +54,8 @@ def header(s: Schematic) -> None:
     note(s, "Odd pins left, even pins right.\n"
             "Pins 19, 21, 23, 24 and 26 are SPI0:\n"
             "not connected, kept for the software.\n"
+            "An SPI display added here must not use\n"
+            "GPIO 25 (ARM) or 4 as D/C or reset.\n"
             "Pin map and net names: spec/pins.yaml.\n"
             "The pin check compares this sheet with it.", (g(14), g(88)))
     s.power_flag("+3V3", (g(56), g(94)))
@@ -167,6 +169,14 @@ def clock(s: Schematic) -> None:
     s.label(r4, "2", "SQW", stub=g(2))
     tp8 = testpoint(s, "TP8", "SQW", (x + g(70), y - g(2)))
     s.label(tp8, "1", "SQW", stub=g(2))
+    jp12 = s.symbol("Jumper:SolderJumper_2_Open", "JP12", "VBAT-GND", (x + g(80), y + g(2)), rot=90, footprint=SJ2,
+                    ref_at=(g(10), g(-1)), value_at=(g(10), g(1)),
+                    description="Open by default. Close only with no cell in BT1: grounds VBAT. Shorts a fitted cell.")
+    s.label(jp12, "2", "VBAT", stub=g(2))
+    s.power(jp12, "1", "GND", stub=g(1))
+    note(s, "VBAT must not float: fit the cell before first power-up,\n"
+            "or close JP12 with no cell (DS1307 family rule, to verify\n"
+            "for the DS1338). A closed JP12 shorts a fitted cell.", (g(160), g(194)))
     note(s, "Y1: 6 pF load, no capacitors on X1 and X2 (typical, check).\n"
             "A 12.5 pF crystal runs slow. Keep Y1 within 5 mm of U3.\n"
             "U3 pinout as the DS1307 (to verify): 1 X1, 2 X2, 3 VBAT, 4 GND,\n"
@@ -194,19 +204,27 @@ def eeprom(s: Schematic) -> None:
     s.global_label(u7, "6", "ID_SC", shape="input", stub=g(3))
     wp = u7.pin("7")
     jp11 = s.symbol("Jumper:SolderJumper_2_Open", "JP11", "WP", (wp[0] + g(4), wp[1] + g(7)), rot=90, footprint=SJ2,
-                    ref_at=(g(3), g(-1)), value_at=(g(3), g(1)),
-                    description="Closed: WP to GND. Open: WP left to the chip, check its pull.")
+                    ref_at=(g(7), g(-1)), value_at=(g(6), g(1)),
+                    description="Closed: WP to GND, writes allowed. Open: R82 pulls WP high, write-protected.")
     s.wire(wp, (wp[0] + g(4), wp[1]), jp11.pin("2"))
     s.power(jp11, "1", "GND", stub=g(1))
+    # R82 pulls WP up: open JP11 keeps the chip write-protected.
+    xr = wp[0] + g(12)
+    r82 = res(s, "R82", "1k", (xr, wp[1] - g(6)), dnp=True,
+              desc="WP pull-up to +3V3, not fitted with U7. 1 kOhm as the HAT design guide, to verify.")
+    s.power(r82, "1", "+3V3", stub=g(1))
+    s.wire(r82.pin("2"), (xr, wp[1]), (wp[0] + g(4), wp[1]))
+    s.junction((wp[0] + g(4), wp[1]))
     decoupling(s, "C12", "100n", (g(252), g(128)), "+3V3", dnp=True, desc="U7 VCC decoupling, not fitted")
     for k, (ref, net) in enumerate((("R80", "ID_SD"), ("R81", "ID_SC"))):
-        r = res(s, ref, "HAT spec", (g(266 + 18 * k), g(130)), dnp=True,
-                desc=f"{net} pull-up, not fitted. Value from the HAT specification.")
+        r = res(s, ref, "3k9", (g(266 + 18 * k), g(130)), dnp=True,
+                desc=f"{net} pull-up, not fitted. 3.9 kOhm as the HAT design guide, to verify.")
         s.power(r, "1", "+3V3", stub=g(1))
         s.global_label(r, "2", net, shape="bidirectional", stub=g(2))
     note(s, "Not fitted. Separate bus on GPIO 0 and 1, address 0x50.\n"
-            "JP11 open: WP state set by the chip, check the part.\n"
-            "Pull-up values: from the HAT specification.", (g(242), g(150)))
+            "JP11 open: R82 holds WP high, the chip is write-protected.\n"
+            "Close JP11 to write. Values from the HAT design guide:\n"
+            "R80, R81 3.9 kOhm, R82 1 kOhm (to verify).", (g(242), g(150)))
 
 
 def holes(s: Schematic) -> None:

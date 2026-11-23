@@ -4376,8 +4376,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "5b87a476-a27b-51cd-9ced-97c967295617")
-		(property "Reference" "#PWR78"
+		(uuid "81d6b073-7247-5bf9-9a97-218ea3018956")
+		(property "Reference" "#PWR80"
 			(at 25.4 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -4432,12 +4432,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fda6cd88-6c42-52d1-af64-6677ef2caee2")
+			(uuid "3d7ccd0d-d353-546d-863a-10ce508234b7")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR78")
+					(reference "#PWR80")
 					(unit 1)
 				)
 			)
@@ -4582,8 +4582,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "fe1137a8-4e7a-5b76-9a30-9c2c82bccc92")
-		(property "Reference" "#PWR79"
+		(uuid "3ad3c852-4bba-577f-84c2-b54d26943d8f")
+		(property "Reference" "#PWR81"
 			(at 101.6 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -4638,12 +4638,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "618614a8-546f-5890-bd95-40cae85fbfc1")
+			(uuid "57ae139a-e624-51e3-a341-069196cb1b42")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR79")
+					(reference "#PWR81")
 					(unit 1)
 				)
 			)
@@ -4659,8 +4659,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "81d6b073-7247-5bf9-9a97-218ea3018956")
-		(property "Reference" "#PWR80"
+		(uuid "757cb579-d243-5ea6-bc5d-09f3ce7d393c")
+		(property "Reference" "#PWR82"
 			(at 114.3 46.99 0)
 			(hide yes)
 			(show_name no)
@@ -4715,12 +4715,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3d7ccd0d-d353-546d-863a-10ce508234b7")
+			(uuid "6612e47b-bd11-5ca2-ae78-4557919fadbf")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR80")
+					(reference "#PWR82")
 					(unit 1)
 				)
 			)
@@ -4817,8 +4817,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "3ad3c852-4bba-577f-84c2-b54d26943d8f")
-		(property "Reference" "#PWR81"
+		(uuid "535f6ccc-3e0c-5e11-9314-4f19a861ac37")
+		(property "Reference" "#PWR83"
 			(at 132.08 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -4873,12 +4873,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "57ae139a-e624-51e3-a341-069196cb1b42")
+			(uuid "9d3515bc-f677-5b7d-b2c3-a23281878cea")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR81")
+					(reference "#PWR83")
 					(unit 1)
 				)
 			)
@@ -4894,8 +4894,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "757cb579-d243-5ea6-bc5d-09f3ce7d393c")
-		(property "Reference" "#PWR82"
+		(uuid "ba2b407d-a132-5b34-b470-ea7ee1782d6d")
+		(property "Reference" "#PWR84"
 			(at 132.08 49.53 0)
 			(hide yes)
 			(show_name no)
@@ -4950,12 +4950,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6612e47b-bd11-5ca2-ae78-4557919fadbf")
+			(uuid "032bcf80-b0df-5ed2-a027-fb8f79a69462")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR82")
+					(reference "#PWR84")
 					(unit 1)
 				)
 			)
@@ -6267,8 +6267,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "535f6ccc-3e0c-5e11-9314-4f19a861ac37")
-		(property "Reference" "#PWR83"
+		(uuid "0e6ef5d2-67e1-567c-bb3d-0b9ed92401e4")
+		(property "Reference" "#PWR85"
 			(at 213.36 31.75 0)
 			(hide yes)
 			(show_name no)
@@ -6323,12 +6323,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9d3515bc-f677-5b7d-b2c3-a23281878cea")
+			(uuid "88e5b50c-5b49-5d33-ac3d-d418dd4f34ad")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR83")
+					(reference "#PWR85")
 					(unit 1)
 				)
 			)
@@ -6449,8 +6449,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "ba2b407d-a132-5b34-b470-ea7ee1782d6d")
-		(property "Reference" "#PWR84"
+		(uuid "a6a7be22-fd2e-59b0-a53f-e5c621749680")
+		(property "Reference" "#PWR86"
 			(at 260.35 60.96 90)
 			(hide yes)
 			(show_name no)
@@ -6507,12 +6507,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "032bcf80-b0df-5ed2-a027-fb8f79a69462")
+			(uuid "11476c90-26f5-52e2-b778-84a1ea68a7cf")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR84")
+					(reference "#PWR86")
 					(unit 1)
 				)
 			)
@@ -6528,8 +6528,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "0e6ef5d2-67e1-567c-bb3d-0b9ed92401e4")
-		(property "Reference" "#PWR85"
+		(uuid "bf615397-a7f3-5f60-86ef-9ea973b48bef")
+		(property "Reference" "#PWR87"
 			(at 260.35 63.5 90)
 			(hide yes)
 			(show_name no)
@@ -6586,12 +6586,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "88e5b50c-5b49-5d33-ac3d-d418dd4f34ad")
+			(uuid "d081818c-e597-5174-9c80-6e1f64bd9f21")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR85")
+					(reference "#PWR87")
 					(unit 1)
 				)
 			)
@@ -6619,7 +6619,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "100u 35V"
+		(property "Value" "100u 50V"
 			(at 256.54 90.17 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6688,8 +6688,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "a6a7be22-fd2e-59b0-a53f-e5c621749680")
-		(property "Reference" "#PWR86"
+		(uuid "5fc94102-edca-5b09-a713-9f79dd190fab")
+		(property "Reference" "#PWR88"
 			(at 254 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -6744,12 +6744,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "11476c90-26f5-52e2-b778-84a1ea68a7cf")
+			(uuid "7d908f2a-91ec-510c-aa4a-026c3cb9191f")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR86")
+					(reference "#PWR88")
 					(unit 1)
 				)
 			)
@@ -6765,8 +6765,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "bf615397-a7f3-5f60-86ef-9ea973b48bef")
-		(property "Reference" "#PWR87"
+		(uuid "b863843b-e073-5ada-b797-cb043de9cf9d")
+		(property "Reference" "#PWR89"
 			(at 254 100.33 0)
 			(hide yes)
 			(show_name no)
@@ -6821,12 +6821,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d081818c-e597-5174-9c80-6e1f64bd9f21")
+			(uuid "941ea1fb-b7a4-5119-9835-d1ab30dc2aca")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/75ea6a7a-3be3-5b0d-825a-b35ad8bca0e7"
-					(reference "#PWR87")
+					(reference "#PWR89")
 					(unit 1)
 				)
 			)

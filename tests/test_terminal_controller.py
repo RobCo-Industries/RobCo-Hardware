@@ -249,8 +249,50 @@ def test_load_side_never_touches_the_logic_rails():
 def test_arm_switch_pins():
     assert net_of("Q1", "3") == "V_PROT" and net_of("Q1", "2") == "V_SW"
     assert short(net_of("Q1", "1")) == "ARM_G"
-    assert nodes("ARM_G") == {("Q1", "1"), ("R20", "2"), ("D3", "2"), ("R21", "1")}
+    assert nodes("ARM_G") == {("Q1", "1"), ("R20", "2"), ("D3", "2"), ("R21", "1"), ("C13", "2")}
     assert net_of("Q2", "1") == "GND" and short(net_of("Q2", "2")) == short(net_of("R22", "2"))
+
+
+def _volts(value: str) -> float:
+    """The voltage rating in a value: '100u 50V' or 'P-channel MOSFET, 60 V' to 50.0 or 60.0."""
+    m = re.search(r"(\d+(?:\.\d+)?)\s*V\b", value)
+    assert m, f"no voltage in '{value}'"
+    return float(m.group(1))
+
+
+def test_ratings_stand_above_the_surge_clamp():
+    # D2 clamps near 42 V at its rated pulse (to verify). Spec 4.1.
+    comps = parts()
+    for ref in ("C1", "C9"):
+        assert _volts(comps[ref].value) >= 50, f"{ref}: {comps[ref].value}"
+    assert _volts(comps["Q1"].value) >= 60, comps["Q1"].value
+    for ref in ("D1", "D4"):
+        assert comps[ref].value == "SB360", f"{ref}: {comps[ref].value}"
+    rows = {r: row["value"] for row in spec_bom() for r in row["refs"]}
+    assert "60 V" in rows["D1"] and "60 V" in rows["Q1"] and "50 V" in rows["C1"], rows["D1"]
+
+
+def test_arm_gate_resistor_and_turn_on_capacitor():
+    comps = parts()
+    assert comps["R20"].value == "100k", comps["R20"].value
+    assert {net_of("C13", "1"), net_of("C13", "2")} == {"V_SW", net_of("Q1", "1")}
+    assert comps["C13"].dnp, "C13 is not fitted"
+
+
+def test_eeprom_write_protect_pull_up():
+    comps = parts()
+    wp = net_of("U7", "7")
+    assert nodes(short(wp)) == {("U7", "7"), ("JP11", "2"), ("R82", "2")}, wp
+    assert net_of("R82", "1") == "+3V3"
+    assert comps["R82"].dnp and comps["R82"].value == "1k"
+    for ref in ("R80", "R81"):
+        assert comps[ref].dnp and comps[ref].value == "3k9", f"{ref}: {comps[ref].value}"
+
+
+def test_vbat_ground_jumper():
+    assert nodes("VBAT") == {("U3", "3"), ("BT1", "1"), ("JP12", "2")}
+    assert net_of("JP12", "1") == "GND"
+    assert parts()["JP12"].part == "Jumper:SolderJumper_2_Open"
 
 
 def test_i2c_reaches_the_three_devices_and_test_points_only():

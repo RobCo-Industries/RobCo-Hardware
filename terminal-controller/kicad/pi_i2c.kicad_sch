@@ -5095,7 +5095,7 @@
 			)
 		)
 	)
-	(text "Odd pins left, even pins right.\nPins 19, 21, 23, 24 and 26 are SPI0:\nnot connected, kept for the software.\nPin map and net names: spec/pins.yaml.\nThe pin check compares this sheet with it."
+	(text "Odd pins left, even pins right.\nPins 19, 21, 23, 24 and 26 are SPI0:\nnot connected, kept for the software.\nAn SPI display added here must not use\nGPIO 25 (ARM) or 4 as D/C or reset.\nPin map and net names: spec/pins.yaml.\nThe pin check compares this sheet with it."
 		(exclude_from_sim no)
 		(at 17.78 111.76 0)
 		(effects
@@ -5104,7 +5104,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "dceca34d-adea-5356-98e7-255d0ec69e1a")
+		(uuid "098dd2b3-0287-54eb-9fcd-4a9828e2e402")
 	)
 	(wire
 		(pts
@@ -6973,6 +6973,48 @@
 		)
 		(uuid "f683d483-a3b1-5f3d-b9d6-75d29e00a02e")
 	)
+	(wire
+		(pts
+			(xy 279.4 200.66) (xy 279.4 198.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "413338ea-64f4-5026-a951-9fa00f926b6c")
+	)
+	(label "VBAT"
+		(at 279.4 198.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "34c49e45-f12b-5a3c-aae1-68fc6564278f")
+	)
+	(wire
+		(pts
+			(xy 279.4 210.82) (xy 279.4 212.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "92e08a52-a133-5864-a921-0cae5a1769a9")
+	)
+	(text "VBAT must not float: fit the cell before first power-up,\nor close JP12 with no cell (DS1307 family rule, to verify\nfor the DS1338). A closed JP12 shorts a fitted cell."
+		(exclude_from_sim no)
+		(at 203.2 246.38 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7f8fed9b-0d0f-5da4-a152-795bde5b942b")
+	)
 	(text "Y1: 6 pF load, no capacitors on X1 and X2 (typical, check).\nA 12.5 pF crystal runs slow. Keep Y1 within 5 mm of U3.\nU3 pinout as the DS1307 (to verify): 1 X1, 2 X2, 3 VBAT, 4 GND,\n5 SDA, 6 SCL, 7 SQW, 8 VCC. Buy the 3.3 V grade."
 		(exclude_from_sim no)
 		(at 119.38 236.22 0)
@@ -7017,7 +7059,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "413338ea-64f4-5026-a951-9fa00f926b6c")
+		(uuid "a75352f0-0fdc-58b2-b255-85c6fb07c297")
 	)
 	(wire
 		(pts
@@ -7027,7 +7069,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "92e08a52-a133-5864-a921-0cae5a1769a9")
+		(uuid "0dd8e2a6-5d79-5c50-a0e5-a2e42bb4735d")
 	)
 	(wire
 		(pts
@@ -7037,7 +7079,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a75352f0-0fdc-58b2-b255-85c6fb07c297")
+		(uuid "b6110fdf-658a-5d8d-8f08-173622156720")
 	)
 	(wire
 		(pts
@@ -7047,7 +7089,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "0dd8e2a6-5d79-5c50-a0e5-a2e42bb4735d")
+		(uuid "7f1dd573-6a4a-58c6-a7a6-64b176225c7d")
 	)
 	(junction
 		(at 336.55 127)
@@ -7069,7 +7111,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b6110fdf-658a-5d8d-8f08-173622156720")
+		(uuid "f87d29c9-4614-5b85-905d-386257aec518")
 	)
 	(wire
 		(pts
@@ -7079,7 +7121,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7f1dd573-6a4a-58c6-a7a6-64b176225c7d")
+		(uuid "fd521d2c-d1ff-5a0b-ac87-4778639ac59e")
 	)
 	(wire
 		(pts
@@ -7089,7 +7131,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f87d29c9-4614-5b85-905d-386257aec518")
+		(uuid "254c85b3-7b5e-533e-a198-624ecaab7e24")
 	)
 	(global_label "ID_SD"
 		(shape bidirectional)
@@ -7121,7 +7163,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "fd521d2c-d1ff-5a0b-ac87-4778639ac59e")
+		(uuid "647bb1f3-0d62-5250-820c-d29e9f352fa3")
 	)
 	(global_label "ID_SC"
 		(shape input)
@@ -7153,7 +7195,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "254c85b3-7b5e-533e-a198-624ecaab7e24")
+		(uuid "30f8a6c9-6b75-521d-8e78-06f9b92c573b")
 	)
 	(wire
 		(pts
@@ -7163,7 +7205,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "647bb1f3-0d62-5250-820c-d29e9f352fa3")
+		(uuid "9f7ed4e6-977c-5c23-8727-a79639e0fc7c")
 	)
 	(wire
 		(pts
@@ -7173,31 +7215,11 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "30f8a6c9-6b75-521d-8e78-06f9b92c573b")
-	)
-	(wire
-		(pts
-			(xy 320.04 158.75) (xy 320.04 157.48)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9f7ed4e6-977c-5c23-8727-a79639e0fc7c")
-	)
-	(wire
-		(pts
-			(xy 320.04 166.37) (xy 320.04 167.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
 		(uuid "2bcb5591-18ae-57a2-9d3b-9bd9594d8542")
 	)
 	(wire
 		(pts
-			(xy 337.82 161.29) (xy 337.82 160.02)
+			(xy 375.92 118.11) (xy 375.92 116.84)
 		)
 		(stroke
 			(width 0)
@@ -7207,13 +7229,69 @@
 	)
 	(wire
 		(pts
-			(xy 337.82 168.91) (xy 337.82 171.45)
+			(xy 375.92 125.73) (xy 375.92 129.54)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "69130187-ac41-50ea-8aa9-eec3f8d9f685")
+	)
+	(wire
+		(pts
+			(xy 375.92 129.54) (xy 365.76 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c4372e44-2b17-5c1c-a31c-4677f897d7cd")
+	)
+	(junction
+		(at 365.76 129.54)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "72e1a8cd-2f71-54d0-af78-b52878faf09c")
+	)
+	(wire
+		(pts
+			(xy 320.04 158.75) (xy 320.04 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d2fda19b-d3e1-5172-b554-684930cd1cf3")
+	)
+	(wire
+		(pts
+			(xy 320.04 166.37) (xy 320.04 167.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8109d1d7-59f2-5520-91f4-7935544afcb1")
+	)
+	(wire
+		(pts
+			(xy 337.82 161.29) (xy 337.82 160.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fcfe459-243f-56bd-88cd-38fbd1e7305e")
+	)
+	(wire
+		(pts
+			(xy 337.82 168.91) (xy 337.82 171.45)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "810b7aab-b334-5b69-8d12-f21c122cd390")
 	)
 	(global_label "ID_SD"
 		(shape bidirectional)
@@ -7245,7 +7323,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c4372e44-2b17-5c1c-a31c-4677f897d7cd")
+		(uuid "4c5eb40d-d6a3-5758-9065-a7ab1fd7d009")
 	)
 	(wire
 		(pts
@@ -7255,7 +7333,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d2fda19b-d3e1-5172-b554-684930cd1cf3")
+		(uuid "6adc242b-d47a-52ec-ae13-6089a77895c7")
 	)
 	(global_label "ID_SC"
 		(shape bidirectional)
@@ -7279,7 +7357,7 @@
 			)
 		)
 	)
-	(text "Not fitted. Separate bus on GPIO 0 and 1, address 0x50.\nJP11 open: WP state set by the chip, check the part.\nPull-up values: from the HAT specification."
+	(text "Not fitted. Separate bus on GPIO 0 and 1, address 0x50.\nJP11 open: R82 holds WP high, the chip is write-protected.\nClose JP11 to write. Values from the HAT design guide:\nR80, R81 3.9 kOhm, R82 1 kOhm (to verify)."
 		(exclude_from_sim no)
 		(at 307.34 190.5 0)
 		(effects
@@ -7288,7 +7366,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "8d992dd1-b9f8-56ce-af83-30e91166cb3e")
+		(uuid "7f8e85a5-43bd-5606-abc5-7285077cc6aa")
 	)
 	(rectangle
 		(start 302.26 213.36)
@@ -13214,6 +13292,164 @@
 		)
 	)
 	(symbol
+		(lib_id "Jumper:SolderJumper_2_Open")
+		(at 279.4 205.74 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "2dcabc20-18f4-516c-a31d-4ce5560cd2fa")
+		(property "Reference" "JP12"
+			(at 292.1 204.47 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "VBAT-GND"
+			(at 292.1 207.01 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 279.4 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 279.4 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Open by default. Close only with no cell in BT1: grounds VBAT. Shorts a fitted cell."
+			(at 279.4 205.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "565b2aed-7e16-51d9-8b3d-9d2102596e46")
+		)
+		(pin "2"
+			(uuid "83eab001-c73c-5527-a3e8-9738fa325fcb")
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
+					(reference "JP12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 279.4 212.09 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "4d3e8a3c-51fb-57fa-a496-514b2ce6f190")
+		(property "Reference" "#PWR70"
+			(at 279.4 218.44 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 279.4 215.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 279.4 212.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 279.4 212.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol for the GND rail"
+			(at 279.4 212.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9b37e04d-12b7-5227-8c7a-7b48c84522df")
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
+					(reference "#PWR70")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Memory_EEPROM:24LC32")
 		(at 350.52 127 0)
 		(unit 1)
@@ -13322,8 +13558,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "4d3e8a3c-51fb-57fa-a496-514b2ce6f190")
-		(property "Reference" "#PWR70"
+		(uuid "71629027-7998-537e-bd3b-41ff279df85b")
+		(property "Reference" "#PWR71"
 			(at 336.55 139.7 0)
 			(hide yes)
 			(show_name no)
@@ -13378,12 +13614,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9b37e04d-12b7-5227-8c7a-7b48c84522df")
+			(uuid "428d8614-c42a-5461-afc1-0defccc01c00")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR70")
+					(reference "#PWR71")
 					(unit 1)
 				)
 			)
@@ -13399,8 +13635,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "71629027-7998-537e-bd3b-41ff279df85b")
-		(property "Reference" "#PWR71"
+		(uuid "c47e89cf-043b-54ae-9394-606c456976ed")
+		(property "Reference" "#PWR72"
 			(at 350.52 120.65 0)
 			(hide yes)
 			(show_name no)
@@ -13455,12 +13691,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "428d8614-c42a-5461-afc1-0defccc01c00")
+			(uuid "7714f228-cccb-5818-a2ac-79052b43322e")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR71")
+					(reference "#PWR72")
 					(unit 1)
 				)
 			)
@@ -13476,8 +13712,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "c47e89cf-043b-54ae-9394-606c456976ed")
-		(property "Reference" "#PWR72"
+		(uuid "dc5b3d69-dcc1-5dca-bbf9-9555b948d210")
+		(property "Reference" "#PWR73"
 			(at 350.52 143.51 0)
 			(hide yes)
 			(show_name no)
@@ -13532,12 +13768,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "7714f228-cccb-5818-a2ac-79052b43322e")
+			(uuid "e31f5d6f-c569-5310-b4fa-50feb6f605e7")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR72")
+					(reference "#PWR73")
 					(unit 1)
 				)
 			)
@@ -13555,7 +13791,7 @@
 		(dnp no)
 		(uuid "b2f7a18f-2e8c-569d-82e6-826b9ee05a66")
 		(property "Reference" "JP11"
-			(at 369.57 137.16 90)
+			(at 374.65 137.16 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13566,7 +13802,7 @@
 			)
 		)
 		(property "Value" "WP"
-			(at 369.57 139.7 90)
+			(at 373.38 139.7 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -13598,7 +13834,7 @@
 				)
 			)
 		)
-		(property "Description" "Closed: WP to GND. Open: WP left to the chip, check its pull."
+		(property "Description" "Closed: WP to GND, writes allowed. Open: R82 pulls WP high, write-protected."
 			(at 365.76 138.43 0)
 			(hide yes)
 			(show_name no)
@@ -13634,8 +13870,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "dc5b3d69-dcc1-5dca-bbf9-9555b948d210")
-		(property "Reference" "#PWR73"
+		(uuid "0e3b6112-c8af-564d-903d-ed2720f8e3c7")
+		(property "Reference" "#PWR74"
 			(at 365.76 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -13690,12 +13926,170 @@
 			)
 		)
 		(pin "1"
-			(uuid "e31f5d6f-c569-5310-b4fa-50feb6f605e7")
+			(uuid "d9852d0e-6973-577a-9c6a-d11117995999")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR73")
+					(reference "#PWR74")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 375.92 121.92 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp yes)
+		(uuid "15a1e048-4eb7-551a-a506-024500b5a7ab")
+		(property "Reference" "R82"
+			(at 378.46 120.65 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "1k"
+			(at 378.46 123.19 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+			(at 375.92 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 375.92 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "WP pull-up to +3V3, not fitted with U7. 1 kOhm as the HAT design guide, to verify."
+			(at 375.92 121.92 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "98639514-6592-5c5a-a46d-cb04720ed722")
+		)
+		(pin "2"
+			(uuid "af9a2533-d196-5455-9887-42775a36eead")
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
+					(reference "R82")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 375.92 116.84 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board no)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "3a5f7488-052f-5a21-8c4c-9e95a9e28a05")
+		(property "Reference" "#PWR75"
+			(at 375.92 120.65 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 375.92 113.284 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 375.92 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 375.92 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol for the +3V3 rail"
+			(at 375.92 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "82b20352-bc72-5d0f-8789-851464d8c246")
+		)
+		(instances
+			(project "terminal-controller"
+				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
+					(reference "#PWR75")
 					(unit 1)
 				)
 			)
@@ -13792,8 +14186,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "0e3b6112-c8af-564d-903d-ed2720f8e3c7")
-		(property "Reference" "#PWR74"
+		(uuid "ab9e376f-2ac5-5717-baff-5df30c2c33ee")
+		(property "Reference" "#PWR76"
 			(at 320.04 161.29 0)
 			(hide yes)
 			(show_name no)
@@ -13848,12 +14242,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d9852d0e-6973-577a-9c6a-d11117995999")
+			(uuid "3da95fe7-b501-5995-8ca1-0d2071137864")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR74")
+					(reference "#PWR76")
 					(unit 1)
 				)
 			)
@@ -13869,8 +14263,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "3a5f7488-052f-5a21-8c4c-9e95a9e28a05")
-		(property "Reference" "#PWR75"
+		(uuid "a6cf7c96-4899-5c64-8727-3a9c01e1b700")
+		(property "Reference" "#PWR77"
 			(at 320.04 173.99 0)
 			(hide yes)
 			(show_name no)
@@ -13925,12 +14319,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "82b20352-bc72-5d0f-8789-851464d8c246")
+			(uuid "dfa0bffc-6deb-5a24-bca1-cc5edad41de3")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR75")
+					(reference "#PWR77")
 					(unit 1)
 				)
 			)
@@ -13958,7 +14352,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "HAT spec"
+		(property "Value" "3k9"
 			(at 340.36 166.37 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13991,7 +14385,7 @@
 				)
 			)
 		)
-		(property "Description" "ID_SD pull-up, not fitted. Value from the HAT specification."
+		(property "Description" "ID_SD pull-up, not fitted. 3.9 kOhm as the HAT design guide, to verify."
 			(at 337.82 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -14027,8 +14421,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "ab9e376f-2ac5-5717-baff-5df30c2c33ee")
-		(property "Reference" "#PWR76"
+		(uuid "7d2c4203-3c88-5a55-90ae-b8f4fa6b56a9")
+		(property "Reference" "#PWR78"
 			(at 337.82 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -14083,12 +14477,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3da95fe7-b501-5995-8ca1-0d2071137864")
+			(uuid "0fb99623-e3f1-567b-b656-e9b8d22ae4bd")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR76")
+					(reference "#PWR78")
 					(unit 1)
 				)
 			)
@@ -14116,7 +14510,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "HAT spec"
+		(property "Value" "3k9"
 			(at 363.22 166.37 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14149,7 +14543,7 @@
 				)
 			)
 		)
-		(property "Description" "ID_SC pull-up, not fitted. Value from the HAT specification."
+		(property "Description" "ID_SC pull-up, not fitted. 3.9 kOhm as the HAT design guide, to verify."
 			(at 360.68 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -14185,8 +14579,8 @@
 		(on_board no)
 		(in_pos_files no)
 		(dnp no)
-		(uuid "a6cf7c96-4899-5c64-8727-3a9c01e1b700")
-		(property "Reference" "#PWR77"
+		(uuid "3740bd82-83dc-5256-bca2-441e257a4ad5")
+		(property "Reference" "#PWR79"
 			(at 360.68 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -14241,12 +14635,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "dfa0bffc-6deb-5a24-bca1-cc5edad41de3")
+			(uuid "2409a51e-ee78-5706-9f61-f0d26f8ffa12")
 		)
 		(instances
 			(project "terminal-controller"
 				(path "/10bf29ec-89bf-54e7-a8ee-eabded56703b/d2d2f965-fb24-5ac2-bb09-f03fc9ffb30c"
-					(reference "#PWR77")
+					(reference "#PWR79")
 					(unit 1)
 				)
 			)
