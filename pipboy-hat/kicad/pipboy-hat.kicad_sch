@@ -278,6 +278,59 @@
 		)
 		(uuid "f61ec964-7b58-50e1-a1bb-8da3037332ed")
 	)
+	(sheet
+		(at 127 127)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e865d406-f5a1-5a7b-af9b-453d0649b6fa")
+		(property "Sheetname" "Clock"
+			(at 127 126.2884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "clock.kicad_sch"
+			(at 127 145.3784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "pipboy-hat"
+				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602"
+					(page "7")
+				)
+			)
+		)
+	)
+	(text "U1 DS1338 at 0x68, Y1 crystal, BT1 CR1220 holder.\nJP1 VBAT jumper, R15 SQW pull-up, not fitted."
+		(exclude_from_sim no)
+		(at 128.27 133.35 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "31d68cde-18cb-542b-b9d9-d298eca96623")
+	)
 	(text "Pip-Boy HAT for the Raspberry Pi Zero, Zero W and Zero 2 W"
 		(exclude_from_sim no)
 		(at 25.4 27.94 0)
@@ -302,7 +355,7 @@
 		)
 		(uuid "1ce9909d-970f-5b6b-bf8b-806375c6c5c2")
 	)
-	(text "Not drawn yet: Clock, Serial and test points."
+	(text "Not drawn yet: Serial and test points."
 		(exclude_from_sim no)
 		(at 25.4 185.42 0)
 		(effects
@@ -311,7 +364,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "761a119d-7f45-5bc0-8856-cde1f108d1f3")
+		(uuid "a5b1a4e9-4dd5-59ad-a0ea-20d72113a4f8")
 	)
 	(sheet_instances
 		(path "/"
