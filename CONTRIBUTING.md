@@ -20,7 +20,7 @@ Each board has the same shape:
 - `kicad/` holds the generated files. Commit them. Do not edit them by hand until the owner routes the board. From then on the routed board file is the source.
 - `board.env` may set `ROUTED=yes`. DRC then fails CI on any violation. It may also set `OWNER_ROUTED=yes` once the owner routes the board in KiCad. The routed board file is then the source, and the regen-diff skips it.
 - `pins.yaml` may list `ignore_sources`: a source table name skips that table, and `Input example:GPIO16` skips it for one pin. Write the reason in the file.
-- `tests/test_<board>.py`, when it exists, holds the board's netlist tests. `tools/build.sh check` runs it with the exported netlist.
+- `board.env` may set `NETTEST=tests/test_<board>.py`, the board's netlist tests. `tools/build.sh check` runs that file with the exported netlist in `ROBCO_NETLIST`.
 - `spec/SPEC.md` may hold the header pin table between `<!-- pin-table:start -->` and `<!-- pin-table:end -->`. Edit `pins.yaml`, then run `tools/gen_pin_table.py spec/pins.yaml spec/SPEC.md`. `check` fails when the two differ.
 
 ## Conventions

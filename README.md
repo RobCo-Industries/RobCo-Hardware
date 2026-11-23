@@ -42,7 +42,7 @@ Every output goes to `build/<board>/`. Run `tools/build.sh` with no command for 
 - ERC finds any violation,
 - a header pin in the netlist differs from `spec/pins.yaml`, or `pins.yaml` gives a GPIO another use than the software,
 - the pin table in `spec/SPEC.md` differs from the one `tools/gen_pin_table.py` writes from `pins.yaml`,
-- a board with netlist tests, `tests/test_<board>.py`, fails one of them,
+- a board whose `board.env` names netlist tests with `NETTEST` fails one of them,
 - DRC finds a violation, on a board whose `board.env` says `ROUTED=yes`. On other boards DRC only writes a report.
 
 A board with no board file yet is checked as a schematic. `check` runs the regen-diff, ERC and the pin checks, and prints a line for each step it skips. A board with no generator yet gets the pin checks only. When the owner routes a board, `board.env` says `OWNER_ROUTED=yes`. The committed board file is then the source: `gen` and the regen-diff cover the schematic and project files only.

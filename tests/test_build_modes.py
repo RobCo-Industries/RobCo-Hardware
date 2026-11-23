@@ -180,3 +180,15 @@ def test_board_support_missing_fails(tmp_path):
     r = _run_copy(tmp_path, repo)
     assert r.returncode != 0
     assert "BOARD_SUPPORT.md not found" in r.stderr
+
+
+def test_netlist_tests_run_in_check_and_can_fail(board):
+    script = "import os, sys\nprint('nettest on', os.environ['ROBCO_NETLIST'])\nsys.exit({})\n"
+    _write(str(board / "b" / "board.env"), f"NETTEST={board / 'nt.py'}\n")
+    _write(str(board / "nt.py"), script.format(0))
+    r = _run(board, "check")
+    assert r.returncode == 0, r.stderr
+    assert "nettest on" in r.stdout and "b.net" in r.stdout
+    _write(str(board / "nt.py"), script.format(1))
+    r = _run(board, "check")
+    assert r.returncode != 0 and "netlist tests failed" in r.stderr
