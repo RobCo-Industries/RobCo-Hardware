@@ -25,6 +25,9 @@ def _load_circuit(board):
 FILES["terminal-controller"] = (["terminal-controller.kicad_sch"]
                                 + [row[1] for row in _load_circuit("terminal-controller").SHEETS]
                                 + ["terminal-controller.kicad_pro", "sym-lib-table", "fp-lib-table"])
+FILES["pipboy-hat"] = (["pipboy-hat.kicad_sch"]
+                       + [row[1] for row in _load_circuit("pipboy-hat").SHEETS]
+                       + ["pipboy-hat.kicad_pro", "sym-lib-table", "fp-lib-table"])
 CASES = [(board, name) for board, names in FILES.items() for name in names]
 
 
