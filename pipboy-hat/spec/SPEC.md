@@ -331,17 +331,18 @@ ESD: the keys sit behind plastic caps. J5 leads to a panel inside the same case.
 
 Layout for a wrist device, worn on the left forearm and used with the right hand. The keys and the dial sit on a strip to the right of the screen, nearest the hand:
 
-```
-  +----------------------------------------------+----------------+
-  |                                              |   (SW7 dial)   |
-  |                                              |   [BACK SW6]   |
-  |            DS1 display, 2.8 inch             |                |
-  |            320 x 240, landscape              |      [UP]      |
-  |                                              | [LEFT][SEL][RT]|
-  |                                              |     [DOWN]     |
-  +----------------------------------------------+----------------+
-       J2 on the module's short edge, left             key strip
-```
+| Item | Face | Position | Note |
+| --- | --- | --- | --- |
+| DS1 display | Top | Left part of the board | 2.8 inch, 320 x 240, landscape |
+| J2 | Top | On the module's short edge, left | Display socket |
+| Key strip | Top | Right of the screen | Nearest the hand |
+| SW7 dial | Top | Key strip, top | |
+| SW6 BACK | Top | Key strip, under the dial | |
+| UP | Top | Key strip, top of the cross | |
+| LEFT, SEL, RT | Top | Key strip, middle row of the cross, left to right | |
+| DOWN | Top | Key strip, bottom of the cross | |
+
+The picture of the layout is exported from the KiCad board file once the placement step has produced it.
 
 UP, DOWN, LEFT and RIGHT form a cross with SELECT in its centre, on a 14 mm grid. The dial sits at the top of the strip, where a thumb turns it, and BACK sits between the dial and the cross.
 
@@ -658,15 +659,15 @@ Rejected:
 
 Proposed outline, all dimensions assumed until the module, the encoder and the case are in hand:
 
-```
-   0                                             92              130 mm
-   +----------------------------------------------+----------------+ 62
-   | top: DS1 module over J2, H1-H4 standoffs     | top: SW7 dial  |
-   |                                              |      SW6 BACK  |
-   | bottom: Pi Zero, 65 x 30 mm, on J1           |      SW1-SW5   |
-   |         M1, J3, J4, J6 beside the Pi         | bottom: BT1    |
-   +----------------------------------------------+----------------+ 0
-```
+| Zone | Face | Position | Items |
+| --- | --- | --- | --- |
+| Board | Both | x = 0 to 130 mm, y = 0 to 62 mm | Outline |
+| Display zone | Top | x = 0 to 92 mm | DS1 module over J2, H1-H4 standoffs |
+| Display zone | Bottom | x = 0 to 92 mm | Pi Zero, 65 x 30 mm, on J1. M1, J3, J4, J6 beside the Pi |
+| Key strip | Top | x = 92 to 130 mm | SW7 dial, SW6 BACK, SW1-SW5 |
+| Key strip | Bottom | x = 92 to 130 mm | BT1 |
+
+The picture of the layout is exported from the KiCad board file once the placement step has produced it.
 
 - Board: 130 by 62 mm, two layers, 1.6 mm.
 - Top side: J2 and the display, four M3 standoffs for the module, the key strip at x = 92 to 130 mm. The cross of SW1 to SW5 on a 14 mm grid takes about 40 by 40 mm. The dial and BACK take the 20 mm above it.
