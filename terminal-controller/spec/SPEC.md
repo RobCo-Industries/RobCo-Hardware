@@ -895,3 +895,4 @@ The bring-up and test checklist is in [BRINGUP.md](BRINGUP.md).
 - Pi internal pull-up value about 50 kOhm: check.
 - A door strike current above 200 mA needs an external relay or two paralleled channels.
 - Mains loads: external rated relay modules only, in their own enclosure, wired by a qualified person.
+- Holotape reader: the same SD slot as the Pip-Boy HAT, section 4.12 of its spec, is planned here for the terminal's holotape reader. Decide it with this board's shape.

@@ -40,3 +40,5 @@
 - Name where to probe `AUD_DC` in Pip-Boy bring-up step 18.
 - Draw the block diagrams in Mermaid, describe the Pip-Boy layout in tables, and export the toy board pictures with `tools/build.sh pictures`.
 - Check the edges of the Pip-Boy power and signal diagrams against its schematic in `tests/test_diagrams.py`.
+- Add a holotape slot to the Pip-Boy HAT: a full-size SD socket on SPI0 CE1, card detect on GPIO 12, write protect on GPIO 13, its own 3.3 V regulator from `+5V`. MISO now reaches the card only; the display's SDO sits behind an open solder jumper. Spec, pin map, schematic sheet, netlist tests and bring-up steps. Proposal, not built.
+- Add the own symbol `SD_Card_Hirose_DM1AA`, and an `extra_pins` option in `tools/gen_symbols.py` for its switch common.
