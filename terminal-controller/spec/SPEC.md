@@ -61,6 +61,7 @@ flowchart LR
     subgraph SENSORS["Sensor supply"]
         J4["J4 inputs<br/>+V_S terminal"]
     end
+    VSW["V_SW rail"]
     LOGIC["U1, U2, U3, U7<br/>pull-ups"]
     M1["M1 class-D module"]
     J2 -- "V_EXT" --> JP1
@@ -71,10 +72,12 @@ flowchart LR
     D1 -- "V_PROT" --> F2
     F2 -- "+V_S" --> J4
     ARM -- "ARM" --> Q2 --> Q1
-    Q1 --- JP8
-    Q1 -- "V_SW" --> U4
-    Q1 -- "V_SW" --> J3
-    Q1 -- "V_SW" --> LED8
+    D1 -- "V_PROT" --> JP8
+    Q1 --> VSW
+    JP8 --> VSW
+    VSW --> U4
+    VSW --> J3
+    VSW --> LED8
     P5V --> M1
     P3V3 --> LOGIC
 ```

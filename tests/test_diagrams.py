@@ -100,10 +100,11 @@ def test_checker_rejects_broken_blocks(body):
 TC_SPEC = "terminal-controller/spec/SPEC.md"
 TC_EDGES = [
     ("J2", "JP1"), ("P5V", "JP1"), ("JP1", "F1"), ("F1", "D1"), ("D1", "Q1"),
-    ("Q1", "J3"), ("Q1", "U4"), ("D1", "F2"), ("F2", "J4"), ("ARM", "Q2"), ("Q2", "Q1"),
+    ("Q1", "VSW"), ("VSW", "J3"), ("VSW", "U4"), ("D1", "JP8"), ("JP8", "VSW"), ("D1", "F2"), ("F2", "J4"), ("ARM", "Q2"), ("Q2", "Q1"),
     ("P5V", "M1"), ("U1", "U4"), ("U4", "J3"), ("J4", "U5"), ("U5", "U2"),
 ]
-TC_NO_EDGES = [("JP1", "J3"), ("D1", "J3"), ("JP1", "Q1"), ("D1", "J4"), ("U2", "U4"), ("U1", "U5")]
+TC_NO_EDGES = [("JP1", "J3"), ("D1", "J3"), ("JP1", "Q1"), ("D1", "J4"), ("U2", "U4"), ("U1", "U5"),
+    ("Q1", "JP8"), ("JP8", "Q1")]
 
 LINK = re.compile(r'\s*(?:--\s*"[^"]*"\s*(-->|---)|(-->|---|-\.->|-\.-))\s*')
 NODE = re.compile(r'([A-Za-z0-9_]+)')
