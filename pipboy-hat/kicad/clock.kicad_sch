@@ -2034,7 +2034,7 @@
 		)
 		(uuid "87095dd3-2117-5d82-b6aa-06aa8f1327ba")
 	)
-	(text "CR1220: about 35 mAh, under 1 uA from VBAT: about 4 years (typical, check).\nBT1 Keystone 3001 pad polarity: to verify against the holder bought.\nR15 not fitted: SQW is unused. Pip-OS reads the DS1338 at 0x68 as chip=0."
+	(text "CR1220: about 35 mAh, under 1 uA from VBAT: about 4 years (typical, check).\nBT1 Keystone 3001 pad polarity: to verify against the holder bought.\nR15 not fitted: SQW is unused. Pip-OS reads the DS1338 at 0x68 as chip=0.\nSQW is open drain (to verify): fit R15 to probe TP8, else TP8 floats."
 		(exclude_from_sim no)
 		(at 17.78 111.76 0)
 		(effects
@@ -2043,7 +2043,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "214948ab-30bb-5081-824b-8194821d4b76")
+		(uuid "74067000-484b-5808-be9d-67481d2496c4")
 	)
 	(symbol
 		(lib_id "RobCo:DS1338")

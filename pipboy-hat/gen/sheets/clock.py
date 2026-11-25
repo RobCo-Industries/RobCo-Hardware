@@ -57,4 +57,5 @@ def draw(s: Schematic) -> None:
             "4 GND, 5 SDA, 6 SCL, 7 SQW, 8 VCC. Buy the 3.3 V grade.", (g(14), g(72)))
     note(s, "CR1220: about 35 mAh, under 1 uA from VBAT: about 4 years (typical, check).\n"
             "BT1 Keystone 3001 pad polarity: to verify against the holder bought.\n"
-            "R15 not fitted: SQW is unused. Pip-OS reads the DS1338 at 0x68 as chip=0.", (g(14), g(88)))
+            "R15 not fitted: SQW is unused. Pip-OS reads the DS1338 at 0x68 as chip=0.\n"
+            "SQW is open drain (to verify): fit R15 to probe TP8, else TP8 floats.", (g(14), g(88)))

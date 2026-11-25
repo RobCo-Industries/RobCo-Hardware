@@ -176,7 +176,8 @@ def clock(s: Schematic) -> None:
     s.power(jp12, "1", "GND", stub=g(1))
     note(s, "VBAT must not float: fit the cell before first power-up,\n"
             "or close JP12 with no cell (DS1307 family rule, to verify\n"
-            "for the DS1338). A closed JP12 shorts a fitted cell.", (g(160), g(194)))
+            "for the DS1338). A closed JP12 shorts a fitted cell.\n"
+            "SQW is open drain (to verify): fit R4 to probe TP8.", (g(160), g(194)))
     note(s, "Y1: 6 pF load, no capacitors on X1 and X2 (typical, check).\n"
             "A 12.5 pF crystal runs slow. Keep Y1 within 5 mm of U3.\n"
             "U3 pinout as the DS1307 (to verify): 1 X1, 2 X2, 3 VBAT, 4 GND,\n"

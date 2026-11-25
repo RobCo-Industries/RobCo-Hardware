@@ -34,3 +34,7 @@
 - Add an "Off board" column to the exported BOM for parts bought that do not sit on the board.
 - Add the Pip-Boy HAT spec, its header map and its bring-up checklist. Specification only.
 - Apply the electrical review to the Pip-Boy spec: reverse-polarity MOSFET, plain overvoltage limits and voltage budget, dial speed limit, audio trimmer range, backlight notes.
+- Redraw the PAM8302A module footprint as a 5-pin input row and a 2-pad output edge, from memory, to verify. Both boards use it.
+- Name the MF-R090 in the 10.0 mm fuse footprint.
+- Say that the clock's SQW test point needs its pull-up fitted, on both boards.
+- Name where to probe `AUD_DC` in Pip-Boy bring-up step 18.
