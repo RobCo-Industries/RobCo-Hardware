@@ -38,8 +38,8 @@ SHEETS = [
      "U1 DS1338 at 0x68, Y1 crystal, BT1 CR1220 holder.\nJP1 VBAT jumper, R15 SQW pull-up, not fitted."),
     ("Serial and test points", "serial.kicad_sch", "A4", serial.draw, (g(20), g(124)),
      "J4 serial console, 3.3 V only.\nTP1 to TP5 on the rails and the I2C bus."),
-    ("Holotape slot", "holotape.kicad_sch", "A4", holotape.draw, (g(100), g(124)),
-     "J7 SD socket on SPI0 CE1, U3 3.3 V from +5V,\nR50 to R59, C50 to C53, TP9."),
+    ("Holotape slot", "holotape.kicad_sch", "A3", holotape.draw, (g(100), g(124)),
+     "J7 SD socket behind U4, U5 buffers on SPI0 CE1.\nU3 and Q4 switched card supply. TP9, TP10."),
 ]
 
 

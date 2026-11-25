@@ -160,13 +160,17 @@ PB_EDGES = [
     ("P3V3", "J2"), ("P3V3", "BLSW"), ("P3V3", "U1"), ("P3V3", "U2"),
     ("SPI", "J2"), ("BL", "BLSW"), ("BLSW", "J2"), ("I2C", "U1"), ("IDP", "U2"), ("UART", "J4"),
     ("PWM", "R30"), ("R30", "RV1"), ("RV1", "M1"), ("M1", "J6"), ("INP", "R40"), ("R40", "KEYS"),
-    ("P5V", "U3"), ("U3", "J7"), ("SPI", "RSD"), ("CE1", "RSD"), ("RSD", "J7"), ("J7", "R57"),
-    ("R57", "MISO"), ("J7", "HOLO"), ("J2", "JP3"), ("JP3", "MISO"),
+    ("P5V", "U3"), ("U3", "Q4"), ("Q4", "J7"), ("Q4", "BUFP"), ("SPI", "U4"), ("CE1", "U4"),
+    ("BUS", "U4"), ("U4", "RSD"), ("RSD", "J7"), ("J7", "U5"), ("U5", "R57"), ("R57", "MISO"),
+    ("PWR", "Q5"), ("J7", "HOLO"), ("J2", "JP3"), ("JP3", "MISO"),
 ]
 PB_NO_EDGES = [("J3", "P5V"), ("J3", "Q3"), ("J3", "M1"), ("J3", "J2"), ("J3", "D1"), ("F1", "P5V"),
     ("F1", "M1"), ("P5V", "J2"), ("PWM", "M1"), ("R30", "M1"), ("INP", "KEYS"), ("BL", "J2"),
     ("J2", "MISO"), ("MISO", "J2"), ("J7", "MISO"), ("P3V3", "J7"), ("P5V", "J7"), ("P3V3", "U3"),
-    ("CE1", "J2"), ("CE1", "J7")]
+    ("CE1", "J2"), ("CE1", "J7"),
+    # The Pi's bus reaches the card only through U4 and U5, the card's supply only through Q4.
+    ("U3", "J7"), ("P5V", "Q4"), ("SPI", "RSD"), ("CE1", "RSD"), ("SPI", "J7"), ("J7", "R57"),
+    ("RSD", "MISO"), ("MISO", "U4"), ("MISO", "J7"), ("U3", "BUFP"), ("P3V3", "BUFP")]
 
 
 def pb_graphs():

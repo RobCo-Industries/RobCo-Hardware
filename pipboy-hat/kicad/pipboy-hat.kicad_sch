@@ -426,7 +426,7 @@
 			)
 		)
 	)
-	(text "J7 SD socket on SPI0 CE1, U3 3.3 V from +5V,\nR50 to R59, C50 to C53, TP9."
+	(text "J7 SD socket behind U4, U5 buffers on SPI0 CE1.\nU3 and Q4 switched card supply. TP9, TP10."
 		(exclude_from_sim no)
 		(at 128.27 163.83 0)
 		(effects
@@ -435,7 +435,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "57f67484-feb0-5f41-be7d-1f54347ff0d0")
+		(uuid "a7d96209-8e7e-5824-8307-fbbf0d00290f")
 	)
 	(text "Pip-Boy HAT for the Raspberry Pi Zero, Zero W and Zero 2 W"
 		(exclude_from_sim no)

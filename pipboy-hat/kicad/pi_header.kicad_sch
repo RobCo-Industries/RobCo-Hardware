@@ -3563,9 +3563,37 @@
 			)
 		)
 	)
-	(no_connect
-		(at 66.04 88.9)
-		(uuid "f262a235-a510-500b-8b20-30be1a5f4248")
+	(wire
+		(pts
+			(xy 66.04 88.9) (xy 69.85 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba5de524-3cb0-5f7d-9627-472a8d0c0264")
+	)
+	(global_label "HOLO_BUS"
+		(shape output)
+		(at 69.85 88.9 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "61626692-a0d8-5460-8ed3-11b6ed480b03")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 69.85 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
 	)
 	(wire
 		(pts
@@ -3575,13 +3603,41 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ba5de524-3cb0-5f7d-9627-472a8d0c0264")
+		(uuid "2e534e9f-aa7d-54d7-a1a2-ee843ad9d06d")
 	)
-	(no_connect
-		(at 66.04 91.44)
-		(uuid "e3259878-a54d-5368-a93b-5b12c2a13b20")
+	(wire
+		(pts
+			(xy 66.04 91.44) (xy 69.85 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8e4ea883-072e-554e-8117-0fe7870991e9")
 	)
-	(text "Odd pins left, even pins right.\nPin 26, CE1, selects the holotape card.\nGPIO 12, 13: card detect, write protect.\nGPIO 20, 21 open. TFT_BL and the holotape\npins are not software defaults.\nPin map and net names: spec/pins.yaml.\nThe pin check compares this sheet with it."
+	(global_label "HOLO_PWR"
+		(shape output)
+		(at 69.85 91.44 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3be9a022-2a84-507c-8936-3647a0986ec4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 69.85 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(text "Odd pins left, even pins right.\nPin 26, CE1, selects the holotape card.\nGPIO 12, 13: card detect, write protect.\nGPIO 20 HOLO_BUS, 21 HOLO_PWR. No free GPIO.\nTFT_BL and the holotape pins: no defaults.\nPin map and net names: spec/pins.yaml.\nThe pin check compares this sheet with it."
 		(exclude_from_sim no)
 		(at 17.78 111.76 0)
 		(effects
@@ -3590,7 +3646,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "9f6a8068-0fa8-5811-8166-f37b47c95a72")
+		(uuid "96e6fe71-ca96-581f-bcae-0c56c7fcf434")
 	)
 	(wire
 		(pts
@@ -3600,7 +3656,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2e534e9f-aa7d-54d7-a1a2-ee843ad9d06d")
+		(uuid "16704fad-4299-5a1a-8f46-d78b15a7b281")
 	)
 	(wire
 		(pts
@@ -3610,7 +3666,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8e4ea883-072e-554e-8117-0fe7870991e9")
+		(uuid "19f0ab7c-3615-5280-80be-6449be473f6f")
 	)
 	(wire
 		(pts
@@ -3620,7 +3676,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "16704fad-4299-5a1a-8f46-d78b15a7b281")
+		(uuid "7314a802-792f-56c9-a5fc-276c17e79d56")
 	)
 	(text "The Pi feeds +3V3 and GND. +5V comes from\nthe Pi's USB port or from J3, never both."
 		(exclude_from_sim no)
@@ -3702,7 +3758,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "19f0ab7c-3615-5280-80be-6449be473f6f")
+		(uuid "281fd438-826d-5846-9701-2dccbb11c9a7")
 	)
 	(wire
 		(pts
@@ -3712,7 +3768,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "7314a802-792f-56c9-a5fc-276c17e79d56")
+		(uuid "ccc53f07-0988-533b-9d53-16e568388093")
 	)
 	(global_label "I2C_SDA"
 		(shape bidirectional)
@@ -3744,7 +3800,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "281fd438-826d-5846-9701-2dccbb11c9a7")
+		(uuid "56ee0096-266e-5168-b6d3-d038ed04b488")
 	)
 	(wire
 		(pts
@@ -3754,7 +3810,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ccc53f07-0988-533b-9d53-16e568388093")
+		(uuid "148bde4d-5201-5652-87c4-7ac4b95fb4b9")
 	)
 	(global_label "I2C_SCL"
 		(shape bidirectional)
@@ -3822,7 +3878,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "56ee0096-266e-5168-b6d3-d038ed04b488")
+		(uuid "919833ea-7d09-50f9-a0d4-9fd6102e03fc")
 	)
 	(wire
 		(pts
@@ -3832,7 +3888,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "148bde4d-5201-5652-87c4-7ac4b95fb4b9")
+		(uuid "1bd4f933-5f7a-5149-be64-9ff577754f9f")
 	)
 	(wire
 		(pts
@@ -3842,7 +3898,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "919833ea-7d09-50f9-a0d4-9fd6102e03fc")
+		(uuid "be2daf1b-62b4-5a92-9fbf-2089852d2aa8")
 	)
 	(wire
 		(pts
@@ -3852,7 +3908,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "1bd4f933-5f7a-5149-be64-9ff577754f9f")
+		(uuid "edb3e8ef-96e3-569a-a85a-307276f0a2f0")
 	)
 	(junction
 		(at 148.59 127)
@@ -3874,7 +3930,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "be2daf1b-62b4-5a92-9fbf-2089852d2aa8")
+		(uuid "0e162012-96aa-5799-8f66-cc5821c72767")
 	)
 	(wire
 		(pts
@@ -3884,7 +3940,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "edb3e8ef-96e3-569a-a85a-307276f0a2f0")
+		(uuid "90381f5e-df9f-563c-a0b7-7d8a345e92ea")
 	)
 	(wire
 		(pts
@@ -3894,7 +3950,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "0e162012-96aa-5799-8f66-cc5821c72767")
+		(uuid "13ab5fed-fe93-535d-a9f7-5be52d425035")
 	)
 	(global_label "ID_SD"
 		(shape bidirectional)
@@ -3926,7 +3982,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "90381f5e-df9f-563c-a0b7-7d8a345e92ea")
+		(uuid "a80b46d9-e302-5cc1-8d07-94b11164b946")
 	)
 	(global_label "ID_SC"
 		(shape input)
@@ -3958,7 +4014,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "13ab5fed-fe93-535d-a9f7-5be52d425035")
+		(uuid "e5bce470-d1ae-5859-b378-a3c811d1661f")
 	)
 	(wire
 		(pts
@@ -3968,7 +4024,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a80b46d9-e302-5cc1-8d07-94b11164b946")
+		(uuid "48a9cf7e-0c65-58a6-a94a-fa72a4422099")
 	)
 	(wire
 		(pts
@@ -3978,7 +4034,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e5bce470-d1ae-5859-b378-a3c811d1661f")
+		(uuid "d2f70d4b-443f-57c3-9e04-0fb56bd3c1e3")
 	)
 	(label "EE_WP"
 		(at 177.8 132.08 0)
@@ -3999,7 +4055,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "48a9cf7e-0c65-58a6-a94a-fa72a4422099")
+		(uuid "15520118-e07f-52e0-9f73-0d0a5026f20f")
 	)
 	(wire
 		(pts
@@ -4009,7 +4065,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d2f70d4b-443f-57c3-9e04-0fb56bd3c1e3")
+		(uuid "cfa5bb33-90d5-53e1-b7d1-c43b286eaa3e")
 	)
 	(wire
 		(pts
@@ -4019,7 +4075,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "15520118-e07f-52e0-9f73-0d0a5026f20f")
+		(uuid "06f347d7-37f8-50c1-af3a-c9607a129a35")
 	)
 	(junction
 		(at 177.8 129.54)
@@ -4035,7 +4091,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cfa5bb33-90d5-53e1-b7d1-c43b286eaa3e")
+		(uuid "ddfa903e-7cb1-5a6e-b35a-20b1a4075198")
 	)
 	(wire
 		(pts
@@ -4045,7 +4101,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "06f347d7-37f8-50c1-af3a-c9607a129a35")
+		(uuid "25f85382-6ffd-59fd-9c09-c9f4118dde70")
 	)
 	(wire
 		(pts
@@ -4055,7 +4111,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ddfa903e-7cb1-5a6e-b35a-20b1a4075198")
+		(uuid "46edf687-548e-51bc-b814-4debe0ef0218")
 	)
 	(wire
 		(pts
@@ -4065,7 +4121,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "25f85382-6ffd-59fd-9c09-c9f4118dde70")
+		(uuid "8aadfc9f-6f2c-5d54-b589-ccfdd1c79c04")
 	)
 	(global_label "ID_SD"
 		(shape bidirectional)
@@ -4097,7 +4153,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "46edf687-548e-51bc-b814-4debe0ef0218")
+		(uuid "07924d47-c3b1-548f-b767-8ef5be2d3937")
 	)
 	(wire
 		(pts
@@ -4107,7 +4163,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8aadfc9f-6f2c-5d54-b589-ccfdd1c79c04")
+		(uuid "4e4c6fa0-e206-525e-9f72-311af668a5a6")
 	)
 	(global_label "ID_SC"
 		(shape bidirectional)
