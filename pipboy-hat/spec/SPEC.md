@@ -56,7 +56,8 @@ flowchart LR
     U3["U3 MCP1700<br/>3.3 V, slot only"]
     Q4["Q4 card switch<br/>slow start, HOLO_PWR"]
     J7["J7 holotape<br/>SD socket"]
-    BUFP["U4, U5 bus buffers"]
+    BUFP["U4 bus buffer"]
+    U5P["U5 MISO buffer"]
     J3 -- "V_EXT" --> F1 -- "V_F" --> Q3
     Q3 -- "+5V" --> P5V
     P5V --- D1
@@ -67,6 +68,7 @@ flowchart LR
     P3V3 --> U2
     P5V --> U3 -- "SD_LDO" --> Q4 -- "SD_3V3" --> J7
     Q4 -- "SD_3V3" --> BUFP
+    P3V3 --> U5P
 ```
 
 ```mermaid
@@ -93,10 +95,10 @@ flowchart LR
     subgraph HOLOTAPE["Holotape slot"]
         U4["U4 74LVC126A<br/>SCLK, MOSI, CS"]
         RSD["R54-R56 33 Ohm<br/>R50, R60, R61 pull-ups"]
-        U5["U5 74LVC1G125<br/>on while SD_CS low"]
+        U5["U5 74LVC1G125, on +3V3<br/>on while HOLO_BUS high, CS low"]
         R57["R57 33 Ohm<br/>R53 MISO pull-up"]
         J7["J7 SD socket<br/>CS, DI, CLK, DO"]
-        Q5["Q5, Q4<br/>card supply switch"]
+        Q5["Q5, Q4<br/>card supply switch<br/>Q6 card-detect interlock"]
     end
     U1["U1 DS1338 0x68<br/>Y1, BT1"]
     U2["U2 ID EEPROM<br/>not fitted"]
@@ -118,8 +120,10 @@ flowchart LR
     BUS -- "enable" --> U4
     U4 --> RSD --> J7
     J7 -- "SD_DO" --> U5 --> R57 --> MISO
+    U4 -- "BUF_OE" --> U5
     PWR -- "HOLO_PWR" --> Q5
     J7 -- "HOLO_CD, HOLO_WP" --> HOLO
+    J7 -- "HOLO_CD" --> Q5
     BL -- "TFT_BL" --> BLSW
     BLSW -- "TFT_LED" --> J2
     I2C -- "I2C" --> U1
@@ -673,7 +677,7 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 
 In the lore a holotape is a removable cartridge. On this board a holotape is an SD card in a second card slot, on the SPI bus. The slot takes a full-size SD card, so the card can sit in a tape-shaped shell. Anyone makes a tape by copying a file to a card on a computer.
 
-Choice: a full-size SD socket with card detect and write protect switches, on SPI0 with chip select on CE1. The card sits behind a bus buffer, U4 and U5, and gets its supply from a switch, Q4. The software turns both on only when it wants to talk to the card. A 3.3 V regulator of its own, U3, feeds the switch from `+5V`.
+Choice: a full-size SD socket with card detect and write protect switches, on SPI0 with chip select on CE1. The card sits behind a bus buffer, U4 and U5, and gets its supply from a switch, Q4. The software turns both on only when it wants to talk to the card. A 3.3 V regulator of its own, U3, feeds the switch from `+5V`. A transistor, Q6, holds the switch off while no card is in.
 
 Why:
 
@@ -715,7 +719,7 @@ If the part bought differs, the software reads the other level. No board change 
 | 7 | DAT0 | DO, card output | `SD_DO` | U5 pin 2; R62 pull-up to `SD_3V3`. U5 pin 4 through R57, 33 Ohm, to MISO | GPIO 9, MISO, header pin 21 |
 | 8 | DAT1 | Unused | `SD_DAT1` | R51 pull-up | |
 | 9 | DAT2 | Unused | `SD_DAT2` | R52 pull-up | |
-| CP | Card detect | Switch to SW | `HOLO_CD` | R58 pull-up | GPIO 12, header pin 32 |
+| CP | Card detect | Switch to SW | `HOLO_CD` | R58 pull-up; R71 to the Q6 base | GPIO 12, header pin 32 |
 | WP | Write protect | Switch to SW | `HOLO_WP` | R59 pull-up | GPIO 13, header pin 33 |
 | SW | Switch common | | `GND` | | |
 | SH | Shell | | `GND` | | |
@@ -725,7 +729,7 @@ Two control lines go with the slot:
 | Pi pin | Net | Drives | Default |
 |---|---|---|---|
 | GPIO 20, header pin 38 | `HOLO_BUS` | U4 enables 1OE, 2OE, 3OE, pins 1, 4 and 10. High: the card sees SCLK, MOSI and CS. | Low: R63, 100 kOhm to `GND`, and the Pi's reset pull-down |
-| GPIO 21, header pin 40 | `HOLO_PWR` | R65 to the Q5 base. High: Q5 on, Q4 on, `SD_3V3` up. | Low: R64, 100 kOhm to `GND`, and the Pi's reset pull-down |
+| GPIO 21, header pin 40 | `HOLO_PWR` | R65 to the Q5 base. High with a card in: Q5 on, Q4 on, `SD_3V3` up. | Low: R64, 100 kOhm to `GND`, and the Pi's reset pull-down |
 
 GPIO budget: GPIO 7, 12, 13, 20 and 21 were the last free pins. None of them is in the software's list for this device: display 4, 8, 9, 10, 11, 25, backlight 19, keys 5, 6, 17, 22, 26, 27, dial 16, 23, 24, audio 18, I2C 2 and 3, serial 14 and 15, ID 0 and 1. After this slot the board has no free GPIO. A later block needs an I/O expander on I2C.
 
@@ -738,16 +742,18 @@ Every value and pin order here is from memory: to verify against the data sheet 
 | J7 | Full-size SD socket, push-push, card detect and write protect, example Hirose DM1AA-SF-PEJ(82) | As above |
 | U3 | MCP1700-3302E/TO, 3.3 V LDO, 250 mA, TO-92 | Pin 2 VIN `+5V`, pin 3 VOUT `SD_LDO`, pin 1 GND |
 | Q4 | P-MOSFET, AO3401A or DMG2305UX, SOT-23 | Pin 2 source `SD_LDO`, pin 3 drain `SD_3V3`, pin 1 gate `HOLO_G` |
-| Q5 | 2N3904, NPN, TO-92 | Collector `HOLO_SW`, base `HOLO_B`, emitter `GND` |
-| U4 | 74LVC126A, quad buffer, active-high enables, Ioff, SOIC-14 | 1OE 1, 1A 2, 1Y 3; 2OE 4, 2A 5, 2Y 6; GND 7; 3Y 8, 3A 9, 3OE 10; 4Y 11 open; 4A 12 and 4OE 13 to `GND`; VCC 14 `SD_3V3` |
-| U5 | 74LVC1G125, single buffer, active-low enable, Ioff, SOT-23-5 | OE 1 `SD_CS`, A 2 `SD_DO`, GND 3, Y 4 `BUF_DO`, VCC 5 `SD_3V3` |
+| Q5 | 2N3904, NPN, TO-92 | Pin 3 collector `HOLO_SW`, pin 2 base `HOLO_B`, pin 1 emitter `GND` |
+| Q6 | 2N3904, NPN, TO-92, the card-detect interlock | Pin 3 collector `HOLO_B`, pin 2 base `CD_B`, pin 1 emitter `GND` |
+| U4 | 74LVC126A, quad buffer, active-high enables, Ioff, SOIC-14 | 1OE 1, 1A 2, 1Y 3; 2OE 4, 2A 5, 2Y 6; GND 7; 3Y 8, 3A 9, 3OE 10; 4Y 11 `BUF_OE`, 4A 12 `HOLO_CS`, 4OE 13 `HOLO_BUS`; VCC 14 `SD_3V3` |
+| U5 | 74LVC1G125, single buffer, active-low enable, Ioff, SOT-23-5 | OE 1 `BUF_OE`, A 2 `SD_DO`, GND 3, Y 4 `BUF_DO`, VCC 5 `+3V3` |
 | D3 | USBLC6-4SC6, 4-line ESD array, SOT-23-6, not fitted | I/O1 1 `SD_CLK`, GND 2, I/O2 3 `SD_DI`, I/O3 4 `SD_CS`, VBUS 5 `SD_3V3`, I/O4 6 `SD_DO` |
 | C50 | 10 uF, 16 V ceramic | `+5V` to `GND` at U3 |
 | C51 | 10 uF, 10 V ceramic | `SD_LDO` to `GND` at U3 |
 | C52 | 100 uF, 10 V electrolytic | `SD_LDO` to `GND`, feeds the slow start |
 | C53 | 100 nF | `SD_3V3` to `GND` at J7 pin 4 |
 | C54 | 22 nF | Q4 gate to drain, `HOLO_G` to `SD_3V3`: the slow start |
-| C55, C56 | 100 nF | `SD_3V3` to `GND` at U4 pin 14 and U5 pin 5 |
+| C55 | 100 nF | `SD_3V3` to `GND` at U4 pin 14 |
+| C56 | 100 nF | `+3V3` to `GND` at U5 pin 5 |
 | C57 | 4.7 uF, 10 V ceramic | `SD_3V3` to `GND` at J7 |
 | R50 | 10 kOhm | `SD_CS` to `SD_3V3` |
 | R51, R52 | 47 kOhm | `SD_DAT1`, `SD_DAT2` to `SD_3V3` |
@@ -757,25 +763,31 @@ Every value and pin order here is from memory: to verify against the data sheet 
 | R58, R59 | 10 kOhm | `HOLO_CD`, `HOLO_WP` to `+3V3` |
 | R60 to R62 | 47 kOhm | `SD_DI`, `SD_CLK`, `SD_DO` to `SD_3V3` |
 | R63, R64 | 100 kOhm | `HOLO_BUS`, `HOLO_PWR` to `GND` |
-| R65 | 10 kOhm | `HOLO_PWR` to the Q5 base |
+| R65 | 22 kOhm | `HOLO_PWR` to the Q5 base |
 | R66 | 100 kOhm | Q4 gate to source: Q4 off by default |
 | R67 | 22 kOhm | Q4 gate to the Q5 collector |
 | R68 | 1 kOhm | `SD_3V3` to `GND`, the bleeder |
+| R69 | 10 kOhm | Q5 base to `GND`: with R65, sets the turn-on threshold |
+| R70 | 10 kOhm | `BUF_OE` to `+3V3`: U5 off while U4 is off or unpowered |
+| R71 | 100 kOhm | `HOLO_CD` to `CD_B`, the Q6 base |
 | TP9 | Test point | `SD_3V3`, the card side of Q4 |
 | TP10 | Test point | `SD_LDO`, U3's output |
 
 #### Bus buffer
 
-U4 and U5 sit next to J7 and run from `SD_3V3`, the card's rail. Every card pin meets only U4, U5, D3 and pull-ups to `SD_3V3`. No card pin reaches a Pi pin or `+3V3` directly.
+U4 and U5 sit next to J7. U4 runs from `SD_3V3`, the card's rail. U5 runs from `+3V3`, the Pi's rail, so its output never rises above the Pi's rail. Every card pin meets only U4, U5, D3 and pull-ups to `SD_3V3`. No card pin reaches a Pi pin or `+3V3` directly.
 
 Family: 74LVC. Its inputs take up to 5.5 V with any supply, and its Ioff feature keeps inputs and outputs at high impedance with the supply at 0 V, with under 10 uA of leakage (from memory, to verify). So:
 
-- With `SD_3V3` off, the Pi's SCLK, MOSI and CS see an input that draws no current, and MISO sees an output that does not drive. The display works as if the slot were not there.
+- With `SD_3V3` off, the Pi's SCLK, MOSI and CS see an input that draws no current. U4 is unpowered, R70 holds `BUF_OE` high and U5 does not drive MISO. The display works as if the slot were not there.
+- With `+3V3` off and `SD_3V3` up, U5 is unpowered. Its input takes the card's DO with no current into its supply.
 - With `SD_3V3` off and the Pi driving, no current flows from the Pi into the card's clamps. U4 blocks it.
 
 U4 is a 74LVC126A, not the 74LVC125A: its enables are active high. A pull-down to `GND` then holds them off. A 74LVC125A would need a pull-up to hold them off, and that pull-up would tie a Pi pin to a rail: to `SD_3V3`, it back-powers a Pi that is off; to `+3V3`, it enables the buffer while `+3V3` collapses at power-off. The pin order of the two parts is the same (from memory, to verify).
 
-U5 is a 74LVC1G125, a single gate with an active-low enable, tied to `SD_CS` on the card side. It drives MISO only while the card is selected. With `HOLO_BUS` low, U4's CS gate is off, R50 pulls `SD_CS` to `SD_3V3`, and U5 is off too. A card that holds DO after deselection can no longer reach MISO. The fourth gate of U4 is unused: its input and enable go to `GND`, its output stays open.
+U5 is a 74LVC1G125, a single gate with an active-low enable. U4's fourth gate drives its enable, `BUF_OE`: input `HOLO_CS`, enable `HOLO_BUS`. R70, 10 kOhm to `+3V3`, holds `BUF_OE` high while that gate is off or unpowered. So U5 drives MISO only while `HOLO_BUS` is high and CS is low. A card that holds DO after deselection cannot reach MISO.
+
+U5 runs from `+3V3`, not from `SD_3V3`. Its output high is the Pi's own rail, so it cannot push current into GPIO 9's clamp diode, whatever the card's rail does. See "Two rails, no back-power" below.
 
 Why `HOLO_BUS` is separate from CS: the card needs at least 74 clocks with CS high before CMD0, and 8 clocks after CS rises to release its output (known, SD simplified specification). Those clocks must reach the card while CS is high. A buffer enabled by CS would block them.
 
@@ -783,17 +795,19 @@ Enables while the Pi boots, and while it is off:
 
 | State | GPIO 20, `HOLO_BUS` | GPIO 21, `HOLO_PWR` | U4, U5 | `SD_3V3` |
 |---|---|---|---|---|
-| Pi off | 0 V: R63 | 0 V: R64 | Unpowered, high impedance | 0 V: R68 |
-| Pi booting | Low: reset pull-down, about 50 kOhm, and R63 | Low: reset pull-down and R64 | Unpowered | 0 V |
-| Pi running, slot idle | Low, driven | Low, driven | Unpowered | 0 V |
-| Card on, bus off | Low | High | Powered, outputs off | 3.3 V |
-| Card transfer | High | High | U4 on; U5 on while `SD_CS` is low | 3.3 V |
+| Pi off | 0 V: R63 | 0 V: R64 | Both unpowered, high impedance | 0 V: R68 |
+| Pi booting | Low: reset pull-down, about 50 kOhm, and R63 | Low: reset pull-down and R64 | U4 unpowered; U5 off, R70 | 0 V |
+| Pi running, slot idle | Low, driven | Low, driven | U4 unpowered; U5 off, R70 | 0 V |
+| Card on, bus off | Low | High | U4 powered, outputs off; U5 off, R70 | 3.3 V |
+| Card transfer | High | High | U4 on; U5 on while CS is low | 3.3 V |
 
-GPIO 9 to 27 pull down at reset, per section 3 (from memory, to verify). GPIO 7 pulls up. U4 is unpowered then, so neither matters to the card.
+GPIO 9 to 27 pull down at reset, per section 3 (from memory, to verify). GPIO 7 pulls up. U4 is unpowered then, so neither matters to the card. U5 is powered with `+3V3` in every Pi state but "Pi off". R70 holds it off in every state but a card transfer.
 
 Card-side pull-ups: with U4 off but `SD_3V3` up, the card's inputs must not float. R50, 10 kOhm, holds CS high. R60 and R61, 47 kOhm, hold DI and CLK high. R62, 47 kOhm, holds DO high, so U5's input never floats. R51 and R52 hold DAT1 and DAT2. All go to `SD_3V3`: they hold nothing up while the card's rail is down.
 
 Display SDO: it stays behind JP3, open. The panel driver never reads the panel to draw. With U5 as the only driver, MISO has one clean source. Whether the ILI9341 module releases SDO while its CS is high is not known (to verify on the module). JP3 can now close for a debug read with a card in the slot, as long as `HOLO_BUS` stays low: U5 is then off.
+
+Timing at 9.62 MHz, estimate: the half period is 52 ns. The card shifts DO on the falling clock edge and the Pi samples on the rising one. The path from the Pi's falling edge to a settled MISO at the Pi: U4 about 5 ns, the card's output delay up to 14 ns (from memory of the SD specification, to verify), U5 about 5 ns, traces and 33 Ohm into about 25 pF about 3 ns, and edge settling. That is about 30 ns of the 52 ns, leaving about 20 ns of setup. The buffer delays are from memory, to verify. Bring-up measures it, see BRINGUP.md. Under 10 ns of margin: drop the card's clock to 4.8 MHz.
 
 #### MISO idle level
 
@@ -814,13 +828,19 @@ With about 20 pF on a trace (assumed), 33 Ohm x 20 pF = 0.66 ns, nothing against
 
 #### Power
 
-`SD_LDO` comes from U3 on `+5V`. Q4 switches it to `SD_3V3`, which feeds the card, U4, U5 and the card-side pull-ups.
+`SD_LDO` comes from U3 on `+5V`. Q4 switches it to `SD_3V3`, which feeds the card, U4 and the card-side pull-ups. U5 runs from `+3V3`.
 
 Why not the Pi's `+3V3`: section 4.3 already draws about 120 mA from a budget of 200 mA. A card's 100 mA peak would bring it to 220 mA. U3 moves the card to `+5V`, where the budget of section 4.8 has room.
 
 U3 at 100 mA: it drops 5.25 V - 3.3 V = 1.95 V at most and dissipates 1.95 V x 0.1 A = 0.2 W. A TO-92 takes about 0.6 W at 25 C (typical, check). Its dropout is about 0.18 V at 250 mA (from memory, to verify), so it regulates down to a `+5V` of about 3.5 V, far below the 4.43 V worst case of section 4.8. U3 stays on. Its quiescent current is about 2 uA (from memory, to verify).
 
-The switch: Q4, a P-MOSFET, source on `SD_LDO`, drain on `SD_3V3`. R66, 100 kOhm, holds its gate at its source: off. `HOLO_PWR` high turns Q5 on through R65, 10 kOhm: base current (3.3 V - 0.7 V) / 10 kOhm = 0.26 mA. Q5 pulls Q4's gate down through R67, 22 kOhm. Q5's collector current is under 0.15 mA, so Q5 saturates.
+The switch: Q4, a P-MOSFET, source on `SD_LDO`, drain on `SD_3V3`. R66, 100 kOhm, holds its gate at its source: off. `HOLO_PWR` high turns Q5 on through R65, 22 kOhm. Q5 pulls Q4's gate down through R67, 22 kOhm. Q5's collector current is about 3.2 V / 122 kOhm = 26 uA.
+
+Q5's threshold: R69, 10 kOhm from base to emitter, forms a divider with R65. Q5 turns on when `HOLO_PWR` reaches Vbe x (1 + 22 / 10) = 3.2 x Vbe. With Vbe 0.6 V to 0.7 V (from memory, to verify, lower when hot), that is 1.9 V to 2.2 V.
+
+- Margin to a 3.3 V high: 1.1 V at least. At 3.3 V the base gets (3.3 - 0.65) / 22 kOhm = 120 uA, R69 takes 0.65 / 10 kOhm = 65 uA, 55 uA is left. Q5 saturates with a gain of 1 or more.
+- Margin to the Pi's low: an output low is 0.4 V at most (from memory, to verify), 1.5 V under the threshold. R64 and the reset pull-down hold the line at 0 V while it floats.
+- The old divider, R65 10 kOhm with no R69, turned Q5 on at about 0.75 V. Q5 then held the slot on while the Pi's rail fell to under 1 V.
 
 Fully on, the gate sits at 3.3 V x 22 / 122 plus Q5's 0.1 V, about 0.7 V. Vgs is about -2.6 V. An AO3401A has about 0.085 Ohm at -2.5 V (from memory, to verify): 9 mV at 100 mA.
 
@@ -839,37 +859,82 @@ Switching off: Q5 turns off, R66 charges the gate back through the plateau at 1.
 
 Two rails, no back-power:
 
-- Pi off, slot rail up: cannot happen for long. `HOLO_PWR` falls with the Pi, R64 holds it low, Q4 turns off, R68 empties `SD_3V3`. Meanwhile `HOLO_BUS` is low, U4 is off, R50 holds `SD_CS` high and U5 is off. No card pin reaches the Pi.
-- Pi on, slot rail down: U4 and U5 are unpowered with Ioff. No current flows from the Pi's lines into the card's clamps, and R53 sets MISO.
-- No resistor ties a card pin to `+3V3`, or a Pi pin to `SD_3V3`. R50 and R60 to R62 go to `SD_3V3` and sit on the card side. R53, R58 and R59 go to `+3V3` and sit on Pi pins. R58 and R59 serve the socket's switches, which are not card contacts.
+- Pi on, slot rail down: U4 is unpowered with Ioff. R70 holds U5 off. No current flows from the Pi's lines into the card's clamps, and R53 sets MISO.
+- No resistor ties a card pin to `+3V3`, or a Pi pin to `SD_3V3`. R50 and R60 to R62 go to `SD_3V3` and sit on the card side. R53, R58 and R59 go to `+3V3` and sit on Pi pins. R58 and R59 serve the socket's switches, which are not card contacts. R70 ties `BUF_OE`, between U4 and U5, to `+3V3`.
+
+Power lost during a card transfer. The supply fails with `HOLO_PWR` and `HOLO_BUS` high and CS low. The Pi's outputs follow its `+3V3` down. U3 and C52, 100 uF, can hold `SD_LDO` up a while longer. With the values above, from memory, to verify:
+
+| Pi's `+3V3` | Q5, Q4, `SD_3V3` | U4 | U5 and MISO | Current from the slot into the Pi |
+|---|---|---|---|---|
+| 3.3 V to about 2.2 V | Q5 on, slot up | On: `HOLO_BUS` over its threshold | On, CS low. Its output high is `+3V3`, never above it | None: U5's output cannot forward-bias GPIO 9's clamp |
+| About 2.2 V to 1.9 V | Q5 turns off. R66 lifts Q4's gate through the plateau: Q4 off within about 10 ms | On | As above | None through MISO. U4's fourth gate may drive `BUF_OE` high into R70: (3.3 - 1.9) V / 10 kOhm = 0.14 mA at most |
+| About 1.5 V and below | Q4 off. R68 empties `SD_3V3` in about 36 ms with a card | Off: `HOLO_BUS` under its switching point, about half its supply (from memory, to verify) | Off: R70 pulls `BUF_OE` to `+3V3`, and U5's rail is falling | None |
+
+What limits the current: U5's supply, not a resistor. The old design powered U5 from `SD_3V3` and drove DO through 33 Ohm into GPIO 9 with the Pi's rail at 1.5 V to 3 V: tens of milliamps into the clamp. Now the only path from the slot's rail to the Pi's is R70, 0.33 mA at the very most, 0.14 mA in practice, and only while U4 is still enabled: from the moment `+3V3` sags until it falls under about 1.5 V. How long that takes depends on the Pi's load and its capacitors, a few milliseconds (assumed). U4's inputs and U5's input have no clamp to their supply, so the Pi's lines and the card's DO push no current into either rail.
 - The card side of Q4 cannot rise above `SD_LDO`: Q4's body diode points from `SD_3V3` to `SD_LDO`.
 
-`+3V3` now carries only the slot's Pi-side pull-ups: 0.70 mA for R53 while MISO is low, 0.33 mA each for R58 and R59 while a switch is closed, about 1.4 mA in all.
+`+3V3` now carries the slot's Pi-side parts: 0.70 mA for R53 while MISO is low, 0.33 mA each for R58 and R59 while a switch is closed, 0.33 mA for R70 while U4 drives `BUF_OE` low, U5's supply current under 0.1 mA, and R71's 24 uA with no card. About 1.8 mA in all.
 
 #### Insertion and removal
 
 - Insertion: the slot is off. The card's contacts touch U4's outputs, unpowered and at high impedance, and pull-ups to a rail at 0 V. Nothing on the Pi's side moves. The card's capacitors charge only when the software turns the slot on, through the 1 ms slow start.
-- Removal while the slot is on: the card's load leaves `SD_3V3`. R68 holds the rail. The software sees card detect go high within 20 ms and cuts the power.
+- Insertion with `HOLO_PWR` already high, a software fault: Q6 holds Q5 off until card detect closes, see "Card-detect interlock". The slot then starts through the slow start, not with a pulse.
+- Removal while the slot is on: card detect opens, Q6 turns Q5 off within microseconds, and the supply falls by itself, see "Card-detect interlock". The software sees card detect go high within 20 ms and sets `HOLO_BUS` and `HOLO_PWR` low.
 - Removal during a read: DO opens. R62 pulls it high, so U5 passes 0xFF bytes. The driver sees a timeout, a missing data token or a CRC error, and returns an I/O error. The tape load fails cleanly. A write in progress may leave the card's file system damaged: the software should not write to a tape while it runs.
+
+#### Card-detect interlock
+
+Q6 holds the card supply off while no card is in. R71, 100 kOhm, feeds its base from `HOLO_CD`. Its collector sits on `HOLO_B`, Q5's base. Card out: `HOLO_CD` is high through R58, Q6 turns on and shorts Q5's base. Card in: the switch pulls `HOLO_CD` to `GND` and Q6 is off.
+
+Numbers, from memory, to verify:
+
+- Q6 base current, card out: (3.3 - 0.65) V / (10 + 100) kOhm = 24 uA. `HOLO_CD` then reads 3.3 - 10 kOhm x 24 uA = 3.06 V, a valid high.
+- Q6 sinks what R65 delivers: 3.3 V / 22 kOhm = 150 uA, a forced gain of about 6. Its saturation voltage, about 0.05 V, is far under Q5's Vbe.
+- `+3V3` load: R58 and R71 draw 24 uA with no card, 0.33 mA through R58 with a card in.
+
+States:
+
+| State | `HOLO_CD` | `HOLO_PWR` | Q6 | Q5, Q4 | `SD_3V3` |
+|---|---|---|---|---|---|
+| Pi off | 0 V: R58 is on a rail at 0 V | 0 V | Off | Off: no base drive | 0 V |
+| Pi booting | Card in: low. No card: rises with `+3V3` | Low: pull-downs | On with no card, off with a card | Off | 0 V |
+| No card | High | Any | On | Off, whatever the software does | 0 V |
+| Card in, `HOLO_PWR` low | Low | Low | Off | Off | 0 V |
+| Card in, `HOLO_PWR` high | Low | High | Off | On | 3.3 V after the 1 ms slow start |
+| Card pulled while powered | Goes high | High | Turns on | Q5 off within microseconds, Q4 off within about 10 ms | Falls to under 0.3 V within about 25 ms |
+
+With the Pi off the interlock is released, but `HOLO_PWR` is at 0 V too. It never turns the slot on: it can only hold it off.
+
+Card pulled while powered: R66 lifts Q4's gate through the plateau at 13 uA on C54, Q4 off within about 10 ms. R68 then empties what stays on the rail: C57, C53 and C55, about 4.9 uF, time constant 4.9 ms, under 0.3 V after 12 ms. About 25 ms in all. If `HOLO_BUS` is still high, U4 stays enabled while its supply falls. Its inputs take the Pi's 3.3 V with no current into its rail, and its outputs drive only the empty socket and the card-side pull-ups, which fall with the rail. Once `SD_3V3` is under about 1.5 V, U4's fourth gate no longer holds `BUF_OE` low, R70 pulls it high and U5 turns off. Until then U5 may pass a falling, undefined DO to MISO. The software treats any data after a detect edge as lost.
+
+Contact bounce:
+
+- Insertion with `HOLO_PWR` low, the normal case: bounce moves only `HOLO_CD` and Q6. The slot stays off.
+- Insertion with `HOLO_PWR` high, a software fault: each closure lets Q5 pull Q4's gate down, each opening lets it rise. The gate moves no faster than the slow start allows, so the rail rises in steps at about 3.3 V/ms at most. No pulse beyond the slow start's 50 mA.
+- Removal: the first opening starts the turn-off. A bounce closure briefly lets Q5 pull the gate down again. The rail falls in steps and is off within about 25 ms of the last opening.
+
+The software still has to debounce card detect before it powers the slot, and treat any detect edge as a removal. The interlock is a second line, not a replacement.
 
 #### Software sequence
 
-The hardware is safe only with this sequence. Pip-OS has no holotape driver yet. The driver must follow these steps.
+The hardware is safe only with this sequence. Pip-OS has no holotape driver yet. The sequence is for a bare-metal driver that owns the SPI0 registers and GPIO 7. The driver must follow these steps.
 
-1. Leave GPIO 20, `HOLO_BUS`, and GPIO 21, `HOLO_PWR`, as outputs driven low from boot. Keep GPIO 12 and 13 as inputs. Never set them to their PWM function.
+1. Leave GPIO 20, `HOLO_BUS`, and GPIO 21, `HOLO_PWR`, as outputs driven low from boot. Keep GPIO 12 and 13 as inputs. Never set them to their PWM function, see "Card detect and write protect".
 2. Turn GPIO 9's pull-down off.
-3. Wait for card detect, GPIO 12, to read low and stay low for 250 ms.
+3. Wait for card detect, GPIO 12, to read low and stay low for 250 ms: the debounce. The interlock holds the slot off while it reads high, but the software must not count on it.
 4. Set `HOLO_PWR` high. Wait 10 ms for `SD_3V3` to rise and settle.
 5. Wait until no display transfer is running, and hold off new ones.
-6. Drive CS, GPIO 7, high. Set `HOLO_BUS` high.
-7. Send 10 bytes of 0xFF, 80 clocks, at 400 kHz or below, with CS high.
-8. Drive CS low and send CMD0. The card enters SPI mode. Finish the initialisation at 400 kHz: CMD8, ACMD41, CMD58.
-9. Drive CS high, send one byte of 0xFF, 8 clocks, then set `HOLO_BUS` low. Let the display run.
-10. For each later access: stop display sends, set `HOLO_BUS` high, run the transfer at up to 9.62 MHz, drive CS high, send 8 trailing clocks, set `HOLO_BUS` low.
+6. Set GPIO 7 to a plain output and drive it high: the driver drives CS itself from here on. Set `HOLO_BUS` high.
+7. Send 10 bytes of 0xFF, 80 clocks, at 400 kHz or below, with GPIO 7 held high. Run SPI0 with no automatic chip select for these bytes: the controller's own CE1 would go low on every transfer. Select CE0, the display's chip select, only if the display's CS is also a plain GPIO; otherwise clear the controller's chip select bits so that it asserts none.
+8. Drive GPIO 7 low and send CMD0. The card enters SPI mode. Finish the initialisation at 400 kHz: CMD8, ACMD41, CMD58.
+9. Drive GPIO 7 high, send one byte of 0xFF, 8 clocks, then set `HOLO_BUS` low. Let the display run.
+10. For each later access: stop display sends, set `HOLO_BUS` high, drive GPIO 7 low, run the transfer at up to 9.62 MHz, drive GPIO 7 high, send 8 trailing clocks, set `HOLO_BUS` low.
 11. Read the whole tape into RAM in as few accesses as the display allows.
-12. Check card detect in the main loop, at the 100 Hz input scan. When it goes high: set `HOLO_BUS` low and `HOLO_PWR` low at once, from the loop. Never cut in the middle of another device's transfer.
-13. After `HOLO_PWR` goes low, wait at least 100 ms before step 4 again.
+12. Check card detect in the main loop, at the 100 Hz input scan. Treat any edge on it, or a high read, as a removal: set `HOLO_BUS` low and `HOLO_PWR` low at once, from the loop, and drop the data of the access in flight. Never cut in the middle of another device's transfer. The interlock has already cut the supply.
+13. After `HOLO_PWR` goes low, wait at least 100 ms before step 4 again, and start again from step 3.
 14. At shutdown, set `HOLO_BUS` low, then `HOLO_PWR` low.
+
+Under Linux with stock tools, the `mmc_spi` driver and the kernel's chip-select handling do not send clocks with CS high in this way, and they know nothing of `HOLO_BUS`. Bring the slot up under Linux only with a test program that drives GPIO 7, 20 and 21 itself through the GPIO character device and sends the bytes through `spidev` with its chip select turned off, `SPI_NO_CS`.
 
 Step 6 sets `HOLO_BUS` only between display transfers. While it is high, the display must not be sent to: its traffic would reach the card.
 
@@ -882,7 +947,9 @@ Both switches close to `GND` through SW. R58 and R59, 10 kOhm, pull the lines to
 | `HOLO_CD`, GPIO 12 | low, 0 V | high, 3.3 V |
 | `HOLO_WP`, GPIO 13 | low when writable, high when the slider is on LOCK | high |
 
-So: card in reads low on GPIO 12. Write protected reads high on GPIO 13. Software must ignore GPIO 13 while GPIO 12 is high. Polarities to verify against the socket's data sheet.
+So: card in reads low on GPIO 12. Write protected reads high on GPIO 13. Software must ignore GPIO 13 while GPIO 12 is high. Polarities to verify against the socket's data sheet. If the detect polarity is inverted on the socket bought, the interlock holds the slot off with a card in. BRINGUP.md step 9 finds that, and its table gives the fix.
+
+Audio overlays: the Pi's firmware audio overlays, such as `dtoverlay=audremap` and the PWM audio options in `config.txt`, can move PWM onto GPIO 12 and 13 (from memory, to verify). The PWM output would then drive against a closed switch to `GND`. The boot card's `config.txt` for this board must not load such an overlay, and must not set GPIO 12 or 13 to an alternate function.
 
 Debounce: in software, as for the keys. The software samples every pin at 100 Hz and debounces over 20 ms (Pip-OS `HARDWARE.md`). A card insertion bounces for a few milliseconds (assumed). The board adds no filter. A driver should also wait about 250 ms after the card detect settles before it powers the card up in software, so the card is seated (assumed).
 
@@ -926,16 +993,16 @@ The socket sits on the bottom face, under the key strip, with its card opening f
 | --- | --- | --- | --- |
 | J7 holotape slot | Bottom | Key strip, x = 92 to 130 mm, opening on the long edge away from the wearer's body | The right hand reaches it while the device is worn. To decide with the owner's outline choice. |
 | U4, U5, D3, R54 to R57 | Bottom | Within 10 mm of J7's contacts | Short card-side traces. U4's inputs within 50 mm of J1. |
-| U3, Q4, Q5, C50 to C57, R63 to R68 | Bottom | Beside J7 | C53 and C57 at J7 pin 4, C55 at U4 pin 14, C56 at U5 pin 5. |
+| U3, Q4, Q5, Q6, C50 to C57, R63 to R71 | Bottom | Beside J7 | C53 and C57 at J7 pin 4, C55 at U4 pin 14, C56 at U5 pin 5. |
 
 The alternative is the short edge at x = 130 mm, nearest the hand. That puts the shell next to the keys. The owner decides with the outline. BT1 moves if J7 needs its place.
 
 #### Risks
 
-- The switch pads and polarities of J7 are from memory. A swapped pad would leave detect or protect dead. Check the data sheet before the board step.
+- The switch pads and polarities of J7 are from memory. A swapped pad would leave detect or protect dead. An inverted detect switch would hold the slot off through Q6. Check the data sheet before the board step.
 - The slot is safe only with the software sequence above. A driver that enables `HOLO_BUS` during a display transfer lets the display's traffic reach the card.
 - The slow start rests on Q4's Miller plateau, which varies between parts. Measure the rise time of TP9 at bring-up, and change C54 if it falls outside 0.5 ms to 3 ms.
-- The pin orders of U4, U5, D3, Q4 and U3 are from memory. Check each against its data sheet before the board step.
+- The pin orders of U4, U5, D3, Q4, Q5, Q6 and U3 are from memory. Check each against its data sheet before the board step.
 - The board has no free GPIO left.
 - Pip-OS has no holotape driver yet. The slot does nothing until it has one.
 - A long branch from J1 to J7 may need a slower card clock.
@@ -960,18 +1027,20 @@ The alternative is the short edge at x = 130 mm, nearest the hand. That puts the
 | `SPI_MOSI` | GPIO 10 to J2 pin 6 and R55 |
 | `SPI_MISO` | GPIO 9 to R57, R53 and JP3 |
 | `TFT_SDO` | J2 pin 9 to JP3 |
-| `HOLO_CS` | GPIO 7 to U4 pin 9 |
-| `HOLO_BUS` | GPIO 20 to U4 pins 1, 4 and 10, R63 |
+| `HOLO_CS` | GPIO 7 to U4 pins 9 and 12 |
+| `HOLO_BUS` | GPIO 20 to U4 pins 1, 4, 10 and 13, R63 |
 | `HOLO_PWR` | GPIO 21 to R64 and R65 |
 | `BUF_CLK`, `BUF_DI`, `BUF_CS` | U4 pins 3, 6, 8 to R54, R55, R56 |
 | `BUF_DO` | U5 pin 4 to R57 |
-| `HOLO_G`, `HOLO_SW`, `HOLO_B` | Q4 gate, R66, R67, C54; Q5 collector, R67; Q5 base, R65 |
+| `BUF_OE` | U4 pin 11 to U5 pin 1, R70 |
+| `HOLO_G`, `HOLO_SW`, `HOLO_B` | Q4 gate, R66, R67, C54; Q5 collector, R67; Q5 base, R65, R69, Q6 collector |
+| `CD_B` | R71 to the Q6 base |
 | `SD_LDO` | U3 VOUT, C51, C52, Q4 source, R66, TP10 |
-| `HOLO_CD`, `HOLO_WP` | GPIO 12 and 13 to J7 CP and WP, R58, R59 |
-| `SD_CS`, `SD_DI`, `SD_CLK` | R56, R55, R54 to J7 pins 1, 2, 5; R50, R60, R61; D3. `SD_CS` also to U5 pin 1 |
+| `HOLO_CD`, `HOLO_WP` | GPIO 12 and 13 to J7 CP and WP, R58, R59. `HOLO_CD` also to R71 |
+| `SD_CS`, `SD_DI`, `SD_CLK` | R56, R55, R54 to J7 pins 1, 2, 5; R50, R60, R61; D3 |
 | `SD_DO` | J7 pin 7 to U5 pin 2, R62, D3 |
 | `SD_DAT1`, `SD_DAT2` | J7 pins 8 and 9 to R51, R52 |
-| `SD_3V3` | Q4 drain, J7 VDD, U4, U5, D3, C53 to C57, R50 to R52, R60 to R62, R68, TP9 |
+| `SD_3V3` | Q4 drain, J7 VDD, U4, D3, C53, C54, C55, C57, R50 to R52, R60 to R62, R68, TP9 |
 | `TFT_CS` | GPIO 8 to J2 pin 3 |
 | `TFT_DC` | GPIO 25 to J2 pin 5 |
 | `TFT_RESET` | GPIO 4 to J2 pin 4 |
@@ -1050,7 +1119,7 @@ The owner must decide with the case:
 | D2 | 1 | Zener 6.2 V, 500 mW, example 1N5234B | DO-35 | Q3 gate clamp |
 | D3 | 1 | USBLC6-4SC6, 4-line ESD array | SOT-23-6 | Not fitted. Holotape lines, see section 4.12. |
 | Q4 | 1 | P-channel MOSFET, AO3401A or DMG2305UX, as Q3 | SOT-23 | Holotape supply switch. Check the pin order. |
-| Q5 | 1 | 2N3904, NPN | TO-92 | Drives Q4. Check the pin order. |
+| Q5, Q6 | 2 | 2N3904, NPN | TO-92 | Q5 drives Q4. Q6 is the card-detect interlock. Check the pin order. |
 | Q3 | 1 | P-channel MOSFET, -20 V or more, ±8 V gate or more, 0.06 Ohm at -4.5 V, 0.1 Ohm at -2.5 V, threshold -0.4 V to -1.3 V, examples AO3401A or DMG2305UX | SOT-23 | Reverse polarity, see section 4.8. Check the pin order. |
 | F1 | 1 | Polyfuse, 0.9 A hold, 1.8 A trip, 16 V or more, example Bourns MF-R090 | Radial | Body width about 7.4 mm, to verify. Sits in the 10.0 mm outline. |
 | Y1 | 1 | 32.768 kHz, 6 pF load | Cylindrical THT | Check the load capacitance |
@@ -1070,12 +1139,12 @@ The owner must decide with the case:
 | R30 | 1 | 270 Ohm | Axial | Audio filter |
 | R31 | 1 | 33 kOhm | Axial | Above RV1, sets its range |
 | R40 to R48 | 9 | 1 kOhm | Axial | Input series |
-| R50, R58, R59, R65 | 4 | 10 kOhm | Axial | Holotape CS, detect and protect pull-ups, Q5 base |
+| R50, R58, R59, R69, R70 | 5 | 10 kOhm | Axial | Holotape CS, detect and protect pull-ups, Q5 base to emitter, `BUF_OE` pull-up |
 | R51, R52, R60 to R62 | 5 | 47 kOhm | Axial | Card-side pull-ups to `SD_3V3` |
 | R53 | 1 | 4.7 kOhm | Axial | MISO pull-up |
 | R54 to R57 | 4 | 33 Ohm | Axial | Holotape bus series, at U4 and U5 |
-| R63, R64, R66 | 3 | 100 kOhm | Axial | `HOLO_BUS`, `HOLO_PWR` pull-downs, Q4 gate |
-| R67 | 1 | 22 kOhm | Axial | Q4 gate, slow start |
+| R63, R64, R66, R71 | 4 | 100 kOhm | Axial | `HOLO_BUS`, `HOLO_PWR` pull-downs, Q4 gate, Q6 base |
+| R65, R67 | 2 | 22 kOhm | Axial | Q5 base, Q4 gate slow start |
 | R68 | 1 | 1 kOhm | Axial | `SD_3V3` bleeder |
 | RV1 | 1 | 10 kOhm trimmer | THT | Audio level ceiling |
 | C1 | 1 | 10 uF 10 V ceramic | THT | Display VCC |
@@ -1088,7 +1157,7 @@ The owner must decide with the case:
 | C50 | 1 | 10 uF 16 V ceramic | THT | U3 input |
 | C51 | 1 | 10 uF 10 V ceramic | THT | U3 output |
 | C52 | 1 | 100 uF 10 V electrolytic | Radial | `SD_LDO` bulk |
-| C53, C55, C56 | 3 | 100 nF X7R 50 V | THT | J7 VDD, U4, U5 |
+| C53, C55, C56 | 3 | 100 nF X7R 50 V | THT | J7 VDD, U4, U5 on `+3V3` |
 | C54 | 1 | 22 nF X7R 50 V | THT | Q4 slow start |
 | C57 | 1 | 4.7 uF 10 V ceramic | THT | Card-side bulk at J7 |
 | J1 | 1 | 2x20 female header, 2.54 mm, 8.5 mm | THT, bottom side | Pi header |

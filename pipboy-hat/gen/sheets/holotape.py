@@ -1,7 +1,8 @@
 """Sheet: the holotape slot. J7, a full-size SD socket on SPI0 CE1, behind a
 bus buffer U4 and U5 that the card's own switched supply feeds. U3 makes
 3.3 V from +5V, Q4 switches it to the card with a slow start, Q5 drives Q4
-from HOLO_PWR. HOLO_BUS enables the buffer.
+from HOLO_PWR. Q6 holds Q5 off while no card is in. HOLO_BUS enables the
+buffer. U5 runs from the Pi's +3V3, so it never drives MISO above the Pi's rail.
 
 Spec section 4.12. Every part value and pin order here is from memory: to verify.
 """
@@ -97,13 +98,14 @@ def buffer(s: Schematic) -> None:
         s.global_label(u, a, pi_net, shape="input", stub=g(3))
         s.global_label(u, oe, "HOLO_BUS", shape="input", stub=g(2))
         s.label(u, y, buf, stub=g(3))
-    u4 = s.symbol("74xx:74LS126", "U4", "74LVC126A", (g(212), g(88)), unit=4, footprint=SOIC14,
+    # Unit 4 gates U5's enable: BUF_OE follows HOLO_CS only while HOLO_BUS is high.
+    u4 = s.symbol("74xx:74LS126", "U4", "74LVC126A", (g(214), g(88)), unit=4, footprint=SOIC14,
                   ref_at=(g(-2), g(-5)), value_at=(g(-2), g(-7)), description=desc)
-    s.power(u4, "12", "GND", stub=g(2))
-    s.power(u4, "13", "GND", stub=g(2))
-    s.no_connect(u4, "11")
-    pw = s.symbol("74xx:74LS126", "U4", "74LVC126A", (g(186), g(86)), unit=5, footprint=SOIC14,
-                  ref_at=(g(3), g(-1)), value_at=(g(3), g(1)), description=desc)
+    s.global_label(u4, "12", "HOLO_CS", shape="input", stub=g(3))
+    s.global_label(u4, "13", "HOLO_BUS", shape="input", stub=g(2))
+    s.label(u4, "11", "BUF_OE", stub=g(3))
+    pw = s.symbol("74xx:74LS126", "U4", "74LVC126A", (g(178), g(86)), unit=5, footprint=SOIC14,
+                  ref_at=(g(5), g(-1)), value_at=(g(5), g(1)), description=desc)
     s.label(pw, "14", "SD_3V3", stub=g(2))
     s.power(pw, "7", "GND", stub=g(1))
     u5 = s.symbol("74xGxx:74LVC1G125", "U5", "74LVC1G125", (g(250), g(30)), footprint=SOT23_5,
@@ -111,14 +113,16 @@ def buffer(s: Schematic) -> None:
                   description="Single buffer, 3-state, active-low enable, Ioff, SOT-23-5. Pins from memory: "
                               "1 OE, 2 A, 3 GND, 4 Y, 5 VCC. To verify.")
     s.label(u5, "2", "SD_DO", stub=g(3))
-    s.label(u5, "1", "SD_CS", stub=g(2), then=[(g(4), 0)])
+    s.label(u5, "1", "BUF_OE", stub=g(2), then=[(g(4), 0)])
     s.label(u5, "4", "BUF_DO", stub=g(3))
-    s.label(u5, "5", "SD_3V3", stub=g(2))
+    s.power(u5, "5", "+3V3", stub=g(2))
     s.power(u5, "3", "GND", stub=g(1))
-    for k, (ref, net) in enumerate((("C55", "U4"), ("C56", "U5"))):
-        c = cap(s, ref, "100n", (g(232 + 12 * k), g(80)), desc=f"{net} VCC decoupling, on SD_3V3")
-        s.label(c, "1", "SD_3V3", stub=g(2))
-        s.power(c, "2", "GND", stub=g(1))
+    c55 = cap(s, "C55", "100n", (g(232), g(80)), desc="U4 VCC decoupling, on SD_3V3")
+    s.label(c55, "1", "SD_3V3", stub=g(2))
+    s.power(c55, "2", "GND", stub=g(1))
+    c56 = cap(s, "C56", "100n", (g(244), g(80)), desc="U5 VCC decoupling, on +3V3")
+    s.power(c56, "1", "+3V3", stub=g(1))
+    s.power(c56, "2", "GND", stub=g(1))
     for k, (ref, frm, to) in enumerate(SERIES):
         r = res(s, ref, "33", (g(276), g(42 + 8 * k)), horizontal=True,
                 desc=f"{frm} to {to}, source termination at the driver's output")
@@ -130,12 +134,15 @@ def buffer(s: Schematic) -> None:
     r63 = res(s, "R63", "100k", (g(296), g(80)), desc="HOLO_BUS pull-down: buffer off while the Pi boots")
     s.global_label(r63, "1", "HOLO_BUS", shape="input", stub=g(2))
     s.power(r63, "2", "GND", stub=g(1))
+    r70 = res(s, "R70", "10k", (g(310), g(80)), desc="BUF_OE pull-up to +3V3: U5 off while U4 is off or unpowered")
+    s.power(r70, "1", "+3V3", stub=g(1))
+    s.label(r70, "2", "BUF_OE", stub=g(2))
     note(s, "HOLO_BUS high: U4 passes SCLK, MOSI and CS to the card.\n"
             "Low or floating: U4 off, R63 and the Pi's reset pull-down.\n"
-            "U5 passes DO to MISO only while SD_CS is low.\n"
-            "SD_3V3 off: U4 and U5 unpowered, Ioff, no current\n"
-            "either way. 33 Ohm sit at each driver's output.\n"
-            "U4 unit 4 unused: inputs to GND.\n"
+            "U5 drives MISO only while HOLO_BUS is high and CE1 low:\n"
+            "U4 unit 4 drives BUF_OE, R70 holds it high otherwise.\n"
+            "U5 runs from +3V3: MISO never rises above the Pi's rail.\n"
+            "SD_3V3 off: U4 unpowered, Ioff. 33 Ohm at each output.\n"
             "Parts and pins from memory, TO VERIFY.", (g(226), g(100)))
 
 
@@ -181,10 +188,26 @@ def supply(s: Schematic) -> None:
                   description="NPN, 2N3904, TO-92. Collector HOLO_SW, base HOLO_B, emitter GND.")
     s.label(q5, "3", "HOLO_SW", stub=g(2))
     s.power(q5, "1", "GND", stub=g(1))
-    r65 = res(s, "R65", "10k", (g(110), g(198)), horizontal=True, desc="HOLO_PWR to the Q5 base")
+    r65 = res(s, "R65", "22k", (g(110), g(198)), horizontal=True,
+              desc="HOLO_PWR to the Q5 base. With R69: Q5 turns on at about 2 V")
     s.global_label(r65, "1", "HOLO_PWR", shape="input", stub=g(3))
     s.wire(r65.pin("2"), q5.pin("2"))
     s.label_at("HOLO_B", (r65.pin("2")[0] + g(1), r65.pin("2")[1]))
+    r69 = res(s, "R69", "10k", (g(100), g(176)), desc="Q5 base to emitter: raises the HOLO_PWR threshold")
+    s.label(r69, "1", "HOLO_B", stub=g(2))
+    s.power(r69, "2", "GND", stub=g(1))
+    # Q6, the card-detect interlock: card out, HOLO_CD high, Q6 shorts the Q5 base.
+    q6 = s.symbol("Transistor_BJT:2N3904", "Q6", "2N3904", (g(60), g(180)), footprint=TO92,
+                  ref_at=(g(4), g(-1)), value_at=(g(4), g(1)),
+                  description="NPN, 2N3904, TO-92, card-detect interlock. Collector HOLO_B, base CD_B, "
+                              "emitter GND.")
+    s.label(q6, "3", "HOLO_B", stub=g(2))
+    s.power(q6, "1", "GND", stub=g(1))
+    r71 = res(s, "R71", "100k", (g(42), g(180)), horizontal=True,
+              desc="HOLO_CD to the Q6 base: card out, Q6 holds the slot off")
+    s.global_label(r71, "1", "HOLO_CD", shape="output", stub=g(3))
+    s.wire(r71.pin("2"), q6.pin("2"))
+    s.label_at("CD_B", (r71.pin("2")[0] + g(1), r71.pin("2")[1]))
     r64 = res(s, "R64", "100k", (g(86), g(206)), desc="HOLO_PWR pull-down: card supply off while the Pi boots")
     s.global_label(r64, "1", "HOLO_PWR", shape="input", stub=g(2))
     s.power(r64, "2", "GND", stub=g(1))
@@ -196,9 +219,10 @@ def supply(s: Schematic) -> None:
     flag_at(s, (g(176), g(156)))
     s.wire((g(176), g(156)), (g(176), g(160)))
     s.label_at("SD_3V3", (g(176), g(160)))
-    note(s, "HOLO_PWR high: Q5 pulls R67 low, Q4's gate falls to the\n"
-            "Miller plateau and C54 sets the slope: about 3.5 V/ms,\n"
-            "1 ms from 0 to 3.3 V, about 50 mA into 15 uF (to verify).\n"
+    note(s, "HOLO_PWR over about 2 V (R65, R69) and a card in: Q5\n"
+            "pulls R67 low, Q4's gate falls to the Miller plateau and\n"
+            "C54 sets the slope: 1 ms from 0 to 3.3 V, 50 mA (to verify).\n"
+            "No card: HOLO_CD high, Q6 shorts the Q5 base, slot off.\n"
             "HOLO_PWR low or floating: R64 and the Pi's pull-down keep\n"
             "Q5 off, R66 holds Q4 off, R68 empties SD_3V3 in 50 ms.", (g(14), g(214)))
     note(s, "U3 stays on: only the switch follows the software.\n"
@@ -219,7 +243,7 @@ def protection(s: Schematic) -> None:
         else:
             s.label(r, "2", net, stub=g(2))
     d3 = s.symbol("Power_Protection:USBLC6-4SC6", "D3", "USBLC6-4SC6", (g(300), g(166)), footprint=SOT23_6,
-                  dnp=True, ref_at=(g(5), g(-6)), value_at=(g(5), g(-4)),
+                  dnp=True, ref_at=(g(7), g(-1)), value_at=(g(7), g(1)),
                   description="4-line low-capacitance ESD array, SOT-23-6, not fitted. Pins from memory: "
                               "1 I/O1, 2 GND, 3 I/O2, 4 I/O3, 5 VBUS, 6 I/O4. To verify.")
     for pin, net in (("1", "SD_CLK"), ("3", "SD_DI"), ("4", "SD_CS"), ("6", "SD_DO"), ("5", "SD_3V3")):
