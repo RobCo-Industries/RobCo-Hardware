@@ -93,3 +93,59 @@ def test_no_ascii_box_diagrams_outside_the_allow_list():
 @pytest.mark.parametrize("body", [[], ["flowhcart TB"], ["flowchart TB", 'A["x] --> B'], ["flowchart TB", "A[x --> B"], ["flowchart TB", "\tA --> B"]])
 def test_checker_rejects_broken_blocks(body):
     assert mermaid_problems(body)
+
+
+# Path facts of the terminal controller block diagrams, read from its
+# schematic. Each pair is a direct edge that must exist, or must not.
+TC_SPEC = "terminal-controller/spec/SPEC.md"
+TC_EDGES = [
+    ("J2", "JP1"), ("P5V", "JP1"), ("JP1", "F1"), ("F1", "D1"), ("D1", "Q1"),
+    ("Q1", "J3"), ("Q1", "U4"), ("D1", "F2"), ("F2", "J4"), ("ARM", "Q2"), ("Q2", "Q1"),
+    ("P5V", "M1"), ("U1", "U4"), ("U4", "J3"), ("J4", "U5"), ("U5", "U2"),
+]
+TC_NO_EDGES = [("JP1", "J3"), ("D1", "J3"), ("JP1", "Q1"), ("D1", "J4"), ("U2", "U4"), ("U1", "U5")]
+
+LINK = re.compile(r'\s*(?:--\s*"[^"]*"\s*(-->|---)|(-->|---|-\.->|-\.-))\s*')
+NODE = re.compile(r'([A-Za-z0-9_]+)')
+
+
+def mermaid_graph(body):
+    """Directed edges and the nodes of one flowchart. An undirected link counts both ways."""
+    nodes, edges, linked = set(), set(), set()
+    for line in body:
+        text = re.sub(r'"[^"]*"', '""', line.strip())
+        if not text or text.split()[0] in ("flowchart", "graph", "subgraph", "end", "direction"):
+            continue
+        parts = LINK.split(text)
+        ids = [NODE.match(p.strip()).group(1) for p in parts[0::3]]
+        ops = [a or b for a, b in zip(parts[1::3], parts[2::3])]
+        nodes.update(ids)
+        for a, op, b in zip(ids, ops, ids[1:]):
+            edges.add((a, b))
+            if ">" not in op:
+                edges.add((b, a))
+            linked.update((a, b))
+    return nodes, edges, linked
+
+
+def tc_graphs():
+    blocks = [b for lang, b in fenced_blocks((REPO / TC_SPEC).read_text()) if lang == "mermaid"]
+    assert blocks, "no Mermaid block in " + TC_SPEC
+    return [mermaid_graph(b) for b in blocks]
+
+
+def test_terminal_controller_diagram_follows_the_schematic():
+    edges = set().union(*(e for _, e, _ in tc_graphs()))
+    missing = [e for e in TC_EDGES if e not in edges]
+    wrong = [e for e in TC_NO_EDGES if e in edges]
+    assert not missing and not wrong, f"missing edges {missing}, wrong edges {wrong}"
+
+
+def test_terminal_controller_diagram_has_no_lonely_node():
+    for nodes, _, linked in tc_graphs():
+        assert nodes <= linked, f"nodes without an edge: {sorted(nodes - linked)}"
+
+
+def test_graph_parser_reads_labels_and_chains():
+    nodes, edges, _ = mermaid_graph(['A["a"] -- "V_X" --> B --> C', "C --- D", 'E["e"]'])
+    assert edges == {("A", "B"), ("B", "C"), ("C", "D"), ("D", "C")} and "E" in nodes

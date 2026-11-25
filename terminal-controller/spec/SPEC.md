@@ -34,64 +34,103 @@ Software references point to files in the RobCo-Core and UOS repositories. "BOAR
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
 ```mermaid
-flowchart TB
-    subgraph J1["Raspberry Pi 40-pin header (J1)"]
-        P3V3["+3V3"]
+flowchart LR
+    subgraph PI["Pi header J1"]
         P5V["+5V"]
-        I2C["GPIO2/3 (I2C)"]
+        P3V3["+3V3"]
+        ARM["GPIO25"]
+    end
+    subgraph SUPPLY["Load supply"]
+        J2["J2 load supply<br/>5 V to 24 V"]
+        JP1["JP1 supply select<br/>Pi 5 V or J2"]
+        F1["F1 polyfuse"]
+        D1["D1 reverse diode"]
+        D2["D2 TVS clamp"]
+        F2["F2 polyfuse"]
+    end
+    subgraph ARMSW["Arm switch"]
+        Q2["Q2 NPN driver"]
+        Q1["Q1 P-MOSFET"]
+        JP8["JP8 arm bypass<br/>no shunt, test only"]
+        LED8["LED8 armed"]
+    end
+    subgraph LOADS["Loads"]
+        U4["U4 ULN2803A<br/>COM pin"]
+        J3["J3 outputs<br/>V_SW terminals"]
+    end
+    subgraph SENSORS["Sensor supply"]
+        J4["J4 inputs<br/>+V_S terminal"]
+    end
+    LOGIC["U1, U2, U3, U7<br/>pull-ups"]
+    M1["M1 class-D module"]
+    J2 -- "V_EXT" --> JP1
+    P5V --> JP1
+    JP1 -- "V_IN" --> F1 --> D1
+    D1 -- "V_PROT" --- D2
+    D1 -- "V_PROT" --> Q1
+    D1 -- "V_PROT" --> F2
+    F2 -- "+V_S" --> J4
+    ARM -- "ARM" --> Q2 --> Q1
+    Q1 --- JP8
+    Q1 -- "V_SW" --> U4
+    Q1 -- "V_SW" --> J3
+    Q1 -- "V_SW" --> LED8
+    P5V --> M1
+    P3V3 --> LOGIC
+```
+
+```mermaid
+flowchart LR
+    subgraph PI["Pi header J1"]
+        I2C["GPIO2/3"]
+        IDP["ID_SD, ID_SC"]
         UART["GPIO14/15"]
         PWM["GPIO18"]
-        BTN["buttons"]
-        ARM["GPIO25"]
-        FREE["free pins"]
+        BTN["GPIO5, 6, 17, 22, 26, 27"]
+        FREE["GPIO4, 12, 13, 16, 19, 20, 21, 23, 24"]
     end
     subgraph I2CBUS["I2C devices"]
-        U1["U1 PCA9554<br/>0x20"]
-        U2["U2 PCA9554<br/>0x21"]
-        U3["U3 DS1338<br/>0x68 + Y1 + BT1"]
+        U1["U1 PCA9554 0x20<br/>outputs"]
+        U2["U2 PCA9554 0x21<br/>inputs"]
+        U3["U3 DS1338 0x68<br/>Y1, BT1"]
     end
+    U7["U7 ID EEPROM<br/>not fitted"]
+    J9["J9 expander INT"]
     subgraph OUTPUTS["Outputs"]
         U4["U4 ULN2803A"]
         J3["J3 outputs<br/>OUT0..7"]
     end
     subgraph INPUTS["Inputs"]
-        U5["U5,U6 LTV-847"]
         J4["J4 inputs<br/>IN0..7"]
+        U5["U5, U6 LTV-847"]
     end
     subgraph AUDIO["Audio"]
-        RC["RC filter<br/>+ RV1"]
+        RC["R30, C30 filter"]
+        J10["J10 jack input<br/>R31, R32"]
+        JP9["JP9 source select"]
+        RV1["C31, RV1 volume"]
         M1["M1 class-D module"]
         J8["J8 speaker"]
     end
-    J6["J6 serial<br/>(FTDI order, 3.3 V only)"]
+    J6["J6 serial<br/>FTDI order, 3.3 V only"]
     J5["J5 buttons"]
-    J7["J7 free-pin header<br/>(4,12,13,16,19,20,21,23,24)"]
-    subgraph POWER["Load supply"]
-        J2["J2 load supply"]
-        F1["F1 polyfuse"]
-        D1["D1 reverse diode"]
-        F2["F2"]
-        VS["+V_S sensor supply"]
-        Q2Q1["Q2 + Q1<br/>arm switch"]
-        Q1["Q1"]
-        VSW["V_SW<br/>(load rail)"]
-        JP1["JP1<br/>(Pi 5 V or terminal)"]
-    end
-    I2C --> U1
-    I2C --> U2
-    I2C --> U3
-    U1 --> U4 --> J3
-    J4 --> U5 --> U2
+    J7["J7 free-pin header"]
+    I2C -- "I2C" --> U1
+    I2C -- "I2C" --> U2
+    I2C -- "I2C" --> U3
+    IDP --> U7
+    U1 -- "X0.0..7" --> U4
+    U4 -- "OUT0..7" --> J3
+    J4 --> U5
+    U5 -- "X1.0..7" --> U2
+    U1 -- "XINT" --> J9
+    U2 -- "XINT" --> J9
+    PWM -- "AUDIO_PWM" --> RC --> JP9
+    J10 --> JP9
+    JP9 --> RV1 --> M1 --> J8
     UART --> J6
-    PWM --> RC --> M1 --> J8
     BTN --> J5
-    ARM --> Q2Q1 --> Q1
     FREE --> J7
-    P5V --- JP1
-    JP1 --> J3
-    J2 --> F1 --> D1 -- "V_PROT" --> Q1 --> VSW
-    D1 --- JP1
-    D1 --> F2 --> VS
 ```
 
 ## 3. The 40-pin header map
