@@ -35,23 +35,56 @@ Software references:
 - A 6-pin header carries the PL011 serial console at 3.3 V.
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
-```
-                       Raspberry Pi Zero 40-pin header (J1, on the bottom side)
-  +5V   +3V3   GPIO2/3   GPIO7-11, 4, 25   GPIO19   GPIO14/15   GPIO18   9 input pins
-   |      |       |            |              |          |          |          |
-   |      |       v            v              v          v          v          v
-   |      |   U1 DS1338    J2 display      Q2 + Q1    J4 serial   R30, C30   R40-R48
-   |      |   0x68 + Y1    socket, 14 pin  backlight  3.3 V only  filter     1 kOhm
-   |      |   + BT1        DS1 ILI9341     switch                    |         |
-   |      |                  ^   ^           |                       v         v
-   |      +------------------+   +-----------+ TFT_LED           C31 R31 RV1 SW1-SW6 keys
-   |      |                    VCC        LED                        |      SW7 dial + push
-   |      +--> U2 ID EEPROM, not fitted                              v      J5 panel header
-   |                                                            M1 PAM8302A    (not fitted)
-   +-------------------------------------------------------------> Vin |
-   |                                                                   v
-  J3 5 V in -> F1 polyfuse -> Q3 P-MOSFET -> +5V rail, D1 TVS        J6 speaker
-                              reverse block, D2, R1
+```mermaid
+flowchart TB
+    subgraph J1["J1"]
+        HDR["Raspberry Pi Zero 40-pin header<br/>on the bottom side"]
+        P5V["+5V"]
+        P3V3["+3V3"]
+        I2C["GPIO2/3"]
+        SPI["GPIO7-11, 4, 25"]
+        BL["GPIO19"]
+        UART["GPIO14/15"]
+        PWM["GPIO18"]
+        INP["9 input pins"]
+    end
+    subgraph CLOCK["Clock"]
+        U1["U1 DS1338<br/>0x68 + Y1 + BT1"]
+    end
+    subgraph DISPLAY["Display"]
+        J2["J2 display socket, 14 pin<br/>DS1 ILI9341"]
+        Q2Q1["Q2 + Q1<br/>backlight switch"]
+    end
+    U2["U2 ID EEPROM, not fitted"]
+    J4["J4 serial<br/>3.3 V only"]
+    subgraph AUDIO["Audio"]
+        R30["R30, C30<br/>filter"]
+        RV1["C31 R31 RV1"]
+        M1["M1 PAM8302A"]
+        J6["J6 speaker"]
+    end
+    subgraph INPUT["Input"]
+        R40["R40-R48<br/>1 kOhm"]
+        KEYS["SW1-SW6 keys<br/>SW7 dial + push<br/>J5 panel header (not fitted)"]
+    end
+    subgraph POWER["5 V input"]
+        J3["J3 5 V in"]
+        F1["F1 polyfuse"]
+        Q3["Q3 P-MOSFET<br/>reverse block, D2, R1"]
+        RAIL["+5V rail, D1 TVS"]
+    end
+    I2C --> U1
+    SPI --> J2
+    BL --> Q2Q1
+    Q2Q1 -- "TFT_LED" --> J2
+    P3V3 -- "VCC" --> J2
+    P3V3 --> U2
+    UART --> J4
+    PWM --> R30 --> RV1 --> M1 --> J6
+    P5V -- "Vin" --> M1
+    INP --> R40 --> KEYS
+    J3 --> F1 --> Q3 --> RAIL
+    RAIL --- P5V
 ```
 
 ## 3. The 40-pin header map
