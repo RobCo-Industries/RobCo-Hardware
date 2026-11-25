@@ -75,8 +75,9 @@ def draw(s: Schematic) -> None:
             "at bring-up step 18). Software volume: [audio] volume.", (g(84), g(92)))
     note(s, "M1 drives the speaker in bridge mode:\n"
             "neither SPK_P nor SPK_N is ground.\n"
-            "8 Ohm speaker only. LS1 sits off the\n"
-            "board on J6: no footprint.", (g(150), g(66)))
+            "8 Ohm speaker only. LS1 is bought and\n"
+            "sits off the board, wired to J6, the\n"
+            "board's connector.", (g(150), g(68)))
     note(s, "To verify: M1 pin order assumed (1 VIN, 2 GND, 3 SD,\n"
             "4 A+, 5 A-, 6 OUT+, 7 OUT-). Take it from the module\n"
             "bought. SD left open: the module pulls it high.\n"

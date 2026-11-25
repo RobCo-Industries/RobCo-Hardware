@@ -2114,16 +2114,16 @@
 		)
 		(uuid "89d91480-cfb2-53d9-8aa7-8d48f92b5079")
 	)
-	(text "M1 drives the speaker in bridge mode:\nneither SPK_P nor SPK_N is ground.\n8 Ohm speaker only. LS1 sits off the\nboard on J6: no footprint."
+	(text "M1 drives the speaker in bridge mode:\nneither SPK_P nor SPK_N is ground.\n8 Ohm speaker only. LS1 is bought and\nsits off the board, wired to J6, the\nboard's connector."
 		(exclude_from_sim no)
-		(at 190.5 83.82 0)
+		(at 190.5 86.36 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "d19e5b36-e26d-51ab-8f61-7379441774d1")
+		(uuid "7d98db29-f37a-542c-a1b2-03a5c9c722af")
 	)
 	(text "To verify: M1 pin order assumed (1 VIN, 2 GND, 3 SD,\n4 A+, 5 A-, 6 OUT+, 7 OUT-). Take it from the module\nbought. SD left open: the module pulls it high.\nGain about 24 dB and input impedance: from memory."
 		(exclude_from_sim no)
