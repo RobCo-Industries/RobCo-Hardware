@@ -36,55 +36,68 @@ Software references:
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
 ```mermaid
-flowchart TB
-    subgraph J1["J1"]
-        HDR["Raspberry Pi Zero 40-pin header<br/>on the bottom side"]
+flowchart LR
+    subgraph POWER["5 V input"]
+        J3["J3 5 V in<br/>regulated only"]
+        F1["F1 polyfuse"]
+        Q3["Q3 P-MOSFET<br/>reverse block, D2, R1"]
+        D1["D1 TVS clamp"]
+    end
+    subgraph J1["Pi header J1"]
         P5V["+5V"]
         P3V3["+3V3"]
-        I2C["GPIO2/3"]
-        SPI["GPIO7-11, 4, 25"]
+    end
+    M1["M1 PAM8302A"]
+    J2["J2 display VCC"]
+    BLSW["Q1 backlight<br/>emitter"]
+    U1["U1 DS1338"]
+    U2["U2 ID EEPROM<br/>not fitted"]
+    J3 -- "V_EXT" --> F1 -- "V_F" --> Q3
+    Q3 -- "+5V" --> P5V
+    P5V --- D1
+    P5V --> M1
+    P3V3 --> J2
+    P3V3 --> BLSW
+    P3V3 --> U1
+    P3V3 --> U2
+```
+
+```mermaid
+flowchart LR
+    subgraph J1["Pi header J1"]
+        SPI["GPIO8-11, 4, 25"]
         BL["GPIO19"]
+        I2C["GPIO2/3"]
+        IDP["ID_SD, ID_SC"]
         UART["GPIO14/15"]
         PWM["GPIO18"]
-        INP["9 input pins"]
-    end
-    subgraph CLOCK["Clock"]
-        U1["U1 DS1338<br/>0x68 + Y1 + BT1"]
+        INP["GPIO5, 6, 16, 17,<br/>22, 23, 24, 26, 27"]
     end
     subgraph DISPLAY["Display"]
+        BLSW["Q2 + Q1 backlight switch<br/>R20 pull-up"]
         J2["J2 display socket, 14 pin<br/>DS1 ILI9341"]
-        Q2Q1["Q2 + Q1<br/>backlight switch"]
     end
-    U2["U2 ID EEPROM, not fitted"]
+    U1["U1 DS1338 0x68<br/>Y1, BT1"]
+    U2["U2 ID EEPROM<br/>not fitted"]
     J4["J4 serial<br/>3.3 V only"]
     subgraph AUDIO["Audio"]
         R30["R30, C30<br/>filter"]
-        RV1["C31 R31 RV1"]
+        RV1["C31, R31, RV1<br/>level trimmer"]
         M1["M1 PAM8302A"]
         J6["J6 speaker"]
     end
     subgraph INPUT["Input"]
         R40["R40-R48<br/>1 kOhm"]
-        KEYS["SW1-SW6 keys<br/>SW7 dial + push<br/>J5 panel header (not fitted)"]
+        KEYS["SW1-SW6 keys<br/>SW7 dial + push<br/>J5 panel header, not fitted"]
     end
-    subgraph POWER["5 V input"]
-        J3["J3 5 V in"]
-        F1["F1 polyfuse"]
-        Q3["Q3 P-MOSFET<br/>reverse block, D2, R1"]
-        RAIL["+5V rail, D1 TVS"]
-    end
-    I2C --> U1
-    SPI --> J2
-    BL --> Q2Q1
-    Q2Q1 -- "TFT_LED" --> J2
-    P3V3 -- "VCC" --> J2
-    P3V3 --> U2
+    SPI -- "SPI0, CS, DC, RESET" --> J2
+    BL -- "TFT_BL" --> BLSW
+    BLSW -- "TFT_LED" --> J2
+    I2C -- "I2C" --> U1
+    IDP --> U2
     UART --> J4
-    PWM --> R30 --> RV1 --> M1 --> J6
-    P5V -- "Vin" --> M1
+    PWM -- "AUDIO_PWM" --> R30 --> RV1 --> M1 --> J6
     INP --> R40 --> KEYS
-    J3 --> F1 --> Q3 --> RAIL
-    RAIL --- P5V
 ```
 
 ## 3. The 40-pin header map
