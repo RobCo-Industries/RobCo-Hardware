@@ -22,7 +22,7 @@ The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device that
 | 6 | Audio | A4 | R30, C30, C31, R31, RV1, M1, C32, C33, J6, LS1, TP6 |
 | 7 | Clock | A4 | U1, Y1, BT1, C10, JP1, R15, TP8 |
 | 8 | Serial and test points | A4 | J4, TP1 to TP5 |
-| 9 | Holotape slot | A3 | J7 SD socket; U4 and U5 bus buffers on `HOLO_BUS`; U3 regulator and Q4, Q5 slow-start switch on `HOLO_PWR`; D3 ESD array, not fitted; C50 to C57, R50 to R68, TP9, TP10 |
+| 9 | Holotape slot | A3 | J7 SD socket; U4 and U5 bus buffers on `HOLO_BUS`; U3 regulator and Q4, Q5 slow-start switch on `HOLO_PWR`; Q6 card-detect interlock; D3 ESD array, not fitted; C50 to C57, R50 to R71, TP9, TP10 |
 
 Regenerate and check:
 
@@ -34,7 +34,7 @@ tools/build.sh docs pipboy-hat    # PDF, SVG, netlist and BOM in build/pipboy-ha
 
 CI runs the same check and keeps the PDF, the BOM and the netlist in the `toy-outputs` artifact. Nobody commits them.
 
-`check` runs `tests/test_pipboy_hat.py` on the exported netlist. It compares the BOM with the spec's BOM table, checks the exact pins of every net that reaches the Pi, the 5 V input path, the members of `+5V` and `+3V3`, the backlight switch, the clock's battery jumper, the unfitted pull-ups, the display socket's pin order, the serial header and the holotape slot: the buffers' pins by number and their footprints, each card pin reaching the Pi only through U4 or U5, the pull-ups on the right rails, the default-off pulls of `HOLO_BUS` and `HOLO_PWR`, the slot's capacitors, `TFT_CS` off the card, MISO off J2, the switched supply path.
+`check` runs `tests/test_pipboy_hat.py` on the exported netlist. It compares the BOM with the spec's BOM table, checks the exact pins of every net that reaches the Pi, the 5 V input path, the members of `+5V` and `+3V3`, the backlight switch, the clock's battery jumper, the unfitted pull-ups, the display socket's pin order, the serial header and the holotape slot: the buffers' pins by number and their footprints, each card pin reaching the Pi only through U4 or U5, the pull-ups on the right rails, the default-off pulls of `HOLO_BUS` and `HOLO_PWR`, the slot's capacitors, `TFT_CS` off the card, MISO off J2, the switched supply path, the exact pins of the card's bus nets and of the detect and protect lines, Q5 and Q6 by pin number, the card-detect interlock, Q5's turn-on threshold, and U5 gated by `HOLO_BUS` and powered from `+3V3`.
 
 ERC has no waiver.
 
