@@ -4780,6 +4780,17 @@
 		)
 		(uuid "ec3349bf-7901-5d95-95c7-1a7b5bd3b900")
 	)
+	(text "U4: 126, not 125: active-high enables."
+		(exclude_from_sim no)
+		(at 173.99 116.84 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1fde8ddf-9fc2-5d73-aaf3-aec443710aec")
+	)
 	(rectangle
 		(start 12.7 137.16)
 		(end 241.3 284.48)
@@ -5472,7 +5483,7 @@
 		)
 		(uuid "1cb5e274-7719-5951-97db-856dd8edc499")
 	)
-	(text "HOLO_PWR over about 2 V (R65, R69) and a card in: Q5\npulls R67 low, Q4's gate falls to the Miller plateau and\nC54 sets the slope: 1 ms from 0 to 3.3 V, 50 mA (to verify).\nNo card: HOLO_CD high, Q6 shorts the Q5 base, slot off.\nHOLO_PWR low or floating: R64 and the Pi's pull-down keep\nQ5 off, R66 holds Q4 off, R68 empties SD_3V3 in 50 ms."
+	(text "HOLO_PWR over 1.8 V to 2.4 V (R65, R69), a card in: Q5\npulls R67 low, Q4's gate falls to the Miller plateau and\nC54 sets the slope: 1 ms from 0 to 3.3 V, 50 mA (to verify).\nNo card: HOLO_CD high, Q6 shorts the Q5 base, slot off.\nHOLO_PWR low or floating: R64 and the Pi's pull-down keep\nQ5 off, R66 holds Q4 off, R68 empties SD_3V3 in 50 ms."
 		(exclude_from_sim no)
 		(at 17.78 271.78 0)
 		(effects
@@ -5481,7 +5492,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "26b654ec-4f95-5898-ae1e-1562e3f0b0d3")
+		(uuid "c0aace62-eb6a-5e2f-8e07-9a333b32de3e")
 	)
 	(text "U3 stays on: only the switch follows the software.\nU3 max input about 6 V (from memory, to verify)."
 		(exclude_from_sim no)
@@ -6743,7 +6754,7 @@
 				)
 			)
 		)
-		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify."
+		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify. 126, not 125: active-high enables."
 			(at 203.2 38.1 0)
 			(hide yes)
 			(show_name no)
@@ -6827,7 +6838,7 @@
 				)
 			)
 		)
-		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify."
+		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify. 126, not 125: active-high enables."
 			(at 203.2 66.04 0)
 			(hide yes)
 			(show_name no)
@@ -6911,7 +6922,7 @@
 				)
 			)
 		)
-		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify."
+		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify. 126, not 125: active-high enables."
 			(at 203.2 93.98 0)
 			(hide yes)
 			(show_name no)
@@ -6995,7 +7006,7 @@
 				)
 			)
 		)
-		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify."
+		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify. 126, not 125: active-high enables."
 			(at 271.78 111.76 0)
 			(hide yes)
 			(show_name no)
@@ -7079,7 +7090,7 @@
 				)
 			)
 		)
-		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify."
+		(property "Description" "Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, 13 4OE, 14 VCC. To verify. 126, not 125: active-high enables."
 			(at 226.06 109.22 0)
 			(hide yes)
 			(show_name no)
@@ -9871,7 +9882,7 @@
 				)
 			)
 		)
-		(property "Description" "HOLO_PWR to the Q5 base. With R69: Q5 turns on at about 2 V"
+		(property "Description" "HOLO_PWR to the Q5 base. With R69: Q5 turns on at 1.8 V to 2.4 V"
 			(at 139.7 251.46 0)
 			(hide yes)
 			(show_name no)

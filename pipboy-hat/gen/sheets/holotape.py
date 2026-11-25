@@ -90,7 +90,7 @@ def buffer(s: Schematic) -> None:
     s.frame("Bus buffer U4, U5: the card sees the bus only on HOLO_BUS", (g(134), g(12)), (g(320), g(104)))
     desc = ("Quad buffer, 3-state, active-high enables, Ioff, SOIC-14. 74LVC126A. Pins from memory of "
             "the 74x126: 1 1OE, 2 1A, 3 1Y, 4 2OE, 5 2A, 6 2Y, 7 GND, 8 3Y, 9 3A, 10 3OE, 11 4Y, 12 4A, "
-            "13 4OE, 14 VCC. To verify.")
+            "13 4OE, 14 VCC. To verify. 126, not 125: active-high enables.")
     for k, (unit, oe, a, y, pi_net, buf) in enumerate(U4_GATES):
         x, yy = g(160), g(30 + 22 * k)
         u = s.symbol("74xx:74LS126", "U4", "74LVC126A", (x, yy), unit=unit, footprint=SOIC14,
@@ -144,6 +144,7 @@ def buffer(s: Schematic) -> None:
             "U5 runs from +3V3: MISO never rises above the Pi's rail.\n"
             "SD_3V3 off: U4 unpowered, Ioff. 33 Ohm at each output.\n"
             "Parts and pins from memory, TO VERIFY.", (g(226), g(100)))
+    note(s, "U4: 126, not 125: active-high enables.", (g(137), g(92)))
 
 
 def supply(s: Schematic) -> None:
@@ -189,7 +190,7 @@ def supply(s: Schematic) -> None:
     s.label(q5, "3", "HOLO_SW", stub=g(2))
     s.power(q5, "1", "GND", stub=g(1))
     r65 = res(s, "R65", "22k", (g(110), g(198)), horizontal=True,
-              desc="HOLO_PWR to the Q5 base. With R69: Q5 turns on at about 2 V")
+              desc="HOLO_PWR to the Q5 base. With R69: Q5 turns on at 1.8 V to 2.4 V")
     s.global_label(r65, "1", "HOLO_PWR", shape="input", stub=g(3))
     s.wire(r65.pin("2"), q5.pin("2"))
     s.label_at("HOLO_B", (r65.pin("2")[0] + g(1), r65.pin("2")[1]))
@@ -219,7 +220,7 @@ def supply(s: Schematic) -> None:
     flag_at(s, (g(176), g(156)))
     s.wire((g(176), g(156)), (g(176), g(160)))
     s.label_at("SD_3V3", (g(176), g(160)))
-    note(s, "HOLO_PWR over about 2 V (R65, R69) and a card in: Q5\n"
+    note(s, "HOLO_PWR over 1.8 V to 2.4 V (R65, R69), a card in: Q5\n"
             "pulls R67 low, Q4's gate falls to the Miller plateau and\n"
             "C54 sets the slope: 1 ms from 0 to 3.3 V, 50 mA (to verify).\n"
             "No card: HOLO_CD high, Q6 shorts the Q5 base, slot off.\n"
