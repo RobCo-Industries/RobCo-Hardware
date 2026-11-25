@@ -2,6 +2,7 @@
 
 import importlib.util
 import os
+import sys
 
 import pytest
 
@@ -15,6 +16,9 @@ FILES = {
 
 
 def _load_circuit(board):
+    # Each board's generator has its own `sheets` package: forget the last one.
+    for name in [n for n in sys.modules if n == "sheets" or n.startswith("sheets.")]:
+        del sys.modules[name]
     spec = importlib.util.spec_from_file_location(f"{board}_circuit".replace("-", "_"),
                                                   os.path.join(ROOT, board, "gen", "circuit.py"))
     mod = importlib.util.module_from_spec(spec)
