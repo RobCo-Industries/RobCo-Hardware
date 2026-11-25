@@ -301,6 +301,16 @@ def test_f1_uses_the_larger_fuse_outline():
     assert parts()["F1"].footprint == "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
 
 
+def test_m1_pins_map_to_seven_distinct_pads():
+    m1 = parts()["M1"]
+    assert m1.footprint == "RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm"
+    pins = {p for (r, p) in nl().pin_net() if r == "M1"}
+    path = os.path.join(ROOT, "lib", "RobCo.pretty", m1.footprint.split(":", 1)[1] + ".kicad_mod")
+    with open(path, encoding="utf-8") as fh:
+        pads = [c[1] for c in sexp.children(sexp.parse(fh.read()), "pad")]
+    assert len(pins) == 7 and len(set(pads)) == len(pads) == 7 and pins == set(pads)
+
+
 def test_no_part_ties_plus_5v_to_a_pi_signal():
     j1 = {pin: net for (ref, pin), net in nl().pin_net().items() if ref == "J1"}
     assert sorted(p for p, n in j1.items() if n == "+5V") == ["2", "4"]

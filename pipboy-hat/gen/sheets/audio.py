@@ -39,7 +39,7 @@ def draw(s: Schematic) -> None:
     s.power(rv1, "3", "GND", stub=g(1))
     m1 = s.symbol("RobCo:PAM8302A_Module", "M1", "PAM8302A", (g(128), y + g(6)), footprint=PAM8302A_MODULE,
                   ref_at=(g(-2), g(-11)), value_at=(g(-2), g(-9)),
-                  description="PAM8302A class-D mono amplifier breakout, 2.54 mm pins. Pinout from the module bought.")
+                  description="PAM8302A class-D mono amplifier breakout. Inputs on a 5-pin 2.54 mm row, outputs on the opposite edge. Pinout and geometry from the module bought.")
     wiper = rv1.pin("2")
     s.wire(wiper, m1.pin("4"))
     s.label_at("AUD_IN", (wiper[0] + g(12), wiper[1]))
@@ -78,7 +78,10 @@ def draw(s: Schematic) -> None:
             "8 Ohm speaker only. LS1 is bought and\n"
             "sits off the board, wired to J6, the\n"
             "board's connector.", (g(150), g(68)))
-    note(s, "To verify: M1 pin order assumed (1 VIN, 2 GND, 3 SD,\n"
-            "4 A+, 5 A-, 6 OUT+, 7 OUT-). Take it from the module\n"
-            "bought. SD left open: the module pulls it high.\n"
+    note(s, "To verify: M1 pins assumed. Input row 1 VIN, 2 GND, 3 SD,\n"
+            "4 A+, 5 A-. Output edge 6 OUT+, 7 OUT-. Footprint drawn\n"
+            "from memory: redraw it from the module before ordering.\n"
+            "Pins soldered at both edges carry OUT+ and OUT- to J6.\n"
+            "A builder may instead wire LS1 to M1's own terminal.\n"
+            "SD left open: the module pulls it high.\n"
             "Gain about 24 dB and input impedance: from memory.", (g(14), g(92)))

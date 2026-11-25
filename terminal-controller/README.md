@@ -56,7 +56,7 @@ No stock footprint fits these parts. They use own footprints in `lib/RobCo.prett
 |---|---|---|
 | F1 | `RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm` | Littelfuse RXEF110 class: body 10.0 x 3.5 mm, leads 5.1 mm apart, drill 1.0 mm |
 | F2 | `RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm` | Bourns MF-R020 class: body 7.4 x 3.0 mm, leads 5.1 mm apart, drill 0.8 mm |
-| M1 | `RobCo:PAM8302A_Module_1x07_P2.54mm` | One row of 7 pins on 2.54 mm in the symbol's order, module 20.3 x 17.8 mm |
+| M1 | `RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm` | Drawn from memory: redraw from the module before ordering. Input row of 5 pins on 2.54 mm, output pair on 3.5 mm on the opposite edge, module 17.78 x 20.32 mm |
 
 None of the three has a 3D model.
 

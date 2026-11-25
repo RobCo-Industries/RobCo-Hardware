@@ -165,9 +165,9 @@ SYMBOLS = {
             "Footprint": "",
             "Datasheet": "",
             "Description": (
-                "PAM8302A mono class-D amplifier breakout module, seven pins on 2.54 mm: 1 VIN, "
-                "2 GND, 3 SD, 4 A+, 5 A-, 6 OUT+, 7 OUT-. Drawn from the stock Conn_01x07 with "
-                "named pins. Pin order assumed; take it from the module bought. No stock footprint."
+                "PAM8302A mono class-D amplifier breakout module, seven pins: 1 VIN, 2 GND, 3 SD, "
+                "4 A+, 5 A- on the input edge, 6 OUT+, 7 OUT- on the output edge. Drawn from the "
+                "stock Conn_01x07 with named pins. Pin order assumed; take it from the module bought."
             ),
             "ki_keywords": "PAM8302 amplifier class-D module breakout",
         },

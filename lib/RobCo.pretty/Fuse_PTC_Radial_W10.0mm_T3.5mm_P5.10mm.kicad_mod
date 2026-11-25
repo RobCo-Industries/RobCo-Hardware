@@ -2,7 +2,7 @@
 	(version 20260206)
 	(generator "robco")
 	(layer "F.Cu")
-	(descr "Radial PTC resettable fuse, for a 1.1 A hold, 60 V part such as Littelfuse RXEF110. Body width 10.0 mm, thickness 3.5 mm, lead spacing 5.1 mm, drill 1.0 mm: all from memory of the data sheet, to verify. No 3D model.")
+	(descr "Radial PTC resettable fuse, for a 1.1 A hold, 60 V part such as Littelfuse RXEF110. Also for a 0.9 A hold part such as Bourns MF-R090, body width about 7.4 mm, from memory, to verify. Body width 10.0 mm, thickness 3.5 mm, lead spacing 5.1 mm, drill 1.0 mm: all from memory of the data sheet, to verify. No 3D model.")
 	(tags "ptc resettable fuse polyfuse radial THT")
 	(property "Reference" "REF**"
 		(at 2.55 -3.35 0)

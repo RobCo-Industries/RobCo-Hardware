@@ -54,8 +54,8 @@ Every dimension and pin order below comes from memory and is to verify against t
 | J2 | Symbol `ILI9341_Socket_1x14` | Pin names in the order of spec section 4.1, typical of MSP2807 class modules |
 | DS1 | Symbol `ILI9341_Module` | No pins: the module only plugs into J2 |
 | SW7 | Footprint `RotaryEncoder_Bourns_PEC11R-Switch_Vertical` | Pads copied from the stock Alps EC11E footprint |
-| F1 | Footprint `Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm` | The 1.1 A class outline of the terminal controller. An MF-R090 is larger than an MF-R020 and fits inside it: leads 5.1 mm apart, drill 1.0 mm |
-| M1 | Footprint `PAM8302A_Module_1x07_P2.54mm` | Pin order 1 VIN, 2 GND, 3 SD, 4 A+, 5 A-, 6 OUT+, 7 OUT- |
+| F1 | Footprint `Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm` | The 1.1 A class outline of the terminal controller. An MF-R090, body width about 7.4 mm to verify, fits inside it: leads 5.1 mm apart, drill 1.0 mm |
+| M1 | Footprint `PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm` | Drawn from memory: redraw from the module before ordering. Input row 1 VIN, 2 GND, 3 SD, 4 A+, 5 A-. Output edge 6 OUT+, 7 OUT- |
 
 ## Readings of the spec
 

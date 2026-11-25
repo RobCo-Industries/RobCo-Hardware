@@ -1172,7 +1172,7 @@
 					)
 				)
 			)
-			(property "Description" "PAM8302A mono class-D amplifier breakout module, seven pins on 2.54 mm: 1 VIN, 2 GND, 3 SD, 4 A+, 5 A-, 6 OUT+, 7 OUT-. Drawn from the stock Conn_01x07 with named pins. Pin order assumed; take it from the module bought. No stock footprint."
+			(property "Description" "PAM8302A mono class-D amplifier breakout module, seven pins: 1 VIN, 2 GND, 3 SD, 4 A+, 5 A- on the input edge, 6 OUT+, 7 OUT- on the output edge. Drawn from the stock Conn_01x07 with named pins. Pin order assumed; take it from the module bought."
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -2125,7 +2125,7 @@
 		)
 		(uuid "7d98db29-f37a-542c-a1b2-03a5c9c722af")
 	)
-	(text "To verify: M1 pin order assumed (1 VIN, 2 GND, 3 SD,\n4 A+, 5 A-, 6 OUT+, 7 OUT-). Take it from the module\nbought. SD left open: the module pulls it high.\nGain about 24 dB and input impedance: from memory."
+	(text "To verify: M1 pins assumed. Input row 1 VIN, 2 GND, 3 SD,\n4 A+, 5 A-. Output edge 6 OUT+, 7 OUT-. Footprint drawn\nfrom memory: redraw it from the module before ordering.\nPins soldered at both edges carry OUT+ and OUT- to J6.\nA builder may instead wire LS1 to M1's own terminal.\nSD left open: the module pulls it high.\nGain about 24 dB and input impedance: from memory."
 		(exclude_from_sim no)
 		(at 17.78 116.84 0)
 		(effects
@@ -2134,7 +2134,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "3fff0c44-4a5c-592d-8472-17b05b0d52fb")
+		(uuid "99d2fadc-a749-568e-b8c4-d94fd5dff56b")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -2731,7 +2731,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "RobCo:PAM8302A_Module_1x07_P2.54mm"
+		(property "Footprint" "RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm"
 			(at 162.56 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -2753,7 +2753,7 @@
 				)
 			)
 		)
-		(property "Description" "PAM8302A class-D mono amplifier breakout, 2.54 mm pins. Pinout from the module bought."
+		(property "Description" "PAM8302A class-D mono amplifier breakout. Inputs on a 5-pin 2.54 mm row, outputs on the opposite edge. Pinout and geometry from the module bought."
 			(at 162.56 58.42 0)
 			(hide yes)
 			(show_name no)

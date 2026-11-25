@@ -30,7 +30,7 @@ KEY_12MM = "Button_Switch_THT:SW_PUSH-12mm"
 # F1, MF-R090 class, 0.9 A hold: the 1.1 A class outline, 10.0 x 3.5 mm, not
 # the smaller MF-R020 one. Body sizes from memory, to verify.
 FUSE_MF_R = "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
-PAM8302A_MODULE = "RobCo:PAM8302A_Module_1x07_P2.54mm"
+PAM8302A_MODULE = "RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm"
 ENCODER = "RobCo:RotaryEncoder_Bourns_PEC11R-Switch_Vertical"
 
 # Fields of a vertical two-pin part, to its right.
