@@ -341,11 +341,13 @@ The board designs for GPIO 18, the header-only boards. A Pi with a jack feeds th
 | JP9 | 3-pin header with shunt | Pin 1 `AUD_F`, pin 2 `AUD_SEL`, pin 3 `AUD_J`. Silkscreen "GPIO18 / JACK". |
 | C31 | 10 uF, 16 V electrolytic or film | `AUD_SEL` to `AUD_DC`, DC block |
 | RV1 | 10 kOhm trimmer, log taper if available, through-hole | Ends `AUD_DC` and `GND`, wiper `AUD_IN` |
-| M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected (the module pulls it high, typical, check the module), outputs to J8 |
+| M1 | PAM8302A class-D mono amplifier module, 5 input pins on 2.54 mm and 2 output pads on the opposite edge | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected (the module pulls it high, typical, check the module), outputs to J8 |
 | C32 | 100 nF | M1 Vin to `GND` |
 | J8 | 2-way screw terminal | Speaker + and -. Silkscreen "SPK 4-8 Ohm. Do not ground either side." |
 
 Filter corner: f = 1 / (2 x pi x R x C) = 1 / (2 x 3.1416 x 270 x 33e-9) = 17.9 kHz. These are the values in audio.md, section "Wiring", which says "low-pass near 18 kHz". The 3.3 V PWM swing passes the filter near full level in the audio band. RV1 sets the level into the amplifier.
+
+M1's footprint `RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm` is drawn from memory of the common breakout, to verify against the module bought: a row of 5 input pins on 2.54 mm, pins 1 VIN, 2 GND, 3 SD, 4 A+, 5 A-, and the speaker terminal on the opposite edge, pins 6 OUT+ and 7 OUT- on 3.5 mm, 15.24 mm from the input row. Redraw it from the real module before any board is ordered. With pins soldered at both edges, OUT+ and OUT- reach J8 through the board. A builder may instead wire the speaker straight to the module's terminal.
 
 The PAM8302A drives the speaker in bridge mode (typical, check). Neither speaker wire is ground. Never tie a speaker terminal to `GND`.
 
@@ -565,7 +567,7 @@ The software does not use this EEPROM. BOARD_SUPPORT.md, section "Pins", notes G
 | TP5 | `I2C_SCL` |
 | TP6 | `V_PROT` |
 | TP7 | `V_SW` |
-| TP8 | `SQW` |
+| TP8 | `SQW`. Fit R4 to probe it: SQW is open drain (from memory, to verify), so TP8 floats without R4. |
 
 ## 5. Power-on safety analysis
 
@@ -618,7 +620,7 @@ Residual risks: Q1 failing short; JP8 left fitted; a load wired to `V_PROT` or t
 | U4 | 1 | ULN2803A, example Toshiba ULN2803APG | DIP-18 | |
 | U5, U6 | 2 | Quad optocoupler, example Lite-On LTV-847 | DIP-16 | |
 | U7 | 1 | 24C32 class EEPROM | SOIC-8 | Not fitted |
-| M1 | 1 | PAM8302A mono class-D breakout module | 2.54 mm pins | Check the module pinout |
+| M1 | 1 | PAM8302A mono class-D breakout module | 5 pins and 2 output pads | Check the module pinout and geometry |
 | Q1 | 1 | P-channel MOSFET, 60 V or more, threshold 2.5 V or less, Rds(on) 0.1 Ohm or less at -4.5 V | TO-220 | See section 4.4. Example from memory, to verify: Vishay SQP50P06-15L |
 | Q2 | 1 | 2N5551, NPN, 160 V | TO-92 | MPSA06, 80 V, also fits. Check the pin order. |
 | D1, D4 | 2 | SB360, 3 A 60 V Schottky | DO-201AD | Any 3 A 60 V Schottky in DO-201AD |

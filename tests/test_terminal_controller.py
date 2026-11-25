@@ -26,6 +26,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import netlist  # noqa: E402
+import sexp  # noqa: E402
 
 BOARD = os.path.join(ROOT, "terminal-controller")
 SPEC = os.path.join(BOARD, "spec", "SPEC.md")
@@ -244,6 +245,16 @@ def test_load_side_never_touches_the_logic_rails():
     assert nodes("V_IN") == {("JP1", "2"), ("F1", "1")}
     assert nodes("+5V") == {("J1", "2"), ("J1", "4"), ("JP1", "3"), ("M1", "1"), ("C4", "1"), ("C32", "1"),
                             ("TP2", "1")}
+
+
+def test_m1_pins_map_to_seven_distinct_pads():
+    m1 = parts()["M1"]
+    assert m1.footprint == "RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm"
+    pins = {p for (r, p) in nl().pin_net() if r == "M1"}
+    path = os.path.join(ROOT, "lib", "RobCo.pretty", m1.footprint.split(":", 1)[1] + ".kicad_mod")
+    with open(path, encoding="utf-8") as fh:
+        pads = [c[1] for c in sexp.children(sexp.parse(fh.read()), "pad")]
+    assert len(pins) == 7 and len(set(pads)) == len(pads) == 7 and pins == set(pads)
 
 
 def test_arm_switch_pins():

@@ -7004,7 +7004,7 @@
 		)
 		(uuid "92e08a52-a133-5864-a921-0cae5a1769a9")
 	)
-	(text "VBAT must not float: fit the cell before first power-up,\nor close JP12 with no cell (DS1307 family rule, to verify\nfor the DS1338). A closed JP12 shorts a fitted cell."
+	(text "VBAT must not float: fit the cell before first power-up,\nor close JP12 with no cell (DS1307 family rule, to verify\nfor the DS1338). A closed JP12 shorts a fitted cell.\nSQW is open drain (to verify): fit R4 to probe TP8."
 		(exclude_from_sim no)
 		(at 203.2 246.38 0)
 		(effects
@@ -7013,7 +7013,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "7f8fed9b-0d0f-5da4-a152-795bde5b942b")
+		(uuid "1e440476-a4f8-5335-bb47-52984d2b9d84")
 	)
 	(text "Y1: 6 pF load, no capacitors on X1 and X2 (typical, check).\nA 12.5 pF crystal runs slow. Keep Y1 within 5 mm of U3.\nU3 pinout as the DS1307 (to verify): 1 X1, 2 X2, 3 VBAT, 4 GND,\n5 SDA, 6 SCL, 7 SQW, 8 VCC. Buy the 3.3 V grade."
 		(exclude_from_sim no)

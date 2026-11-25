@@ -64,7 +64,7 @@ Sources: BOARD_SUPPORT.md, section "Pins", with its audio table, the input examp
 | Pin | Pi function | Net | Software use (source) | This board connects | Status |
 |---|---|---|---|---|---|
 | 1 | 3V3 | `+3V3` | Power | 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1 | used |
-| 2 | 5V | `+5V` | Power | 5V rail: F1 from J3, D1, M1, TP2 | used |
+| 2 | 5V | `+5V` | Power | 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, TP2 | used |
 | 3 | GPIO 2, SDA1 | `I2C_SDA` | I2C SDA (BOARD_SUPPORT.md Pins) | I2C SDA to U1, TP4 | used |
 | 4 | 5V | `+5V` | Power | Joined to pin 2 | used |
 | 5 | GPIO 3, SCL1 | `I2C_SCL` | I2C SCL (BOARD_SUPPORT.md Pins) | I2C SCL to U1, TP5 | used |
@@ -325,7 +325,7 @@ Choice: the same filter and the same PAM8302A module as the terminal controller,
 | C31 | 10 uF, 16 V electrolytic or film | `AUD_F` to `AUD_DC`, DC block |
 | R31 | 33 kOhm | `AUD_DC` to `AUD_T`, sets RV1's range |
 | RV1 | 10 kOhm trimmer, through-hole | Ends `AUD_T` and `GND`, wiper `AUD_IN` |
-| M1 | PAM8302A class-D mono amplifier module, 2.54 mm pin footprint | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected, outputs `SPK_P` and `SPK_N` |
+| M1 | PAM8302A class-D mono amplifier module, 5 input pins on 2.54 mm and 2 output pads on the opposite edge | Vin `+5V`, GND `GND`, A+ `AUD_IN`, A- `GND`, SD not connected, outputs `SPK_P` and `SPK_N` |
 | C32 | 100 nF | M1 Vin to `GND` |
 | C33 | 47 uF, 16 V electrolytic | `+5V` to `GND`, near M1 |
 | J6 | 1x2 pin header, 2.54 mm, or a 2-pin JST PH | `SPK_P`, `SPK_N`. Silkscreen "SPK 8 Ohm. Neither side is ground." |
@@ -344,6 +344,8 @@ Where it differs from the terminal controller:
 Why the PAM8302A module: the chip comes only in small packages that are hard to solder with an iron (typical, check: MSOP-8 or DFN). The module brings it ready-soldered, as on the first board. Rejected: the LM386 in DIP-8. It is hand-solderable, but class AB wastes more of a battery's energy and needs its own gain and output parts.
 
 Power: set RV1 so a full-volume square wave gives at most 2 V peak on the speaker, 2 V x 2 V / 8 Ohm = 0.5 W. A square wave's rms equals its peak, so this is the worst case and the speaker rating of 0.5 W is checked against it. A full-scale PCM sine at the same setting also peaks at 2 V and gives 2 V x 2 V / 2 / 8 Ohm = 0.25 W. The amplifier then draws 0.5 W / 0.85 / 5 V = 118 mA from `+5V` (efficiency 85 %, typical, check). Budget 150 mA. Unlimited, a clipped square wave in bridge mode at 5 V could put 5 V x 5 V / 8 Ohm = 3.1 W into the speaker and draw 3.1 / 0.85 / 5 = 0.74 A. That is why RV1 stays. Idle current about 4 mA (typical, check). SD stays open: the module pulls it high (typical, check the module), and a pin to shut it down would save 20 mW at most.
+
+M1's footprint `RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm` is drawn from memory of the common breakout, to verify against the module bought: a row of 5 input pins on 2.54 mm, pins 1 VIN, 2 GND, 3 SD, 4 A+, 5 A-, and the speaker terminal on the opposite edge, pins 6 OUT+ and 7 OUT- on 3.5 mm, 15.24 mm from the input row. Redraw it from the real module before any board is ordered. With pins soldered at both edges, OUT+ and OUT- reach J6 through the board. A builder may instead wire the speaker straight to the module's terminal.
 
 The PAM8302A drives the speaker in bridge mode (typical, check). Neither speaker wire is ground.
 
@@ -563,7 +565,7 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 | TP5 | `I2C_SCL` |
 | TP6 | `AUD_IN` |
 | TP7 | `TFT_LED` |
-| TP8 | `SQW` |
+| TP8 | `SQW`. Fit R15 to probe it: SQW is open drain (from memory, to verify), so TP8 floats without R15. |
 
 ### 4.11 What the board does not have
 
@@ -658,13 +660,13 @@ The owner must decide with the case:
 | DS1 | 1 | ILI9341 2.8 inch 240 x 320 SPI module, 14-pin header, example MSP2807 | Module | Check the pin order against J2 |
 | U1 | 1 | DS1338, 3.3 V grade, example DS1338Z-33+ | SOIC-8 | Check the suffix |
 | U2 | 1 | 24C32 class EEPROM | SOIC-8 | Not fitted |
-| M1 | 1 | PAM8302A mono class-D breakout module | 2.54 mm pins | Check the module pinout |
+| M1 | 1 | PAM8302A mono class-D breakout module | 5 pins and 2 output pads | Check the module pinout and geometry |
 | Q1 | 1 | BC327-25, PNP | TO-92 | Check the pin order |
 | Q2 | 1 | 2N3904, NPN | TO-92 | Check the pin order |
 | D1 | 1 | TVS 600 W, 5.8 V standoff, unidirectional, example P6KE6.8A | DO-15 | Spikes only, see section 4.8 |
 | D2 | 1 | Zener 6.2 V, 500 mW, example 1N5234B | DO-35 | Q3 gate clamp |
 | Q3 | 1 | P-channel MOSFET, -20 V or more, ±8 V gate or more, 0.06 Ohm at -4.5 V, 0.1 Ohm at -2.5 V, threshold -0.4 V to -1.3 V, examples AO3401A or DMG2305UX | SOT-23 | Reverse polarity, see section 4.8. Check the pin order. |
-| F1 | 1 | Polyfuse, 0.9 A hold, 1.8 A trip, 16 V or more, example Bourns MF-R090 | Radial | |
+| F1 | 1 | Polyfuse, 0.9 A hold, 1.8 A trip, 16 V or more, example Bourns MF-R090 | Radial | Body width about 7.4 mm, to verify. Sits in the 10.0 mm outline. |
 | Y1 | 1 | 32.768 kHz, 6 pF load | Cylindrical THT | Check the load capacitance |
 | BT1 | 1 | CR1220 holder | THT | Cell not included |
 | SW1 to SW6 | 6 | 12 x 12 mm tactile switch with cap, example Omron B3F-4055 | THT | |
