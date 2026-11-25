@@ -32,6 +32,7 @@ Each board has the same shape:
 - Net names match the software: `GPIO17`, `X0.0` to `X1.7`, `BTN_UP`, `+3V3`, `+5V`, `GND`.
 - Each project has its own `sym-lib-table` and `fp-lib-table`. Stock libraries go through `${KICAD10_SYMBOL_DIR}` and `${KICAD10_FOOTPRINT_DIR}`, ours through `${KIPRJMOD}/../../lib`. The generator writes both tables.
 - UUIDs come from the project name and the item path. Never use random UUIDs: CI compares a fresh generation with the committed files byte for byte.
+- Draw diagrams of structure and flow as Mermaid blocks. Export a picture of a board's layout from its KiCad board file with `tools/build.sh pictures <board>`, and commit it under the board's `img/` folder. `check` fails when the pictures differ from the board file. Before a board file exists, the spec describes the layout in a table. Nothing is drawn with characters, and `tests/test_diagrams.py` checks it.
 - Do not commit generated outputs: PDFs, renders, netlists, BOMs, fab files. They live under `build/`, which git ignores.
 
 ## Hierarchical schematics

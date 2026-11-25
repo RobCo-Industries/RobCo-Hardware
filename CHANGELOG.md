@@ -30,3 +30,4 @@
 - Find RobCo-Core two levels up in the tests too, so the real pin table tests run from a worktree.
 - Add the Pip-Boy HAT spec, its header map and its bring-up checklist. Specification only.
 - Apply the electrical review to the Pip-Boy spec: reverse-polarity MOSFET, plain overvoltage limits and voltage budget, dial speed limit, audio trimmer range, backlight notes.
+- Draw the block diagrams in Mermaid, describe the Pip-Boy layout in tables, and export the toy board pictures with `tools/build.sh pictures`.
