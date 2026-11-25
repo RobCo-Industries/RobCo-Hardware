@@ -50,7 +50,7 @@ def socket(s: Schematic) -> None:
              ref_at=(g(-4), g(5)), value_at=(g(-4), g(7)),
              description="ILI9341 2.8 inch 240 x 320 SPI module, 14-pin header, example MSP2807. "
                          "Bought, plugged into J2, not soldered: no footprint.")
-    note(s, "DS1 plugs into J2.\nNot on the board.", (g(98), g(46)))
+    note(s, "DS1: bought, off the board.\nIt plugs into J2, the\nboard's socket.", (g(96), g(46)))
     note(s, "J2 pin order: typical of MSP2807 class modules, from memory.\n"
             "TO VERIFY AGAINST THE MODULE BOUGHT. If it differs, do not plug\n"
             "it in: change J2. Silkscreen the pin names beside J2.\n"

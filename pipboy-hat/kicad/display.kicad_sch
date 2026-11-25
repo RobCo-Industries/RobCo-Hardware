@@ -2451,16 +2451,16 @@
 		)
 		(uuid "635cb733-9406-55ab-a95b-3fd3f26dabe9")
 	)
-	(text "DS1 plugs into J2.\nNot on the board."
+	(text "DS1: bought, off the board.\nIt plugs into J2, the\nboard's socket."
 		(exclude_from_sim no)
-		(at 124.46 58.42 0)
+		(at 121.92 58.42 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "c563324a-ce12-547b-b207-41408c2278bc")
+		(uuid "f00dc8db-e68f-5bf7-a924-d6dbb061ae19")
 	)
 	(text "J2 pin order: typical of MSP2807 class modules, from memory.\nTO VERIFY AGAINST THE MODULE BOUGHT. If it differs, do not plug\nit in: change J2. Silkscreen the pin names beside J2.\nTouch pins 10 to 14 stay open. The module's SD slot is not wired.\nVCC is +3V3, 3.3 V logic. Close the module's regulator bypass pad\nif it asks for it at 3.3 V (to verify on the module).\nR24 damps the clock: keep it within 10 mm of J1, SPI under 50 mm.\nDS1 sits on H1 to H4, 11 mm M3 standoffs."
 		(exclude_from_sim no)
