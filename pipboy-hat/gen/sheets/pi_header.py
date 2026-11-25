@@ -61,16 +61,20 @@ def header(s: Schematic) -> None:
 
 
 def board_step(s: Schematic) -> None:
-    s.frame("For the board step: J1 side and pin 1", (g(10), g(120)), (g(84), g(142)))
-    note(s, "J1 is a through-hole socket on the bottom side.\n"
-            "The Pi Zero hangs face up below the board on it.\n"
-            "Spec section 9: the footprint is mirrored against\n"
-            "a normal HAT. Place J1 on the bottom layer, as\n"
-            "KiCad flips it, and check on a drawing of the\n"
-            "Zero, face up below the board, that J1 pin 1\n"
-            "meets the Pi's pin 1. Check it twice, with the\n"
-            "case's Pi orientation, before any order.\n"
-            "H5 to H8 sit at the Zero's M2.5 holes.", (g(14), g(138)))
+    s.frame("For the board step: J1 side and pin 1", (g(10), g(118)), (g(84), g(146)))
+    note(s, "1. J1's body sits on the BOTTOM face of this board.\n"
+            "   The Pi Zero hangs below, its own parts facing up,\n"
+            "   its male header pushed up into J1.\n"
+            "2. That is the stacking of a normal HAT. Seen from\n"
+            "   above this board, J1 pin 1 sits straight over the\n"
+            "   Pi's pin 1. Do not mirror it a second time.\n"
+            "3. In KiCad, J1 goes on the bottom layer, which\n"
+            "   flips its pads. Move it so pad 1, seen from the\n"
+            "   top, lands on the Pi's pin 1 in a top view.\n"
+            "4. Prove it before placing anything else: lay the\n"
+            "   Zero's footprint or drawing, top view, under J1\n"
+            "   and match pin 1 and pin 2 to J1 pads 1 and 2.\n"
+            "H5 to H8 sit at the Zero's M2.5 holes.", (g(14), g(144)))
 
 
 def pullups(s: Schematic) -> None:

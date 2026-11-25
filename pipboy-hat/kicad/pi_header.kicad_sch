@@ -3550,8 +3550,8 @@
 		(uuid "6703ce9b-6cad-5695-8310-d9d258175726")
 	)
 	(rectangle
-		(start 12.7 152.4)
-		(end 106.68 180.34)
+		(start 12.7 149.86)
+		(end 106.68 185.42)
 		(stroke
 			(width 0)
 			(type dash)
@@ -3563,7 +3563,7 @@
 	)
 	(text "For the board step: J1 side and pin 1"
 		(exclude_from_sim no)
-		(at 13.97 151.765 0)
+		(at 13.97 149.225 0)
 		(effects
 			(font
 				(size 2 2)
@@ -3574,16 +3574,16 @@
 		)
 		(uuid "ffdb9636-2e5f-5154-82c9-e3717fea3bed")
 	)
-	(text "J1 is a through-hole socket on the bottom side.\nThe Pi Zero hangs face up below the board on it.\nSpec section 9: the footprint is mirrored against\na normal HAT. Place J1 on the bottom layer, as\nKiCad flips it, and check on a drawing of the\nZero, face up below the board, that J1 pin 1\nmeets the Pi's pin 1. Check it twice, with the\ncase's Pi orientation, before any order.\nH5 to H8 sit at the Zero's M2.5 holes."
+	(text "1. J1's body sits on the BOTTOM face of this board.\n   The Pi Zero hangs below, its own parts facing up,\n   its male header pushed up into J1.\n2. That is the stacking of a normal HAT. Seen from\n   above this board, J1 pin 1 sits straight over the\n   Pi's pin 1. Do not mirror it a second time.\n3. In KiCad, J1 goes on the bottom layer, which\n   flips its pads. Move it so pad 1, seen from the\n   top, lands on the Pi's pin 1 in a top view.\n4. Prove it before placing anything else: lay the\n   Zero's footprint or drawing, top view, under J1\n   and match pin 1 and pin 2 to J1 pads 1 and 2.\nH5 to H8 sit at the Zero's M2.5 holes."
 		(exclude_from_sim no)
-		(at 17.78 175.26 0)
+		(at 17.78 182.88 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "05825120-828c-5870-b401-8febae25abc5")
+		(uuid "670bf349-40bb-53e3-b80d-8ff620c91a3e")
 	)
 	(rectangle
 		(start 114.3 15.24)
