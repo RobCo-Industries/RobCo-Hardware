@@ -836,10 +836,10 @@ U3 at 100 mA: it drops 5.25 V - 3.3 V = 1.95 V at most and dissipates 1.95 V x 0
 
 The switch: Q4, a P-MOSFET, source on `SD_LDO`, drain on `SD_3V3`. R66, 100 kOhm, holds its gate at its source: off. `HOLO_PWR` high turns Q5 on through R65, 22 kOhm. Q5 pulls Q4's gate down through R67, 22 kOhm. Q5's collector current is about 3.2 V / 122 kOhm = 26 uA.
 
-Q5's threshold: R69, 10 kOhm from base to emitter, forms a divider with R65. Q5 turns on when `HOLO_PWR` reaches Vbe x (1 + 22 / 10) = 3.2 x Vbe. With Vbe 0.6 V to 0.7 V (from memory, to verify, lower when hot), that is 1.9 V to 2.2 V.
+Q5's threshold: R69, 10 kOhm from base to emitter, forms a divider with R65. Q5 turns on when `HOLO_PWR` reaches Vbe x (1 + 22 / 10) = 3.2 x Vbe. With Vbe 0.55 V hot to 0.75 V cold (from memory, to verify), that is 1.76 V to 2.40 V: about 1.8 V to 2.4 V.
 
-- Margin to a 3.3 V high: 1.1 V at least. At 3.3 V the base gets (3.3 - 0.65) / 22 kOhm = 120 uA, R69 takes 0.65 / 10 kOhm = 65 uA, 55 uA is left. Q5 saturates with a gain of 1 or more.
-- Margin to the Pi's low: an output low is 0.4 V at most (from memory, to verify), 1.5 V under the threshold. R64 and the reset pull-down hold the line at 0 V while it floats.
+- Margin to a high: about 0.6 V to a 3.0 V high in the cold corner, 3.0 V - 2.4 V. Base drive with a 3.0 V high: 56 uA left at a Vbe of 0.55 V, (3.0 - 0.55) / 22 kOhm - 0.55 / 10 kOhm; 42 uA at 0.65 V; 27 uA at 0.75 V. Q5's collector current is about 27 uA, so Q5 saturates with a gain of 1 or more in every corner.
+- Margin to the Pi's low: an output low is 0.4 V at most (from memory, to verify), at least 1.3 V under the threshold: 1.76 V - 0.4 V = 1.36 V. R64 and the reset pull-down hold the line at 0 V while it floats.
 - The old divider, R65 10 kOhm with no R69, turned Q5 on at about 0.75 V. Q5 then held the slot on while the Pi's rail fell to under 1 V.
 
 Fully on, the gate sits at 3.3 V x 22 / 122 plus Q5's 0.1 V, about 0.7 V. Vgs is about -2.6 V. An AO3401A has about 0.085 Ohm at -2.5 V (from memory, to verify): 9 mV at 100 mA.
@@ -866,12 +866,16 @@ Power lost during a card transfer. The supply fails with `HOLO_PWR` and `HOLO_BU
 
 | Pi's `+3V3` | Q5, Q4, `SD_3V3` | U4 | U5 and MISO | Current from the slot into the Pi |
 |---|---|---|---|---|
-| 3.3 V to about 2.2 V | Q5 on, slot up | On: `HOLO_BUS` over its threshold | On, CS low. Its output high is `+3V3`, never above it | None: U5's output cannot forward-bias GPIO 9's clamp |
-| About 2.2 V to 1.9 V | Q5 turns off. R66 lifts Q4's gate through the plateau: Q4 off within about 10 ms | On | As above | None through MISO. U4's fourth gate may drive `BUF_OE` high into R70: (3.3 - 1.9) V / 10 kOhm = 0.14 mA at most |
+| 3.3 V to about 2.4 V | Q5 on, slot up | On: `HOLO_BUS` over its threshold | On, CS low. Its output high is `+3V3`, never above it | None: U5's output cannot forward-bias GPIO 9's clamp |
+| About 2.4 V to 1.8 V | Q5 turns off somewhere in this range. R66 lifts Q4's gate through the plateau: Q4 off within about 10 ms | On | As above | None. CS is low, so U4's fourth gate drives `BUF_OE` low: current flows from the Pi's `+3V3` through R70 into U4, a load of 0.24 mA at most on the Pi's rail, not current into it |
 | About 1.5 V and below | Q4 off. R68 empties `SD_3V3` in about 36 ms with a card | Off: `HOLO_BUS` under its switching point, about half its supply (from memory, to verify) | Off: R70 pulls `BUF_OE` to `+3V3`, and U5's rail is falling | None |
 
-What limits the current: U5's supply, not a resistor. The old design powered U5 from `SD_3V3` and drove DO through 33 Ohm into GPIO 9 with the Pi's rail at 1.5 V to 3 V: tens of milliamps into the clamp. Now the only path from the slot's rail to the Pi's is R70, 0.33 mA at the very most, 0.14 mA in practice, and only while U4 is still enabled: from the moment `+3V3` sags until it falls under about 1.5 V. How long that takes depends on the Pi's load and its capacitors, a few milliseconds (assumed). U4's inputs and U5's input have no clamp to their supply, so the Pi's lines and the card's DO push no current into either rail.
+What limits the current: U5's supply, not a resistor. The old design powered U5 from `SD_3V3` and drove DO through 33 Ohm into GPIO 9 with the Pi's rail at 1.5 V to 3 V: tens of milliamps into the clamp. Now the only path from the slot's rail to the Pi's is R70. It carries current that way only while CS and `HOLO_BUS` are both high: U4's fourth gate then drives `BUF_OE` to `SD_3V3`, and the current is the difference of the two rails over 10 kOhm, 0.33 mA at the very most. With CS low, as during a transfer, the current flows the other way: from the Pi's `+3V3` through R70 into U4. Either way it lasts only while U4 is still enabled: from the moment `+3V3` sags until it falls under about 1.5 V. How long that takes depends on the Pi's load and its capacitors, a few milliseconds (assumed). U4's inputs and U5's input have no clamp to their supply, so the Pi's lines and the card's DO push no current into either rail.
 - The card side of Q4 cannot rise above `SD_LDO`: Q4's body diode points from `SD_3V3` to `SD_LDO`.
+
+U4 below its supply range: while `SD_3V3` sits between about 0.8 V and 1.65 V with `HOLO_BUS` high, U4 runs under its specified supply (from memory, to verify). U5's enable is then undefined and MISO may carry undefined data. This happens only on power loss, card removal or a software fault, and the software already discards data after a detect edge. It cannot damage anything: U5's high level is the Pi's own rail.
+
+U5's input at the slot's turn-on and turn-off: it follows `SD_3V3` through R62 and crosses mid-rail for about 0.5 ms at turn-on and up to about 36 ms at turn-off (to verify). U5 draws a brief extra supply current then, which is harmless.
 
 `+3V3` now carries the slot's Pi-side parts: 0.70 mA for R53 while MISO is low, 0.33 mA each for R58 and R59 while a switch is closed, 0.33 mA for R70 while U4 drives `BUF_OE` low, U5's supply current under 0.1 mA, and R71's 24 uA with no card. About 1.8 mA in all.
 
@@ -1110,7 +1114,7 @@ The owner must decide with the case:
 | U1 | 1 | DS1338, 3.3 V grade, example DS1338Z-33+ | SOIC-8 | Check the suffix |
 | U2 | 1 | 24C32 class EEPROM | SOIC-8 | Not fitted |
 | U3 | 1 | MCP1700-3302E/TO, 3.3 V LDO, 250 mA | TO-92 | Holotape supply. Check the pin order. |
-| U4 | 1 | 74LVC126A, quad buffer, active-high enables | SOIC-14 | Holotape bus buffer. Check the pin order. |
+| U4 | 1 | 74LVC126A, quad buffer, active-high enables | SOIC-14 | Holotape bus buffer. 126, not 125: active-high enables. Check the pin order. |
 | U5 | 1 | 74LVC1G125, single buffer, active-low enable | SOT-23-5 | Holotape DO buffer. Check the pin order. |
 | M1 | 1 | PAM8302A mono class-D breakout module | 5 pins and 2 output pads | Check the module pinout and geometry |
 | Q1 | 1 | BC327-25, PNP | TO-92 | Check the pin order |
