@@ -35,7 +35,9 @@ POWER = "Power rail symbol, own net name. Not a part."
 # Options: "numbers" {old pin number: new pin number}, for a package whose pads
 # differ from the stock symbol; "pin_names": True shows pin names that the
 # stock symbol hides; "body_right": the x of the right edge of the body, to
-# widen it for the pin names; "status": the Status field, PROPOSAL when absent.
+# widen it for the pin names; "status": the Status field, PROPOSAL when absent;
+# "extra_pins": [(stock pin number to copy, new number, new name, (x, y, angle))],
+# for a part with a pin the stock symbol lacks, such as a switch common.
 SYMBOLS = {
     "PCA9554": (
         "Interface_Expansion", "TCA9554DW",
@@ -141,6 +143,26 @@ SYMBOLS = {
         },
         {},
     ),
+    "SD_Card_Hirose_DM1AA": (
+        "Connector", "SD_Card_Receptacle",
+        {
+            "Value": "SD_Card_Hirose_DM1AA",
+            "Footprint": "Connector_Card:SD_Hirose_DM1AA_SF_PEJ82",
+            "Datasheet": "",
+            "Description": (
+                "Full-size SD card socket, push-push, with card detect and write protect switches, "
+                "Hirose DM1AA-SF-PEJ(82) class. Drawn from the stock SD_Card_Receptacle with pins "
+                "named for SPI mode and numbered for the stock footprint pads: 1 DAT3/CS, 2 CMD/DI, "
+                "3 VSS1, 4 VDD, 5 CLK, 6 VSS2, 7 DAT0/DO, 8 DAT1, 9 DAT2, CP card detect, WP write "
+                "protect, SW the switch common, SH the shell. Which pad is the switch common and the "
+                "switch polarity are from memory: to check against the data sheet."
+            ),
+            "ki_keywords": "SD card socket connector holotape",
+            "ki_fp_filters": "SD*Hirose*DM1AA*",
+        },
+        {"1": "DAT3/CS", "2": "CMD/DI", "7": "DAT0/DO", "10": "CD", "11": "WP"},
+        {"numbers": {"10": "CP", "11": "WP"}, "extra_pins": [("SH", "SW", "COM", (15.24, -15.24, 180))]},
+    ),
     "D_TVS_Unidir": (
         "Diode", "SMAJ26A",
         {
@@ -231,6 +253,14 @@ def own_symbol(libs: SymbolLibs, name: str) -> list:
         sexp.child(body, "end")[1] = opts["body_right"]
     for unit in sexp.children(node, "symbol"):
         unit[1] = name + unit[1][len(stock):]
+        for like, num, pname, (x, y, ang) in opts.get("extra_pins", []):
+            src = [p for p in sexp.children(unit, "pin") if sexp.value(p, "number") == like]
+            if src:
+                pin = copy.deepcopy(src[0])
+                sexp.child(pin, "at")[1:4] = [Sym(str(v)) for v in (x, y, ang)]
+                sexp.child(pin, "name")[1] = pname
+                sexp.child(pin, "number")[1] = num
+                unit.insert(unit.index(src[0]) + 1, pin)
         for pin in sexp.children(unit, "pin"):
             num = sexp.value(pin, "number")
             if num in renames:
