@@ -47,6 +47,26 @@ def test_own_footprint_exists_and_parses(fpid):
     assert "F.CrtYd" in layers, f"{fpid} has no courtyard"
 
 
+def _pads(name):
+    with open(os.path.join(OWN, name + ".kicad_mod"), encoding="utf-8") as fh:
+        tree = sexp.parse(fh.read())
+    return [c[1] for c in sexp.children(tree, "pad")]
+
+
+def test_amplifier_module_footprint_has_two_edges():
+    """M1: 5 input pads in one row, 2 output pads on the opposite edge. The old 1x07 row is gone."""
+    assert not glob.glob(os.path.join(OWN, "PAM8302A_Module_1x07*"))
+    assert all("PAM8302A_Module_1x07" not in n for n in _named())
+    pads = _pads("PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm")
+    assert sorted(pads) == ["1", "2", "3", "4", "5", "6", "7"]
+
+
+def test_10mm_fuse_names_both_parts():
+    with open(os.path.join(OWN, "Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm.kicad_mod"), encoding="utf-8") as fh:
+        descr = sexp.value(sexp.parse(fh.read()), "descr", "")
+    assert "RXEF110" in descr and "MF-R090" in descr
+
+
 @pytest.mark.parametrize("fpid", [n for n in _named() if not n.startswith("RobCo:")])
 def test_stock_footprint_exists(fpid):
     root = _stock()

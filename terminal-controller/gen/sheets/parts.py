@@ -32,7 +32,7 @@ SJ3 = "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm"
 SJ2 = "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
 FUSE_1A1 = "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
 FUSE_200MA = "RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm"
-PAM8302A_MODULE = "RobCo:PAM8302A_Module_1x07_P2.54mm"
+PAM8302A_MODULE = "RobCo:PAM8302A_Module_In1x05_P2.54mm_Out1x02_P3.50mm"
 
 # Fields of a vertical two-pin part, to its right.
 RIGHT = dict(ref_at=(g(2), g(-1)), value_at=(g(2), g(1)))

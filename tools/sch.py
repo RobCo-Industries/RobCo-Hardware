@@ -275,6 +275,7 @@ class Schematic:
         mirror: str = "",
         unit: int = 1,
         dnp: bool = False,
+        on_board: Optional[bool] = None,
     ) -> Placed:
         """Place a symbol.
 
@@ -289,7 +290,9 @@ class Schematic:
         quad optocoupler. Each unit of a reference is placed once, from the
         same library symbol with the same value, footprint and fitting. `dnp`
         marks a part that is not fitted: it stays in the netlist and the BOM
-        with KiCad's "do not populate" flag.
+        with KiCad's "do not populate" flag. `on_board=False` keeps a part in
+        the BOM but off the board, such as a speaker on a lead; it follows
+        `in_bom` when not given.
         """
         # Every unit of one reference is one component to KiCad, on any sheet.
         # It must come from one library symbol with one value, footprint and
@@ -343,8 +346,8 @@ class Schematic:
             [Sym("body_style"), 1],
             [Sym("exclude_from_sim"), Sym("no")],
             [Sym("in_bom"), _yes(in_bom)],
-            [Sym("on_board"), _yes(in_bom)],
-            [Sym("in_pos_files"), _yes(in_bom)],
+            [Sym("on_board"), _yes(in_bom if on_board is None else on_board)],
+            [Sym("in_pos_files"), _yes(in_bom if on_board is None else on_board)],
             [Sym("dnp"), _yes(dnp)],
             [Sym("uuid"), self.uuid("symbol", ref) if unit == 1 else self.uuid("symbol", ref, unit)],
             self._prop("Reference", ref, (x + ra[0], y + ra[1]), hide=hide_ref,
