@@ -281,9 +281,13 @@ cmd_pictures() {
 }
 
 cmd_pictcheck() {
-  [ -f "$(pcb)" ] && [ -d "$BDIR/img" ] || { say "no board pictures for $BOARD: picture check skipped"; return 0; }
-  export_pictures "$OUT/pictures/fresh"
+  [ -f "$(pcb)" ] || { say "no board file yet: picture check skipped"; return 0; }
   local side
+  for side in top bottom; do
+    [ -f "$BDIR/img/board-$side.svg" ] \
+      || die "$BOARD/img/board-$side.svg missing: a board with a board file needs both pictures, run tools/build.sh pictures $BOARD"
+  done
+  export_pictures "$OUT/pictures/fresh"
   for side in top bottom; do
     cmp -s "$OUT/pictures/fresh/board-$side.svg" "$BDIR/img/board-$side.svg" \
       || die "$BOARD/img/board-$side.svg differs from the board file: run tools/build.sh pictures $BOARD"
