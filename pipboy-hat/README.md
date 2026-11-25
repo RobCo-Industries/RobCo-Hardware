@@ -22,7 +22,7 @@ The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device that
 | 6 | Audio | A4 | R30, C30, C31, R31, RV1, M1, C32, C33, J6, LS1, TP6 |
 | 7 | Clock | A4 | U1, Y1, BT1, C10, JP1, R15, TP8 |
 | 8 | Serial and test points | A4 | J4, TP1 to TP5 |
-| 9 | Holotape slot | A4 | J7 SD socket, U3 3.3 V regulator from `+5V`, C50 to C53, R50 to R59, TP9 |
+| 9 | Holotape slot | A3 | J7 SD socket; U4 and U5 bus buffers on `HOLO_BUS`; U3 regulator and Q4, Q5 slow-start switch on `HOLO_PWR`; D3 ESD array, not fitted; C50 to C57, R50 to R68, TP9, TP10 |
 
 Regenerate and check:
 
@@ -34,7 +34,7 @@ tools/build.sh docs pipboy-hat    # PDF, SVG, netlist and BOM in build/pipboy-ha
 
 CI runs the same check and keeps the PDF, the BOM and the netlist in the `toy-outputs` artifact. Nobody commits them.
 
-`check` runs `tests/test_pipboy_hat.py` on the exported netlist. It compares the BOM with the spec's BOM table, checks the exact pins of every net that reaches the Pi, the 5 V input path, the members of `+5V` and `+3V3`, the backlight switch, the clock's battery jumper, the unfitted pull-ups, the display socket's pin order, the serial header and the holotape slot: each card pin on its net, the pull-ups, MISO on the card and not on J2, the slot's supply path.
+`check` runs `tests/test_pipboy_hat.py` on the exported netlist. It compares the BOM with the spec's BOM table, checks the exact pins of every net that reaches the Pi, the 5 V input path, the members of `+5V` and `+3V3`, the backlight switch, the clock's battery jumper, the unfitted pull-ups, the display socket's pin order, the serial header and the holotape slot: the buffers' pins by number and their footprints, each card pin reaching the Pi only through U4 or U5, the pull-ups on the right rails, the default-off pulls of `HOLO_BUS` and `HOLO_PWR`, the slot's capacitors, `TFT_CS` off the card, MISO off J2, the switched supply path.
 
 ERC has no waiver.
 
@@ -54,6 +54,7 @@ Every dimension and pin order below comes from memory and is to verify against t
 | Q3 | Symbol `Q_PMOS_GSD_SOT23` | SOT-23 pads 1 gate, 2 source, 3 drain, as the AO3401A and DMG2305UX |
 | J2 | Symbol `ILI9341_Socket_1x14` | Pin names in the order of spec section 4.1, typical of MSP2807 class modules |
 | J7 | Symbol `SD_Card_Hirose_DM1AA` | Pads of the stock footprint `SD_Hirose_DM1AA_SF_PEJ82`: 1 to 9 the card, CP card detect, WP write protect, SW the switch common, SH the shell. Which pad is the common, and the switch polarity, from memory |
+| U4, U5, D3, Q4 | Stock symbols `74LS126` with value 74LVC126A, `74LVC1G125`, `USBLC6-4SC6`, own `Q_PMOS_GSD_SOT23` | Pin orders from memory of the 74x126 in SOIC-14, the TI SN74LVC1G125 in SOT-23-5 and the ST USBLC6-4SC6. Footprints are stock: SOIC-14, SOT-23-5, SOT-23-6 |
 | DS1 | Symbol `ILI9341_Module` | No pins: the module only plugs into J2 |
 | SW7 | Footprint `RotaryEncoder_Bourns_PEC11R-Switch_Vertical` | Pads copied from the stock Alps EC11E footprint |
 | F1 | Footprint `Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm` | The 1.1 A class outline of the terminal controller. An MF-R090, body width about 7.4 mm to verify, fits inside it: leads 5.1 mm apart, drill 1.0 mm |
