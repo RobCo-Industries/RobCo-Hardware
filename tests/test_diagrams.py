@@ -150,3 +150,34 @@ def test_terminal_controller_diagram_has_no_lonely_node():
 def test_graph_parser_reads_labels_and_chains():
     nodes, edges, _ = mermaid_graph(['A["a"] -- "V_X" --> B --> C', "C --- D", 'E["e"]'])
     assert edges == {("A", "B"), ("B", "C"), ("C", "D"), ("D", "C")} and "E" in nodes
+
+
+# Path facts of the Pip-Boy HAT power and signal diagrams, read from its
+# schematic netlist (pipboy-hat/gen/circuit.py).
+PB_SPEC = "pipboy-hat/spec/SPEC.md"
+PB_EDGES = [
+    ("J3", "F1"), ("F1", "Q3"), ("Q3", "P5V"), ("P5V", "D1"), ("D1", "P5V"), ("P5V", "M1"),
+    ("P3V3", "J2"), ("P3V3", "BLSW"), ("P3V3", "U1"), ("P3V3", "U2"),
+    ("SPI", "J2"), ("BL", "BLSW"), ("BLSW", "J2"), ("I2C", "U1"), ("IDP", "U2"), ("UART", "J4"),
+    ("PWM", "R30"), ("R30", "RV1"), ("RV1", "M1"), ("M1", "J6"), ("INP", "R40"), ("R40", "KEYS"),
+]
+PB_NO_EDGES = [("J3", "P5V"), ("J3", "Q3"), ("J3", "M1"), ("J3", "J2"), ("J3", "D1"), ("F1", "P5V"),
+    ("F1", "M1"), ("P5V", "J2"), ("PWM", "M1"), ("R30", "M1"), ("INP", "KEYS"), ("BL", "J2")]
+
+
+def pb_graphs():
+    blocks = [b for lang, b in fenced_blocks((REPO / PB_SPEC).read_text()) if lang == "mermaid"]
+    assert len(blocks) >= 2, "power and signal diagrams missing in " + PB_SPEC
+    return [mermaid_graph(b) for b in blocks]
+
+
+def test_pipboy_diagrams_follow_the_schematic():
+    edges = set().union(*(e for _, e, _ in pb_graphs()))
+    missing = [e for e in PB_EDGES if e not in edges]
+    wrong = [e for e in PB_NO_EDGES if e in edges]
+    assert not missing and not wrong, f"missing edges {missing}, wrong edges {wrong}"
+
+
+def test_pipboy_diagrams_have_no_lonely_node():
+    for nodes, _, linked in pb_graphs():
+        assert nodes <= linked, f"nodes without an edge: {sorted(nodes - linked)}"
