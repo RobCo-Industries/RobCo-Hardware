@@ -1664,16 +1664,16 @@
 		)
 		(uuid "4d79efb6-3c7f-5e5e-8d4c-294a6a581784")
 	)
-	(text "To verify: Q3 SOT-23 pads 1 gate, 2 source, 3 drain, as the AO3401A and\nDMG2305UX (from memory, common but not universal). Own symbol Q_PMOS_GSD_SOT23.\nD1 P6KE6.8A DO-15 pads 1 cathode, 2 anode. F1 MF-R090 body and lead spacing:\nown footprint, dimensions from memory. All example parts from memory."
+	(text "To verify: Q3 SOT-23 pads 1 gate, 2 source, 3 drain, as the AO3401A and\nDMG2305UX (from memory, common but not universal). Own symbol Q_PMOS_GSD_SOT23.\nD1 P6KE6.8A DO-15 pads 1 cathode, 2 anode. F1 uses the 1.1 A class outline,\nbody 10.0 x 3.5 mm, leads 5.1 mm apart, drill 1.0 mm: an MF-R090 is larger\nthan an MF-R020 and fits inside it. All dimensions and parts from memory."
 		(exclude_from_sim no)
-		(at 17.78 129.54 0)
+		(at 17.78 134.62 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left bottom)
 		)
-		(uuid "dc0c82a2-b696-5f73-ad39-c352facaeacb")
+		(uuid "79fc499b-4f08-5069-aa32-f02a21108b22")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
@@ -1867,7 +1867,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm"
+		(property "Footprint" "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
 			(at 50.8 45.72 0)
 			(hide yes)
 			(show_name no)
@@ -1927,7 +1927,7 @@
 		(dnp no)
 		(uuid "5816be71-366d-5ffb-af1a-1d7cd8580d70")
 		(property "Reference" "Q3"
-			(at 74.93 40.64 90)
+			(at 78.74 41.91 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1938,7 +1938,7 @@
 			)
 		)
 		(property "Value" "AO3401A/DMG2305UX"
-			(at 68.58 38.1 90)
+			(at 78.74 39.37 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects

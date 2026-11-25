@@ -27,7 +27,9 @@ TP_LOOP_BIG = "TestPoint:TestPoint_Loop_D3.80mm_Drill2.0mm"
 HDR = "Connector_PinHeader_2.54mm:PinHeader_{}_P2.54mm_Vertical"
 SJ2 = "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
 KEY_12MM = "Button_Switch_THT:SW_PUSH-12mm"
-FUSE_MF_R = "RobCo:Fuse_PTC_Radial_W7.4mm_T3.0mm_P5.10mm"
+# F1, MF-R090 class, 0.9 A hold: the 1.1 A class outline, 10.0 x 3.5 mm, not
+# the smaller MF-R020 one. Body sizes from memory, to verify.
+FUSE_MF_R = "RobCo:Fuse_PTC_Radial_W10.0mm_T3.5mm_P5.10mm"
 PAM8302A_MODULE = "RobCo:PAM8302A_Module_1x07_P2.54mm"
 ENCODER = "RobCo:RotaryEncoder_Bourns_PEC11R-Switch_Vertical"
 

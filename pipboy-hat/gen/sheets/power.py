@@ -26,7 +26,7 @@ def draw(s: Schematic) -> None:
     s.label_at("V_EXT", (g(26), y))
     # Q3 turned so the drain faces F1, the source faces +5V and the gate points down.
     q3 = s.symbol("RobCo:Q_PMOS_GSD_SOT23", "Q3", "AO3401A/DMG2305UX", (g(62), y + g(2)), rot=90,
-                  footprint=SOT23, ref_at=(g(-3), g(-6)), value_at=(g(-8), g(-8)),
+                  footprint=SOT23, ref_at=(g(0), g(-5)), value_at=(g(0), g(-7)),
                   description="P-channel MOSFET, -20 V or more, +-8 V gate or more, 0.06 Ohm at -4.5 V, "
                               "SOT-23. Drain V_F, source +5V, gate RP_G. Reverse-polarity block.")
     d, src, gate = q3.pin("3"), q3.pin("2"), q3.pin("1")
@@ -69,5 +69,6 @@ def draw(s: Schematic) -> None:
          (g(14), g(88)))
     note(s, "To verify: Q3 SOT-23 pads 1 gate, 2 source, 3 drain, as the AO3401A and\n"
             "DMG2305UX (from memory, common but not universal). Own symbol Q_PMOS_GSD_SOT23.\n"
-            "D1 P6KE6.8A DO-15 pads 1 cathode, 2 anode. F1 MF-R090 body and lead spacing:\n"
-            "own footprint, dimensions from memory. All example parts from memory.", (g(14), g(102)))
+            "D1 P6KE6.8A DO-15 pads 1 cathode, 2 anode. F1 uses the 1.1 A class outline,\n"
+            "body 10.0 x 3.5 mm, leads 5.1 mm apart, drill 1.0 mm: an MF-R090 is larger\n"
+            "than an MF-R020 and fits inside it. All dimensions and parts from memory.", (g(14), g(106)))
