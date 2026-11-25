@@ -16,6 +16,9 @@
 # GPIO 19 switches the backlight. No software table names it, so the check
 # does not cover it. It is not a default: PIPOS.CFG must set tft_backlight = 19.
 # Without that line the pull-up R20 keeps the backlight on.
+# The holotape slot, an SD card, sits on SPI0 with CS on CE1, GPIO 7. GPIO 12
+# and 13 read its card detect and write protect switches. No software table
+# names those two uses, so the check does not cover them.
 board: pipboy-hat
 connector: J1
 header: pi40
@@ -26,7 +29,7 @@ pins:
     net: +3V3
     use: power
     source: power
-    connects: 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1
+    connects: 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1. Not the card.
     status: used
   - pin: 2
     name: 5V
@@ -34,7 +37,7 @@ pins:
     net: +5V
     use: power
     source: power
-    connects: 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, TP2
+    connects: 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, U3, TP2
     status: used
   - pin: 3
     name: GPIO2
@@ -186,7 +189,7 @@ pins:
     net: SPI_MISO
     use: SPI0 MISO
     source: BOARD_SUPPORT.md Pins
-    connects: J2 pin 9, SDO, for tft_read_id()
+    connects: Holotape slot J7 pin 7, DO, through R57, 33 Ohm; R53 pull-up. J2 SDO only through JP3, open
     status: used
   - pin: 22
     name: GPIO25
@@ -223,11 +226,11 @@ pins:
   - pin: 26
     name: GPIO7
     function: GPIO 7, CE1
-    net: NC
+    net: HOLO_CS
     use: SPI0 CE1
     source: BOARD_SUPPORT.md Pins
-    connects: Not connected. Reserved for a second SPI device.
-    status: free on board, refused
+    connects: Holotape slot J7 pin 1, CS, through R56, 33 Ohm; R50 pull-up
+    status: used
   - pin: 27
     name: ID_SD
     function: ID_SD, GPIO 0
@@ -271,19 +274,19 @@ pins:
   - pin: 32
     name: GPIO12
     function: GPIO 12
-    net: NC
-    use: free
-    source: avoided by the input example, BOARD_SUPPORT.md Pins; PWM at ALT0
-    connects: Not connected
-    status: free
+    net: HOLO_CD
+    use: holotape card detect
+    source: this board; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: Holotape slot J7 CP, R58 pull-up
+    status: used
   - pin: 33
     name: GPIO13
     function: GPIO 13
-    net: NC
-    use: free
-    source: avoided by the input example, BOARD_SUPPORT.md Pins; PWM at ALT0
-    connects: Not connected
-    status: free
+    net: HOLO_WP
+    use: holotape write protect
+    source: this board; avoided by the input example, BOARD_SUPPORT.md Pins
+    connects: Holotape slot J7 WP, R59 pull-up
+    status: used
   - pin: 34
     name: GND
     function: GND

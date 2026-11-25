@@ -432,6 +432,184 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Jumper:SolderJumper_2_Open"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "JP"
+				(at 0 2.032 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SolderJumper_2_Open"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 -7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Solder Jumper, 2-pole, open"
+				(at 0 -5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "solder jumper SPST"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "SolderJumper*Open*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Open_0_1"
+				(polyline
+					(pts
+						(xy -0.254 1.016) (xy -0.254 -1.016)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start -0.254 -1.016)
+					(mid -1.2656 0)
+					(end -0.254 1.016)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(arc
+					(start 0.254 1.016)
+					(mid 1.2656 0)
+					(end 0.254 -1.016)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.254 1.016) (xy 0.254 -1.016)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SolderJumper_2_Open_1_1"
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 3.81)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "RobCo:ILI9341_Module"
 			(pin_names
 				(offset 1.016)
@@ -2316,27 +2494,16 @@
 		)
 		(uuid "c6701760-b149-51a8-8d71-bbc4f19e5312")
 	)
-	(global_label "SPI_MISO"
-		(shape output)
+	(label "TFT_SDO"
 		(at 92.71 66.04 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify right bottom)
 		)
-		(uuid "67775e43-04e2-5b90-bc24-87df7fc43e13")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 92.71 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
+		(uuid "e6893e6e-f5fb-523c-84aa-fc41e4af45f4")
 	)
 	(no_connect
 		(at 96.52 68.58)
@@ -2360,13 +2527,66 @@
 	)
 	(wire
 		(pts
-			(xy 59.69 60.96) (xy 96.52 60.96)
+			(xy 50.8 73.66) (xy 50.8 71.12)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "3fd2378a-0705-55a6-abe6-6ae7e7af6d94")
+	)
+	(label "TFT_SDO"
+		(at 50.8 71.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c357b9d1-92f4-5161-8fd4-c0c90ab2c4a3")
+	)
+	(wire
+		(pts
+			(xy 50.8 83.82) (xy 50.8 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cdf3ba3e-4647-5a5b-91eb-7ed11384f88a")
+	)
+	(global_label "SPI_MISO"
+		(shape output)
+		(at 50.8 86.36 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fa920ebf-927d-56ed-888e-144a02360b11")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 50.8 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 59.69 60.96) (xy 96.52 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b79f22ce-22de-5a78-b45d-c1d3de4092e6")
 	)
 	(label "SPI_SCK_J"
 		(at 66.04 60.96 0)
@@ -2387,7 +2607,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "cdf3ba3e-4647-5a5b-91eb-7ed11384f88a")
+		(uuid "3f8e8ffd-da80-5343-8e5d-9dbab73e1107")
 	)
 	(global_label "SPI_SCLK"
 		(shape input)
@@ -2419,7 +2639,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b79f22ce-22de-5a78-b45d-c1d3de4092e6")
+		(uuid "15ad53b2-5b30-5ae9-87be-f802ecda9fd5")
 	)
 	(wire
 		(pts
@@ -2429,7 +2649,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "3f8e8ffd-da80-5343-8e5d-9dbab73e1107")
+		(uuid "635cb733-9406-55ab-a95b-3fd3f26dabe9")
 	)
 	(wire
 		(pts
@@ -2439,7 +2659,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "15ad53b2-5b30-5ae9-87be-f802ecda9fd5")
+		(uuid "9ee9cdb4-3812-54c5-91b4-78e930b2eac6")
 	)
 	(wire
 		(pts
@@ -2449,7 +2669,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "635cb733-9406-55ab-a95b-3fd3f26dabe9")
+		(uuid "2a4a6126-b85e-58c5-b43a-8e3e0e50745f")
 	)
 	(text "DS1: bought, off the board.\nIt plugs into J2, the\nboard's socket."
 		(exclude_from_sim no)
@@ -2462,7 +2682,7 @@
 		)
 		(uuid "f00dc8db-e68f-5bf7-a924-d6dbb061ae19")
 	)
-	(text "J2 pin order: typical of MSP2807 class modules, from memory.\nTO VERIFY AGAINST THE MODULE BOUGHT. If it differs, do not plug\nit in: change J2. Silkscreen the pin names beside J2.\nTouch pins 10 to 14 stay open. The module's SD slot is not wired.\nVCC is +3V3, 3.3 V logic. Close the module's regulator bypass pad\nif it asks for it at 3.3 V (to verify on the module).\nR24 damps the clock: keep it within 10 mm of J1, SPI under 50 mm.\nDS1 sits on H1 to H4, 11 mm M3 standoffs."
+	(text "J2 pin order: typical of MSP2807 class modules, from memory.\nTO VERIFY AGAINST THE MODULE BOUGHT. If it differs, do not plug\nit in: change J2. Silkscreen the pin names beside J2.\nTouch pins 10 to 14 stay open. The module's SD slot is not wired.\nSDO reaches MISO only through JP3, open: the holotape card owns\nMISO. Close JP3 for tft_read_id() only, with no card in J7.\nVCC is +3V3, 3.3 V logic. Close the module's regulator bypass pad\nif it asks for it at 3.3 V (to verify on the module).\nR24 damps the clock: keep it within 10 mm of J1, SPI under 50 mm.\nDS1 sits on H1 to H4, 11 mm M3 standoffs."
 		(exclude_from_sim no)
 		(at 17.78 111.76 0)
 		(effects
@@ -2471,7 +2691,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "161b2a82-88de-5005-93d5-e2e4c676c4b9")
+		(uuid "b432d73e-3e23-5e42-825f-e72870eef198")
 	)
 	(rectangle
 		(start 154.94 15.24)
@@ -2506,7 +2726,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "9ee9cdb4-3812-54c5-91b4-78e930b2eac6")
+		(uuid "264dd7b0-1f65-5f1c-95bc-a34fa259bab3")
 	)
 	(wire
 		(pts
@@ -2516,7 +2736,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "2a4a6126-b85e-58c5-b43a-8e3e0e50745f")
+		(uuid "ecd5e297-857a-583e-8cea-04d59ccd2bc0")
 	)
 	(wire
 		(pts
@@ -2526,7 +2746,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "264dd7b0-1f65-5f1c-95bc-a34fa259bab3")
+		(uuid "d994a9dc-6e04-569b-9c3e-f9ec1039b7a2")
 	)
 	(wire
 		(pts
@@ -2536,7 +2756,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "ecd5e297-857a-583e-8cea-04d59ccd2bc0")
+		(uuid "b7e46f48-8ff5-51b8-b4d4-59c19a27c325")
 	)
 	(junction
 		(at 215.9 45.72)
@@ -2552,7 +2772,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "d994a9dc-6e04-569b-9c3e-f9ec1039b7a2")
+		(uuid "f72808d2-a34b-596b-9def-8a8654d0c709")
 	)
 	(label "BL_PB"
 		(at 203.2 49.53 180)
@@ -2573,7 +2793,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b7e46f48-8ff5-51b8-b4d4-59c19a27c325")
+		(uuid "8f88dfa9-96d9-5247-9f8d-f9874dc34dd9")
 	)
 	(wire
 		(pts
@@ -2583,7 +2803,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "f72808d2-a34b-596b-9def-8a8654d0c709")
+		(uuid "c893d712-e739-557e-a171-716c46026131")
 	)
 	(wire
 		(pts
@@ -2593,7 +2813,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "8f88dfa9-96d9-5247-9f8d-f9874dc34dd9")
+		(uuid "827d7dc1-14ac-572c-af3c-7a590a31e767")
 	)
 	(label "BL_NB"
 		(at 187.96 71.12 0)
@@ -2614,7 +2834,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c893d712-e739-557e-a171-716c46026131")
+		(uuid "b0eeb846-436f-518a-95a7-d684e37401ff")
 	)
 	(global_label "TFT_BL"
 		(shape input)
@@ -2646,7 +2866,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "827d7dc1-14ac-572c-af3c-7a590a31e767")
+		(uuid "e1fd8b3f-c622-5762-8e78-8611e3bb9896")
 	)
 	(wire
 		(pts
@@ -2656,7 +2876,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "b0eeb846-436f-518a-95a7-d684e37401ff")
+		(uuid "222f6b23-93fc-5541-a52b-46f1f84f52e8")
 	)
 	(wire
 		(pts
@@ -2666,7 +2886,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "e1fd8b3f-c622-5762-8e78-8611e3bb9896")
+		(uuid "74eac4d7-10f8-5cd0-a64c-cae828187bef")
 	)
 	(junction
 		(at 173.99 71.12)
@@ -2682,7 +2902,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "222f6b23-93fc-5541-a52b-46f1f84f52e8")
+		(uuid "a1275c66-2987-5524-9afb-13b1a089cd44")
 	)
 	(wire
 		(pts
@@ -2692,7 +2912,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "74eac4d7-10f8-5cd0-a64c-cae828187bef")
+		(uuid "714a716b-43dd-57cb-b9bb-f0bb760b2f56")
 	)
 	(wire
 		(pts
@@ -2702,7 +2922,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "a1275c66-2987-5524-9afb-13b1a089cd44")
+		(uuid "108db383-173a-5817-9acf-a90dbc010d76")
 	)
 	(label "TFT_LED"
 		(at 237.49 55.88 0)
@@ -3018,6 +3238,87 @@
 			(project "pipboy-hat"
 				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/bd71cbe0-9b7a-5c3f-9ac7-2356ae70dfdc"
 					(reference "#PWR32")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Jumper:SolderJumper_2_Open")
+		(at 50.8 78.74 90)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "7d5ddec8-7578-54ad-9c75-ca00f8823ecf")
+		(property "Reference" "JP3"
+			(at 59.69 77.47 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "SDO-MISO"
+			(at 64.77 80.01 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm"
+			(at 50.8 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 50.8 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Open. Debug only, with no card in J7: closed, the panel SDO drives SPI_MISO."
+			(at 50.8 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a7600af1-b2be-5a11-b756-28124b3edc5f")
+		)
+		(pin "2"
+			(uuid "9e58bb15-5d30-539d-80a7-5d0a09a87bea")
+		)
+		(instances
+			(project "pipboy-hat"
+				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602/bd71cbe0-9b7a-5c3f-9ac7-2356ae70dfdc"
+					(reference "JP3")
 					(unit 1)
 				)
 			)

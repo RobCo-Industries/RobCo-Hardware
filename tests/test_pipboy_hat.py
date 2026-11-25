@@ -4,7 +4,7 @@ The tests read the netlist that `kicad-cli sch export netlist` writes from the
 committed schematic, and compare it with pipboy-hat/spec/SPEC.md: the BOM,
 every signal net that reaches the Pi, the 5 V input path, the rails, the
 backlight switch, the clock's battery jumper, the unfitted pull-ups, the
-display socket's pin order and the serial header.
+display socket's pin order, the serial header and the holotape slot.
 
 Parts that stay off the board, the display module DS1 and the speaker LS1,
 are not in the netlist. The tests read them from the schematic files.
@@ -60,9 +60,12 @@ PI_NETS = {
     "TFT_CS": {("J1", "24"), ("J2", "3")},
     "TFT_RESET": {("J1", "7"), ("J2", "4")},
     "TFT_DC": {("J1", "22"), ("J2", "5")},
-    "SPI_MOSI": {("J1", "19"), ("J2", "6")},
-    "SPI_MISO": {("J1", "21"), ("J2", "9")},
-    "SPI_SCLK": {("J1", "23"), ("R24", "1")},
+    "SPI_MOSI": {("J1", "19"), ("J2", "6"), ("R55", "1")},
+    "SPI_MISO": {("J1", "21"), ("R57", "1"), ("R53", "2"), ("JP3", "1")},
+    "SPI_SCLK": {("J1", "23"), ("R24", "1"), ("R54", "1")},
+    "HOLO_CS": {("J1", "26"), ("R56", "1"), ("R50", "2")},
+    "HOLO_CD": {("J1", "32"), ("J7", "CP"), ("R58", "2")},
+    "HOLO_WP": {("J1", "33"), ("J7", "WP"), ("R59", "2")},
     "TFT_BL": {("J1", "35"), ("R20", "2"), ("R21", "1")},
     "AUDIO_PWM": {("J1", "12"), ("R30", "1")},
     "UART_TX": {("J1", "8"), ("J4", "5")},
@@ -72,7 +75,7 @@ PI_NETS = {
     "ID_SD": {("J1", "27"), ("U2", "5"), ("R12", "2")},
     "ID_SC": {("J1", "28"), ("U2", "6"), ("R13", "2")},
 }
-PI_OPEN = ("26", "32", "33", "38", "40")
+PI_OPEN = ("38", "40")
 
 
 class Skip(Exception):
@@ -344,11 +347,12 @@ def test_power_path_in_order():
 
 def test_rails_carry_only_the_stated_parts():
     assert nodes("+5V") == {("J1", "2"), ("J1", "4"), ("Q3", "2"), ("D2", "1"), ("D1", "1"), ("M1", "1"),
-                            ("C32", "1"), ("C33", "1"), ("TP2", "1")}
+                            ("C32", "1"), ("C33", "1"), ("TP2", "1"), ("U3", "2"), ("C50", "1")}
     assert nodes("+3V3") == {("J1", "1"), ("J1", "17"), ("J2", "1"), ("C1", "1"), ("C2", "1"),
                              ("Q1", pin_of("Q1", "E")), ("R20", "1"), ("R23", "1"), ("U1", "8"), ("C10", "1"),
                              ("U2", "8"), ("C11", "1"), ("R10", "1"), ("R11", "1"), ("R12", "1"), ("R13", "1"),
-                             ("R14", "1"), ("R15", "1"), ("TP1", "1")}
+                             ("R14", "1"), ("R15", "1"), ("TP1", "1"),
+                             ("R50", "1"), ("R53", "1"), ("R58", "1"), ("R59", "1")}
 
 
 # ---------------------------------------------------------------------------
@@ -416,6 +420,74 @@ def test_serial_header_keeps_vcc_open():
     for pin in ("2", "3", "6"):
         assert is_open("J4", pin), f"J4 pin {pin} must stay open"
     assert short(net_of("J4", "4")) == "UART_RX" and short(net_of("J4", "5")) == "UART_TX"
+
+
+# ---------------------------------------------------------------------------
+# Holotape slot, spec section 4.12
+
+
+# J7 pin: (pin name, card-side net, series resistor between it and the Pi net).
+J7_SPI = {
+    "1": ("DAT3/CS", "SD_CS", ("R56", "HOLO_CS")),
+    "2": ("CMD/DI", "SD_DI", ("R55", "SPI_MOSI")),
+    "5": ("CLK", "SD_CLK", ("R54", "SPI_SCLK")),
+    "7": ("DAT0/DO", "SD_DO", ("R57", "SPI_MISO")),
+}
+
+
+def test_holotape_card_pins_on_their_nets_through_33_ohm():
+    names = pin_names("J7")
+    for pin, (name, net, (ref, pi_net)) in J7_SPI.items():
+        assert names[pin] == name, f"J7 pin {pin} is {names[pin]}, want {name}"
+        assert nodes(net) == {("J7", pin), (ref, "2")}, net
+        assert short(net_of(ref, "1")) == pi_net, f"{ref} to {pi_net}"
+        assert parts()[ref].value == "33" and not parts()[ref].dnp, ref
+    assert net_of("J7", "3") == "GND" and net_of("J7", "6") == "GND"
+    assert net_of("J7", "SW") == "GND" and net_of("J7", "SH") == "GND"
+
+
+def test_holotape_pull_ups():
+    comps = parts()
+    want = {"R50": ("10k", "+3V3", "HOLO_CS"), "R53": ("47k", "+3V3", "SPI_MISO"),
+            "R58": ("10k", "+3V3", "HOLO_CD"), "R59": ("10k", "+3V3", "HOLO_WP"),
+            "R51": ("47k", "SD_3V3", "SD_DAT1"), "R52": ("47k", "SD_3V3", "SD_DAT2")}
+    for ref, (value, rail, net) in want.items():
+        assert comps[ref].value == value and not comps[ref].dnp, f"{ref}: {comps[ref].value}"
+        assert short(net_of(ref, "1")) == rail and short(net_of(ref, "2")) == net, ref
+    assert nodes("SD_DAT1") == {("J7", "8"), ("R51", "2")}
+    assert nodes("SD_DAT2") == {("J7", "9"), ("R52", "2")}
+
+
+def test_miso_reaches_the_card_and_not_the_display_socket():
+    miso = nodes("SPI_MISO")
+    assert not any(ref == "J2" for ref, _ in miso), "J2 must not sit on SPI_MISO"
+    assert ("R57", "1") in miso and net_of("R57", "2") == net_of("J7", "7")
+    assert nodes("TFT_SDO") == {("J2", "9"), ("JP3", "2")}
+    assert parts()["JP3"].part == "Jumper:SolderJumper_2_Open", "JP3 is open by default"
+
+
+def test_holotape_select_detect_and_protect_pins():
+    j1 = {pin: short(net) for (ref, pin), net in nl().pin_net().items() if ref == "J1"}
+    assert (j1["26"], j1["32"], j1["33"]) == ("HOLO_CS", "HOLO_CD", "HOLO_WP"), "CE1, GPIO 12, GPIO 13"
+    assert net_of("J7", "CP") == net_of("J1", "32") and net_of("J7", "WP") == net_of("J1", "33")
+    assert pin_names("J7")["CP"] == "CD" and pin_names("J7")["WP"] == "WP"
+
+
+def test_holotape_supply_path_in_order():
+    assert parts()["U3"].value == "MCP1700-3302E/TO"
+    vi, vo, gnd = pin_of("U3", "VI"), pin_of("U3", "VO"), pin_of("U3", "GND")
+    assert net_of("U3", vi) == "+5V" and net_of("U3", gnd) == "GND"
+    assert nodes("SD_3V3") == {("U3", vo), ("J7", "4"), ("C51", "1"), ("C52", "1"), ("C53", "1"),
+                               ("R51", "1"), ("R52", "1"), ("TP9", "1")}
+    for c in ("C51", "C52", "C53"):
+        assert net_of(c, "2") == "GND", c
+    assert net_of("C50", "1") == "+5V" and net_of("C50", "2") == "GND"
+
+
+def test_no_card_pin_on_5v_or_on_the_pi_3v3():
+    for (ref, pin), net in nl().pin_net().items():
+        if ref == "J7":
+            assert short(net) not in ("+5V", "+3V3"), f"J7 pin {pin} on {net}"
 
 
 # ---------------------------------------------------------------------------

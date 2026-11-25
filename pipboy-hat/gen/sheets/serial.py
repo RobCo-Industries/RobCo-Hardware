@@ -40,8 +40,8 @@ def test_points(s: Schematic) -> None:
     for k, (ref, net) in enumerate((("TP4", "I2C_SDA"), ("TP5", "I2C_SCL"))):
         tp = testpoint(s, ref, net, (g(140 + 18 * k), g(28)))
         s.global_label(tp, "1", net, shape="passive", stub=g(2))
-    note(s, "The board has no regulator. +3V3 comes\n"
-            "from the Pi, +5V from the Pi or J3.\n"
+    note(s, "+3V3 comes from the Pi, +5V from the Pi\n"
+            "or J3. U3 feeds only the holotape slot.\n"
             "TP3 is a loop for a probe clip.", (g(90), g(66)))
 
 

@@ -161,7 +161,7 @@
 			)
 		)
 	)
-	(text "J2 socket for the DS1 ILI9341 module, R24, C1, C2.\nQ1, Q2 backlight switch on TFT_BL, R20 default on."
+	(text "J2 socket for the DS1 ILI9341 module, R24, C1, C2,\nJP3. Q1, Q2 backlight switch on TFT_BL, R20 on."
 		(exclude_from_sim no)
 		(at 26.67 102.87 0)
 		(effects
@@ -170,7 +170,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "df9e2e30-8fb8-520f-9144-b9df50307bda")
+		(uuid "aa46c87a-9f82-580e-9a21-f6db3a7a7e0e")
 	)
 	(sheet
 		(at 127 96.52)
@@ -384,6 +384,59 @@
 		)
 		(uuid "7d0ae9c0-159a-5a03-9bd4-930a863af904")
 	)
+	(sheet
+		(at 127 157.48)
+		(size 71.12 17.78)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "c4eee3ac-d075-56a2-b3b6-f745fdce2be2")
+		(property "Sheetname" "Holotape slot"
+			(at 127 156.7684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "holotape.kicad_sch"
+			(at 127 175.8584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "pipboy-hat"
+				(path "/9b06d28c-cc5c-558c-8c77-79bbceb04602"
+					(page "9")
+				)
+			)
+		)
+	)
+	(text "J7 SD socket on SPI0 CE1, U3 3.3 V from +5V,\nR50 to R59, C50 to C53, TP9."
+		(exclude_from_sim no)
+		(at 128.27 163.83 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "57f67484-feb0-5f41-be7d-1f54347ff0d0")
+	)
 	(text "Pip-Boy HAT for the Raspberry Pi Zero, Zero W and Zero 2 W"
 		(exclude_from_sim no)
 		(at 25.4 27.94 0)
@@ -397,7 +450,7 @@
 		)
 		(uuid "12259d39-5d5a-5596-a967-25feaab8c724")
 	)
-	(text "Proposal. Not built, not validated on hardware.\nJ3 takes a REGULATED 5 V source only. No USB cable on the Pi while J3 is powered.\nSpec: pipboy-hat/spec/SPEC.md. Header map: spec/pins.yaml.\nCross-sheet nets use global labels: I2C_SDA, I2C_SCL, ID_SD, ID_SC, SPI_SCLK, SPI_MOSI,\nSPI_MISO, TFT_CS, TFT_DC, TFT_RESET, TFT_BL, BTN_*, DIAL_A, DIAL_B, DIAL_PUSH,\nAUDIO_PWM, UART_TX, UART_RX. Rails use power symbols: +3V3, +5V, GND."
+	(text "Proposal. Not built, not validated on hardware.\nJ3 takes a REGULATED 5 V source only. No USB cable on the Pi while J3 is powered.\nSpec: pipboy-hat/spec/SPEC.md. Header map: spec/pins.yaml.\nCross-sheet nets use global labels: I2C_SDA, I2C_SCL, ID_SD, ID_SC, SPI_SCLK, SPI_MOSI, SPI_MISO,\nTFT_CS, TFT_DC, TFT_RESET, TFT_BL, BTN_*, DIAL_A, DIAL_B, DIAL_PUSH, AUDIO_PWM, UART_TX, UART_RX,\nHOLO_CS, HOLO_CD, HOLO_WP. Rails use power symbols: +3V3, +5V, GND."
 		(exclude_from_sim no)
 		(at 25.4 53.34 0)
 		(effects
@@ -406,7 +459,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "1ce9909d-970f-5b6b-bf8b-806375c6c5c2")
+		(uuid "26976f75-cda5-58af-ad25-78bc6d484e72")
 	)
 	(sheet_instances
 		(path "/"

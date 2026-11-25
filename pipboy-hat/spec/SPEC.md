@@ -4,7 +4,7 @@
 
 > **This is a proposal.** Nobody has built, measured or tested this board. Every electrical value below is a recommendation. Check each one against the current data sheet of the exact part you buy before you order boards.
 
-The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device. It runs Pip-OS and its user interface, Deitrix. It carries an SPI colour display, six keys, a rotary dial with a push button, a small speaker amplifier, a clock chip and a serial console header.
+The board turns a Raspberry Pi Zero, Zero W or Zero 2 W into a wrist device. It runs Pip-OS and its user interface, Deitrix. It carries an SPI colour display, six keys, a rotary dial with a push button, a small speaker amplifier, a clock chip, a serial console header and a holotape slot for SD cards.
 
 It is for the owner of the project and for any hobbyist who solders one. It assumes you can read a schematic and solder SOIC and SOT-23 parts with an iron.
 
@@ -26,7 +26,8 @@ Software references:
 
 ## 2. What the board does
 
-- An ILI9341 display module, 2.8 inch, 240 by 320 pixels, plugs into a 14-pin socket. It sits on SPI0 with the pins of `TFT_CONFIG_DEFAULT`: CE0, D/C on GPIO 25, reset on GPIO 4. MISO is wired, so the software can read the panel id.
+- An ILI9341 display module, 2.8 inch, 240 by 320 pixels, plugs into a 14-pin socket. It sits on SPI0 with the pins of `TFT_CONFIG_DEFAULT`: CE0, D/C on GPIO 25, reset on GPIO 4. Its SDO pin stays off MISO, behind an open solder jumper.
+- A holotape slot: a full-size SD socket on SPI0 CE1, GPIO 7, with card detect on GPIO 12 and write protect on GPIO 13. A small regulator feeds it from `+5V`. See [section 4.12](#412-holotape-slot).
 - A transistor pair switches the backlight from GPIO 19. A pull-up keeps it on when the software leaves the pin alone.
 - Six 12 mm keys and a rotary encoder with a push button sit on the board, on the pins of the input example. A parallel 11-pin header, not fitted, takes a remote front panel instead.
 - A DS1338 clock with a crystal and a CR1220 cell sits on I2C1 at `0x68`.
@@ -52,6 +53,8 @@ flowchart LR
     BLSW["Q1 backlight<br/>emitter"]
     U1["U1 DS1338"]
     U2["U2 ID EEPROM<br/>not fitted"]
+    U3["U3 MCP1700<br/>3.3 V, slot only"]
+    J7["J7 holotape<br/>SD socket"]
     J3 -- "V_EXT" --> F1 -- "V_F" --> Q3
     Q3 -- "+5V" --> P5V
     P5V --- D1
@@ -60,12 +63,16 @@ flowchart LR
     P3V3 --> BLSW
     P3V3 --> U1
     P3V3 --> U2
+    P5V --> U3 -- "SD_3V3" --> J7
 ```
 
 ```mermaid
 flowchart LR
     subgraph J1["Pi header J1"]
-        SPI["GPIO8-11, 4, 25"]
+        SPI["GPIO8, 10, 11, 4, 25"]
+        MISO["GPIO9 MISO"]
+        CE1["GPIO7 CE1"]
+        HOLO["GPIO12, 13<br/>detect, protect"]
         BL["GPIO19"]
         I2C["GPIO2/3"]
         IDP["ID_SD, ID_SC"]
@@ -76,6 +83,12 @@ flowchart LR
     subgraph DISPLAY["Display"]
         BLSW["Q2 + Q1 backlight switch<br/>R20 pull-up"]
         J2["J2 display socket, 14 pin<br/>DS1 ILI9341"]
+        JP3["JP3 open<br/>debug only"]
+    end
+    subgraph HOLOTAPE["Holotape slot"]
+        RSD["R54-R56 33 Ohm<br/>R50 CS pull-up"]
+        R57["R57 33 Ohm<br/>R53 pull-up"]
+        J7["J7 SD socket<br/>CS, DI, CLK, DO"]
     end
     U1["U1 DS1338 0x68<br/>Y1, BT1"]
     U2["U2 ID EEPROM<br/>not fitted"]
@@ -91,6 +104,12 @@ flowchart LR
         KEYS["SW1-SW6 keys<br/>SW7 dial + push<br/>J5 panel header, not fitted"]
     end
     SPI -- "SPI0, CS, DC, RESET" --> J2
+    J2 -.- JP3 -.- MISO
+    SPI -- "SCLK, MOSI" --> RSD
+    CE1 -- "HOLO_CS" --> RSD
+    RSD --> J7
+    J7 -- "SD_DO" --> R57 --> MISO
+    J7 -- "HOLO_CD, HOLO_WP" --> HOLO
     BL -- "TFT_BL" --> BLSW
     BLSW -- "TFT_LED" --> J2
     I2C -- "I2C" --> U1
@@ -109,8 +128,8 @@ Sources: BOARD_SUPPORT.md, section "Pins", with its audio table, the input examp
 
 | Pin | Pi function | Net | Software use (source) | This board connects | Status |
 |---|---|---|---|---|---|
-| 1 | 3V3 | `+3V3` | Power | 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1 | used |
-| 2 | 5V | `+5V` | Power | 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, TP2 | used |
+| 1 | 3V3 | `+3V3` | Power | 3V3 rail: display VCC, backlight switch Q1, U1, pull-ups, TP1. Not the card. | used |
+| 2 | 5V | `+5V` | Power | 5V rail: Q3 source, fed from J3 through F1; D1, D2, M1, U3, TP2 | used |
 | 3 | GPIO 2, SDA1 | `I2C_SDA` | I2C SDA (BOARD_SUPPORT.md Pins) | I2C SDA to U1, TP4 | used |
 | 4 | 5V | `+5V` | Power | Joined to pin 2 | used |
 | 5 | GPIO 3, SCL1 | `I2C_SCL` | I2C SCL (BOARD_SUPPORT.md Pins) | I2C SCL to U1, TP5 | used |
@@ -129,19 +148,19 @@ Sources: BOARD_SUPPORT.md, section "Pins", with its audio table, the input examp
 | 18 | GPIO 24 | `DIAL_B` | Dial B (BOARD_SUPPORT.md Pins, input example) | SW7 B and J5 pin 9 through R47, 1 kOhm, C48 | used |
 | 19 | GPIO 10, MOSI | `SPI_MOSI` | SPI0 MOSI (BOARD_SUPPORT.md Pins) | J2 pin 6, SDI | used |
 | 20 | GND | `GND` | Ground | GND | used |
-| 21 | GPIO 9, MISO | `SPI_MISO` | SPI0 MISO (BOARD_SUPPORT.md Pins) | J2 pin 9, SDO, for tft_read_id() | used |
+| 21 | GPIO 9, MISO | `SPI_MISO` | SPI0 MISO (BOARD_SUPPORT.md Pins) | Holotape slot J7 pin 7, DO, through R57, 33 Ohm; R53 pull-up. J2 SDO only through JP3, open | used |
 | 22 | GPIO 25 | `TFT_DC` | TFT D/C (BOARD_SUPPORT.md SPI display, TFT_CONFIG_DEFAULT) | J2 pin 5, D/C | used |
 | 23 | GPIO 11, SCLK | `SPI_SCLK` | SPI0 SCLK (BOARD_SUPPORT.md Pins) | J2 pin 7, SCK, through R24, 33 Ohm | used |
 | 24 | GPIO 8, CE0 | `TFT_CS` | SPI0 CE0 (BOARD_SUPPORT.md Pins) | J2 pin 3, CS | used |
 | 25 | GND | `GND` | Ground | GND | used |
-| 26 | GPIO 7, CE1 | not connected | SPI0 CE1 (BOARD_SUPPORT.md Pins) | Not connected. Reserved for a second SPI device. | free on board, refused |
+| 26 | GPIO 7, CE1 | `HOLO_CS` | SPI0 CE1 (BOARD_SUPPORT.md Pins) | Holotape slot J7 pin 1, CS, through R56, 33 Ohm; R50 pull-up | used |
 | 27 | ID_SD, GPIO 0 | `ID_SD` | ID EEPROM (BOARD_SUPPORT.md Pins; avoided by the input example) | U2 SDA footprint, not fitted | optional |
 | 28 | ID_SC, GPIO 1 | `ID_SC` | ID EEPROM (BOARD_SUPPORT.md Pins; avoided by the input example) | U2 SCL footprint, not fitted | optional |
 | 29 | GPIO 5 | `BTN_UP` | UP (BOARD_SUPPORT.md Pins, input example) | SW1 and J5 pin 2 through R40, 1 kOhm | used |
 | 30 | GND | `GND` | Ground | GND | used |
 | 31 | GPIO 6 | `BTN_DOWN` | DOWN (BOARD_SUPPORT.md Pins, input example) | SW2 and J5 pin 3 through R41, 1 kOhm | used |
-| 32 | GPIO 12 | not connected | free (avoided by the input example, BOARD_SUPPORT.md Pins; PWM at ALT0) | Not connected | free |
-| 33 | GPIO 13 | not connected | free (avoided by the input example, BOARD_SUPPORT.md Pins; PWM at ALT0) | Not connected | free |
+| 32 | GPIO 12 | `HOLO_CD` | holotape card detect (this board; avoided by the input example, BOARD_SUPPORT.md Pins) | Holotape slot J7 CP, R58 pull-up | used |
+| 33 | GPIO 13 | `HOLO_WP` | holotape write protect (this board; avoided by the input example, BOARD_SUPPORT.md Pins) | Holotape slot J7 WP, R59 pull-up | used |
 | 34 | GND | `GND` | Ground | GND | used |
 | 35 | GPIO 19 | `TFT_BL` | TFT backlight (this board; not a default: PIPOS.CFG tft_backlight = 19) | R20 pull-up and R21 to the Q2 base, backlight switch | used |
 | 36 | GPIO 16 | `DIAL_PUSH` | Dial push (BOARD_SUPPORT.md Pins, input example) | SW7 push and J5 pin 10 through R48, 1 kOhm | used |
@@ -157,15 +176,17 @@ Notes on the map:
 - Every pin that the software tables name has its software use. No default moves. An unedited `PIPOS.CFG` drives the display, the keys, the dial, the audio and the clock.
 - GPIO 19 is the only pin this board adds. It switches the backlight. Pip-OS takes `tft_backlight = none` by default, so the line `tft_backlight = 19` must go into `PIPOS.CFG` before `power` off can darken the screen. Without it the pull-up R20 keeps the backlight on. See [section 4.2](#42-backlight).
 - GPIO 19 is free in every software table, and the Pip-OS display code accepts it: it refuses panel pins that collide with the keys, the dial, audio on GPIO 18, 40, 41 and 45, I2C, SPI0 and the PL011.
-- GPIO 7, CE1, stays free for a second SPI device, such as the touch controller of the module. This board leaves it open.
-- GPIO 12, 13, 20 and 21 stay open. The input example avoids them, and GPIO 12 and 13 at ALT0 can carry stereo PWM on the Zero (audio.md, section `audio.h`).
+- GPIO 7, CE1, selects the holotape card. GPIO 12 reads its card detect switch and GPIO 13 its write protect switch. No software table names these uses yet. See [section 4.12](#412-holotape-slot).
+- GPIO 12 and 13 at ALT0 can carry stereo PWM on the Zero (audio.md, section `audio.h`). The slot takes that option away. Mono PWM on GPIO 18 stays.
+- GPIO 20 and 21 stay open. The input example avoids them.
+- MISO, GPIO 9, reaches the holotape card only. The display's SDO sits behind JP3, open.
 - The module also carries an SD slot and touch pins. This board connects neither. See [section 4.1](#41-display).
 
 ## 4. Circuit blocks
 
 Net names follow plan section 5 and the terminal controller: rails `+3V3`, `+5V`, `GND` and `V_EXT`; buses `I2C_SDA`, `I2C_SCL`, `SPI_SCLK`, `SPI_MOSI`, `SPI_MISO`; display lines `TFT_CS`, `TFT_DC`, `TFT_RESET`, `TFT_BL`, `TFT_LED`; inputs `BTN_UP`, `BTN_DOWN`, `BTN_LEFT`, `BTN_RIGHT`, `BTN_SELECT`, `BTN_BACK`, `DIAL_A`, `DIAL_B`, `DIAL_PUSH`; `AUDIO_PWM`, `UART_TX`, `UART_RX`, `ID_SD`, `ID_SC`. The full list is in [section 5](#5-net-names).
 
-Every resistor is 1/4 W metal film, 1 %, through-hole, unless the row says otherwise. Every 100 nF capacitor is ceramic X7R, 50 V, 2.54 mm or 5.08 mm lead pitch. The only SMD parts are U1 and U2 in SOIC-8, and Q3 in SOT-23. U2 is not fitted. SOT-23 has three leads at 0.95 mm pitch, and an iron with a fine tip solders it.
+Every resistor is 1/4 W metal film, 1 %, through-hole, unless the row says otherwise. Every 100 nF capacitor is ceramic X7R, 50 V, 2.54 mm or 5.08 mm lead pitch. The only SMD parts are U1 and U2 in SOIC-8, Q3 in SOT-23 and the SD socket J7. U2 is not fitted. SOT-23 has three leads at 0.95 mm pitch, and an iron with a fine tip solders it. J7's contacts sit on a 2.5 mm pitch with large pads (typical, check).
 
 ### 4.1 Display
 
@@ -195,7 +216,7 @@ Module header, the order this footprint follows (typical, check against the modu
 | 6 | SDI (MOSI) | `SPI_MOSI` | GPIO 10, header pin 19 |
 | 7 | SCK | `SPI_SCK_J` | GPIO 11, header pin 23, through R24 |
 | 8 | LED | `TFT_LED` | Q1 collector |
-| 9 | SDO (MISO) | `SPI_MISO` | GPIO 9, header pin 21 |
+| 9 | SDO (MISO) | `TFT_SDO` | JP3, open. Not on GPIO 9. |
 | 10 | T_CLK | not connected | |
 | 11 | T_CS | not connected | |
 | 12 | T_DIN | not connected | |
@@ -209,6 +230,7 @@ Silkscreen the module pin names beside J2. If the bought module has another orde
 | J2 | 1x14 female header, 2.54 mm, 8.5 mm tall | As above |
 | DS1 | ILI9341 2.8 inch SPI module | Plugs into J2. Bought, not soldered to the board. |
 | R24 | 33 Ohm | `SPI_SCLK` to `SPI_SCK_J`, near J1 |
+| JP3 | 2-pad solder jumper, open | `SPI_MISO` to `TFT_SDO` when closed. Debug only, with no card in J7. |
 | C1 | 10 uF, 10 V ceramic, radial | `+3V3` to `GND` at J2 pin 1 |
 | C2 | 100 nF | `+3V3` to `GND` at J2 pin 1 |
 | H1 to H4 | M3 holes for the module's corner holes | Positions from the module bought |
@@ -217,9 +239,9 @@ Logic and supply: the module runs on 3.3 V, with 3.3 V logic. The Pi's pins are 
 
 SPI rate: the software asks for 10 MHz, the fastest write clock in the ILI9341 data sheet, and gets 9.62 MHz (BOARD_SUPPORT.md, section "SPI display"). R24 damps ringing on the clock line. With about 20 pF of trace and input (assumed), 33 Ohm x 20 pF = 0.66 ns, nothing against a 104 ns period. Keep the SPI traces under 50 mm.
 
-MISO: wired. `tft_read_id()` reads the panel id at 4 MHz and returns `TFT_ERR_NO_PANEL` when MISO reads all zeros or all ones (display.md, section "Power and id"). The panel is the only device on SPI0, so its SDO driving the line cannot clash with another chip.
+MISO: not wired to the panel. The holotape card shares SPI0, and the card owns MISO. The panel driver never needs to read the panel to draw. `tft_read_id()` reads the panel id at 4 MHz and returns `TFT_ERR_NO_PANEL` when MISO reads all zeros or all ones (display.md, section "Power and id"). On this board it returns that error unless JP3 is closed. JP3 is a solder jumper, open by default. Nobody fits it by mistake from a BOM. Close it only to debug the panel, with no card in J7, then open it again. With JP3 closed and a card in, the panel's SDO and the card's DO could both drive MISO.
 
-Touch and SD: the module's touch pins T_CLK to T_IRQ reach J2 pins 10 to 14 and stay open. The software has no touch driver, and a wrist device has keys. The SD slot has its own 4-pin header on the module (typical, check). This board fits nothing there. The Pi's own card holds the system. A later revision could put the touch controller on CE1, GPIO 7.
+Touch and SD: the module's touch pins T_CLK to T_IRQ reach J2 pins 10 to 14 and stay open. The software has no touch driver, and a wrist device has keys. The SD slot has its own 4-pin header on the module (typical, check). This board fits nothing there. The Pi's own card holds the system. The holotape slot now takes CE1, GPIO 7. A touch controller would need a third chip select on a free GPIO.
 
 Mounting: the module sits over the board on J2 and four M3 standoffs. With an 8.5 mm female header and the module's pins seated, the module board sits about 11 mm above this board (assumed, check the header bought). Use 11 mm M3 standoffs, or the height the header gives. Parts under the module must stay below 6 mm. The SD slot on the module's back is about 2.5 mm tall (typical, check). Keep J2's row clear of it.
 
@@ -288,9 +310,13 @@ Power-up: the backlight comes on as soon as `+3V3` rises, before the panel shows
 | R20 with GPIO 19 low | 0.7 mA | from section 4.2 |
 | DS1338 | 0.2 mA | typical, check |
 | I2C pull-ups on the Pi, when low | 1.8 mA each | known, BOARD_SUPPORT.md |
-| Total | about 120 mA | |
+| Holotape pull-ups R50, R53, R58, R59, when their lines are low | 1.1 mA | from section 4.12 |
+| Holotape card | 0 mA: it runs from U3 on `+5V` | section 4.12 |
+| Total | about 121 mA | |
 
 Limit: budget 200 mA for a HAT on the Zero's `+3V3` (assumed, to verify). The Zero makes 3.3 V with a switching regulator (from memory, to verify), so 120 mA at 3.3 V costs about 3.3 V x 0.12 A / 0.85 / 5 V = 93 mA at 5 V, with 85 % efficiency (assumed). If the regulator turns out weaker, power the backlight from `+5V` through a resistor in a later revision.
+
+The holotape card would add up to 100 mA here (to verify), 220 mA in all, above the 200 mA budget. That is why the slot has its own regulator on `+5V`.
 
 ### 4.4 Keys and dial
 
@@ -549,7 +575,7 @@ D1 is for short spikes only. The rule is: a regulated 5 V source only.
 
 A real overvoltage switch was rejected for this revision: the usual parts come in packages that a person cannot solder with an iron, and the supply is a USB power bank.
 
-Parts on `+5V` are rated above D1's breakdown: F1 at 16 V or more, Q3 at 20 V or more, C33 at 16 V, and the 50 V ceramics. The Pi and the PAM8302A are not.
+Parts on `+5V` are rated above D1's breakdown: F1 at 16 V or more, Q3 at 20 V or more, C33 and C50 at 16 V, and the 50 V ceramics. The Pi, the PAM8302A and U3 are not. U3 takes about 6 V at most (from memory, to verify).
 
 #### Voltage budget
 
@@ -579,10 +605,13 @@ Current budget at 5 V. The two amplifier rows exclude each other: sound playing 
 | `+3V3` loads of section 4.3, through the Pi's regulator | 93 mA | 93 mA | assumed efficiency |
 | Amplifier, sound playing: 118 mA at the RV1 ceiling plus 4 mA idle | 122 mA | 122 mA | from section 4.5 |
 | Amplifier, silent: idle only | 4 mA | 4 mA | typical, check |
-| Total, sound playing | 365 mA | 515 mA | |
-| Total, silent | 247 mA | 397 mA | |
+| Holotape card idle, through U3 | 1 mA | 1 mA | from memory, to verify |
+| Holotape card reading a tape, through U3: 30 mA typical, 100 mA peak | 100 mA | 100 mA | from memory, to verify |
+| Total, sound playing | 366 mA | 516 mA | |
+| Total, silent | 248 mA | 398 mA | |
+| Total, silent, loading a tape | 347 mA | 497 mA | |
 
-Design limit: 0.55 A. A USB power bank or a charger and boost module rated 1 A or more covers it.
+Design limit: 0.55 A. A USB power bank or a charger and boost module rated 1 A or more covers it. Sound and a tape load at their peaks would draw 465 mA on a Zero and 615 mA on a Zero 2 W. This spec assumes Pip-OS plays no sound while it loads a tape. That is an open item for Pip-OS.
 
 Run time from a power bank, as a note: a 5000 mAh bank holds 5 Ah x 3.7 V = 18.5 Wh. At 85 % conversion it delivers 15.7 Wh, or 3.1 Ah at 5 V. At 250 mA silent on a Zero that is about 12 h (all assumed). Some banks turn off below 50 mA to 100 mA (assumed). This board draws more, so that should not happen. Check the bank.
 
@@ -613,6 +642,7 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 | TP6 | `AUD_IN` |
 | TP7 | `TFT_LED` |
 | TP8 | `SQW`. Fit R15 to probe it: SQW is open drain (from memory, to verify), so TP8 floats without R15. |
+| TP9 | `SD_3V3`, the holotape card supply |
 
 ### 4.11 What the board does not have
 
@@ -620,14 +650,183 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 - No sensors. Pip-OS returns `-PIP_ENODEV` for sensors 1 to 6. The clock is the only one.
 - No USB port of its own. The Pi's ports stay in use.
 - No radio. Pip-OS does not drive the Zero W's WiFi or Bluetooth. Deitrix's RADIO tab plays tunes and samples from the card.
-- No touch input and no SD slot of its own.
+- No touch input. The holotape slot is the board's only card slot. The Pi's own card holds the system.
+
+### 4.12 Holotape slot
+
+> **Proposal.** Nobody has built or tested this slot. Every figure marked "from memory" or "to verify" needs the data sheet of the part bought.
+
+In the lore a holotape is a removable cartridge. On this board a holotape is an SD card in a second card slot, on the SPI bus. The slot takes a full-size SD card, so the card can sit in a tape-shaped shell. Anyone makes a tape by copying a file to a card on a computer.
+
+Choice: a full-size SD socket with card detect and write protect switches, on SPI0 with chip select on CE1. A 3.3 V regulator of its own feeds the card from `+5V`.
+
+Why:
+
+- SPI0 is already on the board for the display. The card adds one chip select, GPIO 7, CE1, free until now.
+- Full size, not micro SD: a full-size card fills a shell a hand can grip, and the socket reports write protect.
+- The Pi's `+3V3` has no room for a card's peak current, see "Power" below.
+
+Rejected:
+
+- A micro SD socket: too small for a tape shell, and it has no write protect switch.
+- A second SPI bus, SPI1: it would take GPIO 16, 19, 20 and 21. GPIO 16 is the dial push and GPIO 19 the backlight.
+- The display module's own SD slot: it sits under the module, out of reach while the device is worn.
+
+#### Socket
+
+J7 is a Hirose DM1AA-SF-PEJ(82) class socket: full size, push-push, top-mount SMD with contacts on a 2.5 mm pitch (from memory, to verify). The stock KiCad footprint `Connector_Card:SD_Hirose_DM1AA_SF_PEJ82` exists, so the repo adds no footprint. The own symbol `SD_Card_Hirose_DM1AA` maps the footprint pads: 1 to 9 the card contacts, CP card detect, WP write protect, SW the switch common, SH the shell.
+
+Switch polarity, from memory, to verify against the Hirose data sheet:
+
+- CP closes to SW when a card is in.
+- WP closes to SW when the card's slider is in the unlocked position. It stays open when the slider is on LOCK and when no card is in.
+
+If the part bought differs, the software reads the other level. No board change is needed for a swapped polarity, only for a swapped pad.
+
+#### Pins
+
+| J7 pin | SD name | SPI mode use | Net at J7 | Through | Pi pin |
+|---|---|---|---|---|---|
+| 1 | DAT3 | CS | `SD_CS` | R56, 33 Ohm | GPIO 7, CE1, header pin 26, `HOLO_CS` |
+| 2 | CMD | DI, card input | `SD_DI` | R55, 33 Ohm | GPIO 10, MOSI, header pin 19 |
+| 3 | VSS1 | Ground | `GND` | | |
+| 4 | VDD | Supply | `SD_3V3` | U3 | |
+| 5 | CLK | Clock | `SD_CLK` | R54, 33 Ohm | GPIO 11, SCLK, header pin 23 |
+| 6 | VSS2 | Ground | `GND` | | |
+| 7 | DAT0 | DO, card output | `SD_DO` | R57, 33 Ohm | GPIO 9, MISO, header pin 21 |
+| 8 | DAT1 | Unused | `SD_DAT1` | R51 pull-up | |
+| 9 | DAT2 | Unused | `SD_DAT2` | R52 pull-up | |
+| CP | Card detect | Switch to SW | `HOLO_CD` | R58 pull-up | GPIO 12, header pin 32 |
+| WP | Write protect | Switch to SW | `HOLO_WP` | R59 pull-up | GPIO 13, header pin 33 |
+| SW | Switch common | | `GND` | | |
+| SH | Shell | | `GND` | | |
+
+GPIO 7, 12 and 13 were free on this board. None of them is in the software's list for this device: display 4, 8, 9, 10, 11, 25, backlight 19, keys 5, 6, 17, 22, 26, 27, dial 16, 23, 24, audio 18, I2C 2 and 3, serial 14 and 15, ID 0 and 1. `pins.yaml` gave GPIO 7 as SPI0 CE1 and GPIO 12 and 13 as free.
+
+#### Parts
+
+| Ref | Part | Connection |
+|---|---|---|
+| J7 | Full-size SD socket, push-push, card detect and write protect, example Hirose DM1AA-SF-PEJ(82) | As above |
+| U3 | MCP1700-3302E/TO, 3.3 V LDO, 250 mA, TO-92 | VIN `+5V`, VOUT `SD_3V3`, GND |
+| C50 | 10 uF, 16 V ceramic | `+5V` to `GND` at U3 |
+| C51 | 10 uF, 10 V ceramic | `SD_3V3` to `GND` at U3 |
+| C52 | 100 uF, 10 V electrolytic | `SD_3V3` to `GND`, slot bulk |
+| C53 | 100 nF | `SD_3V3` to `GND` at J7 pin 4 |
+| R50 | 10 kOhm | `HOLO_CS` to `+3V3` |
+| R51, R52 | 47 kOhm | `SD_DAT1`, `SD_DAT2` to `SD_3V3` |
+| R53 | 47 kOhm | `SPI_MISO` to `+3V3` |
+| R54 to R57 | 33 Ohm | SCLK, MOSI, CS and MISO to J7, at J7 |
+| R58, R59 | 10 kOhm | `HOLO_CD`, `HOLO_WP` to `+3V3` |
+| TP9 | Test point | `SD_3V3` |
+
+U3's TO-92 pin order is 1 GND, 2 VIN, 3 VOUT in the stock KiCad symbol (from memory of the data sheet, to verify).
+
+#### SPI mode wiring
+
+The card starts in SD mode. It enters SPI mode when CS is low at its first command (known, SD simplified specification). DAT1 and DAT2 have no use in SPI mode. They get 47 kOhm pull-ups to `SD_3V3` so they never float. The SD specification asks for 10 kOhm to 100 kOhm on unused data lines (from memory, to verify).
+
+CS pull-up: R50, 10 kOhm to `+3V3`, on the Pi side of R56. The Pi's pins float while it boots. R50 holds CS high, so the card stays deselected and ignores the clock of the display. It costs 0.33 mA while CS is low.
+
+MISO pull-up: R53, 47 kOhm to `+3V3`. With no card selected nothing drives MISO. R53 holds it high instead of letting it float. It costs 0.07 mA while the card drives the line low.
+
+MISO goes to the card only. Some SD cards keep driving DO after CS goes high, until the next clock edges (typical, check). On a shared MISO that would corrupt the reads of another device. The display's SDO is therefore cut off: J2 pin 9 goes to JP3, an open solder jumper, see [section 4.1](#41-display). The panel driver never reads the panel to draw. A driver should still send one byte of clock with CS high after each card transfer, as most SD drivers do, so the card releases DO.
+
+Series resistors: R54 to R57, 33 Ohm, at J7. Each line from J1 branches to J2 and to J7 in a star. Each branch gets its own damping resistor: R24 for the display clock, R54 to R57 for the card. They damp ringing on a branch that may be longer than the display's, and they slow an ESD pulse from the socket into the Pi's pads. With about 20 pF on a branch (assumed), 33 Ohm x 20 pF = 0.66 ns, nothing against a 104 ns period.
+
+#### Power
+
+The card runs from `SD_3V3`, made by U3 from `+5V`. Nothing else sits on `SD_3V3` but R51 and R52.
+
+Card current in SPI mode, from memory, to verify against the card bought: about 30 mA reading, 100 mA peak, the default-speed limit of the SD specification, and under 1 mA idle.
+
+Why not the Pi's `+3V3`: section 4.3 already draws about 120 mA from a budget of 200 mA. A card's 100 mA peak would bring it to 220 mA. U3 moves the card to `+5V`, where the budget of section 4.8 has room.
+
+U3 at 100 mA: it drops 5.25 V - 3.3 V = 1.95 V at most and dissipates 1.95 V x 0.1 A = 0.2 W. A TO-92 takes about 0.6 W at 25 C (typical, check). Its dropout is about 0.18 V at 250 mA (from memory, to verify), so it regulates down to a `+5V` of about 3.5 V, far below the 4.43 V worst case of section 4.8.
+
+`+3V3` now carries only the slot's pull-ups: at most 0.33 mA for each of R50, R58 and R59 and 0.07 mA for R53, about 1.1 mA in all.
+
+#### Hot insertion
+
+A card pushed into a live slot connects its supply capacitance to `SD_3V3` at once. Design figure: up to 10 uF on the card (assumed, to verify against the SD physical layer specification).
+
+- `SD_3V3` holds C51 + C52 + C53 = 10 + 100 + 0.1 = 110 uF. Charge sharing drops it by 3.3 V x 10 / (110 + 10) = 0.28 V, to about 3.0 V, for a fraction of a millisecond. That stays inside the card's 2.7 V to 3.6 V range (from memory, to verify). Nothing else on `SD_3V3` minds.
+- U3 then refills the 33 uC, 10 uF x 3.3 V, at its current limit of about 0.4 A (from memory, to verify): about 0.1 ms.
+- `+5V` sees that current pulse, at most U3's limit, for about 0.1 ms. Through a 0.2 Ohm lead that is 0.4 A x 0.2 Ohm = 0.08 V. C33 and C50 carry the first microseconds while the lead's inductance catches up. Budget a dip of 0.1 V (assumed). At the worst `+5V` of 4.43 V, section 4.8, the rail falls to about 4.33 V, just above the 4.3 V this spec assumes for the Zero. On a typical bank at 4.92 V it falls to about 4.8 V. Bring-up step 27 measures it.
+- `+3V3` sees no supply current from the card. The display and the Pi do not see the insertion.
+- At power-up U3 charges the 110 uF in about 1 ms at its limit, while the Pi starts.
+
+CS stays high through R50 while the card powers up, so the card does not answer the display's traffic.
+
+#### Card detect and write protect
+
+Both switches close to `GND` through SW. R58 and R59, 10 kOhm, pull the lines to `+3V3`.
+
+| Line | Card in | Card out |
+|---|---|---|
+| `HOLO_CD`, GPIO 12 | low, 0 V | high, 3.3 V |
+| `HOLO_WP`, GPIO 13 | low when writable, high when the slider is on LOCK | high |
+
+So: card in reads low on GPIO 12. Write protected reads high on GPIO 13. Software must ignore GPIO 13 while GPIO 12 is high. Polarities to verify against the socket's data sheet.
+
+Debounce: in software, as for the keys. The software samples every pin at 100 Hz and debounces over 20 ms (Pip-OS `HARDWARE.md`). A card insertion bounces for a few milliseconds (assumed). The board adds no filter. A driver should also wait about 250 ms after the card detect settles before it powers the card up in software, so the card is seated (assumed).
+
+The write protect switch is advisory: the card itself does not enforce it. Pip-OS must refuse writes when it reads high.
+
+#### Sharing the bus
+
+The display and the card take turns on SPI0. CE0 selects the display and CE1 the card. Only one transfer runs at a time.
+
+A tape is read into RAM before it runs. The display pauses while the tape loads, or the driver interleaves display frames between card blocks.
+
+Clock: start the card at 400 kHz or less, as SD requires for its initialisation (known). Then run it at the display's clock, 9.62 MHz, the 10 MHz the software asks for (BOARD_SUPPORT.md, section "SPI display"). The card allows 25 MHz in SPI mode (from memory, to verify). The shared bus is the limit, not the card.
+
+Load time, estimate: 9.62 Mbit/s is 1.2 MB/s raw. Command overhead, read latency per block and file system lookups cost about 40 % (assumed). That leaves about 0.7 MB/s.
+
+| Tape size | Load time at 0.7 MB/s |
+|---|---|
+| 64 KB | about 0.1 s |
+| 256 KB | about 0.4 s |
+| 1 MB | about 1.4 s |
+| 4 MB | about 6 s |
+
+The bus has two loads now. Each card pin adds up to 10 pF (from memory, to verify), the display about 10 pF (assumed), and each branch of trace about 20 pF (assumed). The clock line then sees about 60 pF at J1. At 9.62 MHz that is fine with the series resistors. Keep each branch under 50 mm. If the outline puts J7 farther than 50 mm from J1, drop the card's clock to 4.8 MHz and check the clock edges at J7 with a scope at bring-up.
+
+#### ESD
+
+Decision: no TVS array on the slot.
+
+- A person touches the tape shell and the card's plastic body. The card's contacts sit inside the socket. A finger does not reach them.
+- J7's metal shell goes to `GND`. A discharge to the socket goes into the ground pour.
+- R54 to R57 put 33 Ohm between the socket and the Pi's pads, and the Pi's pad clamps take the rest.
+- The usual TVS arrays come in SOT-23-6 or smaller packages, and add capacitance on the SPI lines (typical, check).
+
+A case that leaves the card's contacts exposed should revisit this.
+
+#### Mechanical
+
+The socket sits on the bottom face, under the key strip, with its card opening flush with a board edge. The bottom face has room there: only BT1 sits under the key strip, and the socket is about 3 mm tall (typical, check). The tape shell slides in parallel to the board and stands out of the case wall.
+
+| Item | Face | Position | Note |
+| --- | --- | --- | --- |
+| J7 holotape slot | Bottom | Key strip, x = 92 to 130 mm, opening on the long edge away from the wearer's body | The right hand reaches it while the device is worn. To decide with the owner's outline choice. |
+
+The alternative is the short edge at x = 130 mm, nearest the hand. That puts the shell next to the keys. The owner decides with the outline. BT1 moves if J7 needs its place.
+
+#### Risks
+
+- The switch pads and polarities of J7 are from memory. A swapped pad would leave detect or protect dead. Check the data sheet before the board step.
+- A card that holds DO after deselection could still upset a later MISO user. Keep JP3 open and send one byte of clock after each card transfer.
+- The `+5V` dip on a live insertion is thin at a worst-case 4.43 V. Measure it at bring-up. If the Pi resets, raise C52 or insert cards with the device off.
+- Pip-OS has no holotape driver yet. The slot does nothing until it has one.
+- A long branch from J1 to J7 may need a slower card clock.
 
 ## 5. Net names
 
 | Net | What it joins |
 |---|---|
-| `+3V3` | Header pins 1 and 17, J2 VCC, Q1 emitter, R20, R23, U1, U2, pull-up footprints, TP1 |
-| `+5V` | Header pins 2 and 4, Q3 source, D2 cathode, D1, M1 Vin, C32, C33, TP2 |
+| `+3V3` | Header pins 1 and 17, J2 VCC, Q1 emitter, R20, R23, U1, U2, pull-up footprints, R50, R53, R58, R59, TP1 |
+| `+5V` | Header pins 2 and 4, Q3 source, D2 cathode, D1, M1 Vin, C32, C33, U3 VIN, C50, TP2 |
 | `GND` | Every header ground pin and every ground |
 | `V_EXT` | J3 pin 1 to F1 |
 | `V_F` | F1 to Q3 drain |
@@ -637,10 +836,16 @@ J4 is a 1x6 header, 2.54 mm, as on the first board. Pin 3 stays open so a 5 V ca
 | `VBAT` | U1 pin 3, BT1, JP1 |
 | `ID_SD`, `ID_SC` | GPIO 0 and 1 to U2, R12, R13 |
 | `EE_WP` | U2 WP, R14, JP2 |
-| `SPI_SCLK` | GPIO 11 to R24 |
+| `SPI_SCLK` | GPIO 11 to R24 and R54 |
 | `SPI_SCK_J` | R24 to J2 pin 7 |
-| `SPI_MOSI` | GPIO 10 to J2 pin 6 |
-| `SPI_MISO` | GPIO 9 to J2 pin 9 |
+| `SPI_MOSI` | GPIO 10 to J2 pin 6 and R55 |
+| `SPI_MISO` | GPIO 9 to R57, R53 and JP3 |
+| `TFT_SDO` | J2 pin 9 to JP3 |
+| `HOLO_CS` | GPIO 7 to R56 and R50 |
+| `HOLO_CD`, `HOLO_WP` | GPIO 12 and 13 to J7 CP and WP, R58, R59 |
+| `SD_CS`, `SD_DI`, `SD_CLK`, `SD_DO` | R56, R55, R54, R57 to J7 pins 1, 2, 5, 7 |
+| `SD_DAT1`, `SD_DAT2` | J7 pins 8 and 9 to R51, R52 |
+| `SD_3V3` | U3 VOUT, J7 VDD, C51 to C53, R51, R52, TP9 |
 | `TFT_CS` | GPIO 8 to J2 pin 3 |
 | `TFT_DC` | GPIO 25 to J2 pin 5 |
 | `TFT_RESET` | GPIO 4 to J2 pin 4 |
@@ -681,6 +886,7 @@ Proposed outline, all dimensions assumed until the module, the encoder and the c
 | Display zone | Bottom | x = 0 to 92 mm | Pi Zero, 65 x 30 mm, on J1. M1, J3, J4, J6 beside the Pi |
 | Key strip | Top | x = 92 to 130 mm | SW7 dial, SW6 BACK, SW1-SW5 |
 | Key strip | Bottom | x = 92 to 130 mm | BT1 |
+| Holotape slot | Bottom | Key strip, x = 92 to 130 mm, card opening on the long edge away from the wearer's body | J7. The card slides in parallel to the board. To decide with the outline. |
 
 The picture of the layout is exported from the KiCad board file once the placement step has produced it.
 
@@ -696,6 +902,7 @@ The owner must decide with the case:
 - The Pi's orientation: which edge its micro USB, mini HDMI and SD card face, and whether the case leaves them reachable.
 - Header heights, or a Pi soldered flat to save height.
 - Where the speaker and a power bank or LiPo module sit.
+- Which edge the holotape slot opens on, see [section 4.12](#412-holotape-slot).
 - 2.8 inch or 2.4 inch module.
 
 ## 7. Bill of materials
@@ -707,6 +914,7 @@ The owner must decide with the case:
 | DS1 | 1 | ILI9341 2.8 inch 240 x 320 SPI module, 14-pin header, example MSP2807 | Module | Check the pin order against J2 |
 | U1 | 1 | DS1338, 3.3 V grade, example DS1338Z-33+ | SOIC-8 | Check the suffix |
 | U2 | 1 | 24C32 class EEPROM | SOIC-8 | Not fitted |
+| U3 | 1 | MCP1700-3302E/TO, 3.3 V LDO, 250 mA | TO-92 | Holotape supply. Check the pin order. |
 | M1 | 1 | PAM8302A mono class-D breakout module | 5 pins and 2 output pads | Check the module pinout and geometry |
 | Q1 | 1 | BC327-25, PNP | TO-92 | Check the pin order |
 | Q2 | 1 | 2N3904, NPN | TO-92 | Check the pin order |
@@ -731,6 +939,9 @@ The owner must decide with the case:
 | R30 | 1 | 270 Ohm | Axial | Audio filter |
 | R31 | 1 | 33 kOhm | Axial | Above RV1, sets its range |
 | R40 to R48 | 9 | 1 kOhm | Axial | Input series |
+| R50, R58, R59 | 3 | 10 kOhm | Axial | Holotape CS, detect and protect pull-ups |
+| R51 to R53 | 3 | 47 kOhm | Axial | DAT1, DAT2 and MISO pull-ups |
+| R54 to R57 | 4 | 33 Ohm | Axial | Holotape bus series |
 | RV1 | 1 | 10 kOhm trimmer | THT | Audio level ceiling |
 | C1 | 1 | 10 uF 10 V ceramic | THT | Display VCC |
 | C2, C10, C11, C32 | 4 | 100 nF X7R 50 V | THT | C11 not fitted, so 3 fitted |
@@ -739,18 +950,23 @@ The owner must decide with the case:
 | C33 | 1 | 47 uF 16 V electrolytic | Radial | |
 | C40 to C46 | 7 | 100 nF X7R 50 V | THT | Not fitted |
 | C47, C48 | 2 | 10 nF C0G or X7R 50 V | THT | Dial filter |
+| C50 | 1 | 10 uF 16 V ceramic | THT | U3 input |
+| C51 | 1 | 10 uF 10 V ceramic | THT | U3 output |
+| C52 | 1 | 100 uF 10 V electrolytic | Radial | Holotape bulk |
+| C53 | 1 | 100 nF X7R 50 V | THT | J7 VDD |
 | J1 | 1 | 2x20 female header, 2.54 mm, 8.5 mm | THT, bottom side | Pi header |
 | J2 | 1 | 1x14 female header, 2.54 mm, 8.5 mm | THT | Display socket |
 | J3 | 1 | 1x2 header or 2-pin JST PH | THT | 5 V input |
 | J4 | 1 | 1x6 pin header | THT | Serial, 3.3 V only |
 | J5 | 1 | 1x11 pin header | THT | Not fitted. Front panel. |
 | J6 | 1 | 1x2 header or 2-pin JST PH | THT | Speaker |
-| JP1, JP2 | 2 | Solder jumper, 2 pads | Pads | Both open |
-| TP1 to TP8 | 8 | Test point loop | THT | |
+| J7 | 1 | Full-size SD socket, push-push, card detect and write protect, example Hirose DM1AA-SF-PEJ(82) | SMD, 2.5 mm pitch | Holotape slot |
+| JP1 to JP3 | 3 | Solder jumper, 2 pads | Pads | All open |
+| TP1 to TP9 | 9 | Test point loop | THT | |
 | H1 to H4 | 4 | M3 hole | Hole | Display standoffs. Not a part to buy. |
 | H5 to H8 | 4 | M2.5 hole | Hole | Pi Zero standoffs, positions from the Zero drawing |
 
-Hand soldering: every part is through-hole except U1 and U2, SOIC-8 at 1.27 mm pitch, and Q3, SOT-23 at 0.95 mm pitch. A fine iron tip handles both. Do not choose the DS1338 in a smaller package. The PAM8302A chip exists only in small packages, so the board takes the module.
+Hand soldering: every part is through-hole except U1 and U2, SOIC-8 at 1.27 mm pitch, Q3, SOT-23 at 0.95 mm pitch, and J7, an SD socket with its contacts on a 2.5 mm pitch. A fine iron tip handles them all. Do not choose the DS1338 in a smaller package. The PAM8302A chip exists only in small packages, so the board takes the module.
 
 ## 8. Software mapping
 
@@ -775,12 +991,16 @@ Where hardware and software disagree:
 - Backlight: the software default is no backlight pin. This board switches it on GPIO 19, and stays lit when the key is absent.
 - Pip-OS `HARDWARE.md` lists the Pi Zero and Zero W, not the Zero 2 W. BOARD_SUPPORT.md lists the Zero 2 W for audio. The board fits all three. Pip-OS must say whether it runs on the Zero 2 W.
 - Pip-OS `HARDWARE.md` still lists the SPI display as not supported. The `[display]` branch changes that.
+- Holotape slot: no software reads it yet. A driver needs SPI0 CE1, a card-detect pin, 12, and a write-protect pin, 13, and must take turns with the display on SPI0. See [section 4.12](#412-holotape-slot).
+- `tft_read_id()` returns `TFT_ERR_NO_PANEL` on this board while JP3 is open. Software must not treat that as a missing panel.
 
 ## 9. Layout guidance
 
 - Put J2 on the module's short edge where the module's header falls, and the four M3 holes at the module's corner holes. Measure the module.
 - Put J1 on the bottom side. Its pin 1 must meet the Pi's pin 1 with the Pi face up below the board: the footprint is mirrored against a normal HAT. Check it twice.
 - Keep SPI traces short, under 50 mm, from J1 to J2. Put R24 within 10 mm of J1.
+- Run the card's SPI lines from J1 to J7 as their own branch, a star at J1. Put R54 to R57 within 10 mm of J7. Keep the branch under 50 mm if the outline allows, or see section 4.12 for the slower clock.
+- Put U3, C51, C52 and C53 near J7. Tie J7's shell pads to the ground pour.
 - Put C1 and C2 at J2 pin 1.
 - Put Q1 and R22 to R23 near J2 pin 8. The backlight trace carries 100 mA: 0.4 mm is plenty.
 - Put Y1 within 5 mm of U1 pins 1 and 2. No traces under Y1 or between Y1 and U1 on either layer.
@@ -789,8 +1009,9 @@ Where hardware and software disagree:
 - Put J3, F1, Q3, R1, D2 and D1 together at the board edge. Use 1.0 mm for `V_EXT`, `V_F` and `+5V`. Give Q3's drain and source pads some copper for heat.
 - Put R40 to R48 and C46 to C48 near J1, on the Pi side of the switch lines.
 - Put J4 at an edge reachable in the case.
+- Put J7 with its card opening flush with the board edge, so a tape shell seats against the case.
 - Use 0.25 mm for signals, 0.5 mm for `+3V3`, and a ground pour on the bottom layer. Two layers are enough.
-- Silkscreen: the key names beside each switch, the J2 pin names, "3.3 V ONLY" at J4, "REGULATED 5 V IN. NO USB CABLE ON THE PI." at J3, the speaker note at J6, the board name and a version.
+- Silkscreen: the key names beside each switch, the J2 pin names, "HOLOTAPE" and the card's insert direction at J7, "JP3 DEBUG ONLY" at JP3, "3.3 V ONLY" at J4, "REGULATED 5 V IN. NO USB CABLE ON THE PI." at J3, the speaker note at J6, the board name and a version.
 
 ## 10. Bring-up
 
@@ -858,4 +1079,8 @@ Every assumption in this spec, to check before the schematic step or at bring-up
 - Trace capacitance 20 pF on SPI clock: assumed.
 - The `[display]` keys and defaults come from an unmerged Pip-OS branch: check them once it merges.
 - Outline 130 by 62 mm, key strip position, Pi orientation: the owner decides with the case.
+- Holotape slot, all from memory or assumed, to verify: the Hirose DM1AA-SF-PEJ(82) as a common part, which footprint pad is the switch common, card detect closing with a card in, write protect open on LOCK; MCP1700 TO-92 pin order 1 GND, 2 VIN, 3 VOUT, 250 mA, dropout about 0.18 V at 250 mA, current limit about 0.4 A, input up to 6 V, stable with ceramic and electrolytic capacitors in parallel; card current 30 mA typical and 100 mA peak in SPI reads, under 1 mA idle; card capacitance up to 10 uF; card pin capacitance up to 10 pF; SD supply range 2.7 V to 3.6 V; DAT1 and DAT2 pull-ups of 10 kOhm to 100 kOhm.
+- Holotape load rate about 0.7 MB/s at 9.62 MHz: assumed 60 % bus efficiency, to measure.
+- Pip-OS plays no sound during a tape load, which keeps the Zero 2 W under 0.55 A: assumed, open item for Pip-OS.
+- `+5V` dip of about 0.1 V on a live card insertion: lead inductance assumed, measured in bring-up.
 - Through-hole slide switch rated 1 A: assumed hard to find.

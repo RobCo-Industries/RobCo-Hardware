@@ -1059,7 +1059,7 @@
 			)
 		)
 	)
-	(text "The board has no regulator. +3V3 comes\nfrom the Pi, +5V from the Pi or J3.\nTP3 is a loop for a probe clip."
+	(text "+3V3 comes from the Pi, +5V from the Pi\nor J3. U3 feeds only the holotape slot.\nTP3 is a loop for a probe clip."
 		(exclude_from_sim no)
 		(at 114.3 83.82 0)
 		(effects
@@ -1068,7 +1068,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "1e59576a-3842-5768-b5e7-0cacd8a59470")
+		(uuid "a74b59e4-c493-5b11-9934-cc9559bffa22")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x06")

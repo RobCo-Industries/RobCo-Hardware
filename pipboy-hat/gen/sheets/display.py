@@ -8,13 +8,13 @@ from __future__ import annotations
 from common import g
 from sch import Schematic
 
-from sheets.parts import C_DISC, TO92, TP_LOOP, decoupling, note, res, sideways, testpoint
+from sheets.parts import C_DISC, SJ2, TO92, TP_LOOP, decoupling, note, res, sideways, testpoint
 
 # J2 pin: (net, kind). Global nets come from J1; local ones stay on this sheet.
 J2_PINS = {
     1: ("+3V3", "rail"), 2: ("GND", "rail"), 3: ("TFT_CS", "input"), 4: ("TFT_RESET", "input"),
     5: ("TFT_DC", "input"), 6: ("SPI_MOSI", "input"), 7: ("SPI_SCK_J", "local"), 8: ("TFT_LED", "local"),
-    9: ("SPI_MISO", "output"),
+    9: ("TFT_SDO", "local"),
 }
 TOUCH = (10, 11, 12, 13, 14)
 
@@ -38,6 +38,12 @@ def socket(s: Schematic) -> None:
             s.global_label(j2, p, net, shape=kind, stub=g(3))
     for pin in TOUCH:
         s.no_connect(j2, str(pin))
+    # JP3, open: the panel's SDO stays off MISO, which the holotape card drives.
+    jp3 = s.symbol("Jumper:SolderJumper_2_Open", "JP3", "SDO-MISO", (g(40), g(62)), rot=90, footprint=SJ2,
+                   ref_at=(g(7), g(-1)), value_at=(g(11), g(1)),
+                   description="Open. Debug only, with no card in J7: closed, the panel SDO drives SPI_MISO.")
+    s.label(jp3, "2", "TFT_SDO", stub=g(2))
+    s.global_label(jp3, "1", "SPI_MISO", shape="output", stub=g(2))
     # SCK through R24, 33 Ohm, near J1.
     y7 = j2.pin("7")[1]
     r24 = res(s, "R24", "33", (g(44), y7), horizontal=True, desc="SPI clock series resistor, within 10 mm of J1")
@@ -55,6 +61,8 @@ def socket(s: Schematic) -> None:
             "TO VERIFY AGAINST THE MODULE BOUGHT. If it differs, do not plug\n"
             "it in: change J2. Silkscreen the pin names beside J2.\n"
             "Touch pins 10 to 14 stay open. The module's SD slot is not wired.\n"
+            "SDO reaches MISO only through JP3, open: the holotape card owns\n"
+            "MISO. Close JP3 for tft_read_id() only, with no card in J7.\n"
             "VCC is +3V3, 3.3 V logic. Close the module's regulator bypass pad\n"
             "if it asks for it at 3.3 V (to verify on the module).\n"
             "R24 damps the clock: keep it within 10 mm of J1, SPI under 50 mm.\n"
