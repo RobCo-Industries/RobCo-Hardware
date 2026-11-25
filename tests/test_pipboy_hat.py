@@ -601,12 +601,27 @@ def test_card_detect_interlock_holds_q5_off():
     assert parts()["R71"].value == "100k" and not parts()["Q6"].dnp
 
 
-def test_q5_turn_on_threshold_near_2v():
-    # Threshold = Vbe x (1 + R65 / R69), with Vbe 0.6 V to 0.7 V.
-    k = {"22k": 22e3, "10k": 10e3}
+def test_q5_turn_on_threshold_window():
+    # Threshold = Vbe x (1 + R65 / R69), Vbe 0.55 V hot to 0.75 V cold (to verify).
+    k = {"22k": 22e3, "10k": 10e3, "4.7k": 4.7e3, "4k7": 4.7e3, "33k": 33e3, "47k": 47e3}
     r65, r69 = k[parts()["R65"].value], k[parts()["R69"].value]
-    lo, hi = 0.6 * (1 + r65 / r69), 0.7 * (1 + r65 / r69)
-    assert 1.6 <= lo and hi <= 2.4, (lo, hi)
+    lo, hi = 0.55 * (1 + r65 / r69), 0.75 * (1 + r65 / r69)
+    assert 3.0 - hi >= 0.55, f"margin to a 3.0 V high in the cold corner: {3.0 - hi:.2f} V"
+    assert lo - 0.4 >= 1.3, f"margin over the Pi's 0.4 V low: {lo - 0.4:.2f} V"
+
+
+def test_u4_is_the_126_with_active_high_enables():
+    # A 125 inverts every enable: the bus is on at idle and U5 drives MISO
+    # through every display transfer.
+    u4 = parts()["U4"]
+    assert u4.value == "74LVC126A", u4.value
+    assert u4.part.endswith("126") and "125" not in u4.part, u4.part
+
+
+def test_u5_is_the_1g125_with_an_active_low_enable():
+    u5 = parts()["U5"]
+    assert u5.value == "74LVC1G125", u5.value
+    assert u5.part.endswith("1G125"), u5.part
 
 
 def test_miso_driver_enabled_only_with_holo_bus_and_powered_from_the_pi_rail():
