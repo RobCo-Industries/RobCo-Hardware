@@ -100,7 +100,7 @@ jobs:
         run: tools/build.sh check toy2
       - name: Terminal controller checks
         run: tools/build.sh check terminal-controller
-      - name: Pip-Boy HAT checks, spec only
+      - name: Pip-Boy HAT checks
         run: tools/build.sh check pipboy-hat
       - name: Schematic PDF, SVG, netlist and BOM
         if: always()
@@ -108,6 +108,7 @@ jobs:
           tools/build.sh docs toy
           tools/build.sh docs toy2
           tools/build.sh docs terminal-controller
+          tools/build.sh docs pipboy-hat
       - name: Gerbers and drill
         if: always()
         run: tools/build.sh fab toy
@@ -133,6 +134,11 @@ jobs:
             build/terminal-controller/*.net
             build/terminal-controller/*.rpt
             build/terminal-controller/svg/
+            build/pipboy-hat/*.pdf
+            build/pipboy-hat/*.csv
+            build/pipboy-hat/*.net
+            build/pipboy-hat/*.rpt
+            build/pipboy-hat/svg/
           if-no-files-found: warn
 
   render:
