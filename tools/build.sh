@@ -237,7 +237,9 @@ cmd_docs() {
   kcli sch export pdf -o "$OUT/$BOARD-schematic.pdf" "$(sch)" >/dev/null
   kcli sch export svg -o "$OUT/svg" "$(sch)" >/dev/null
   netlist
-  kcli sch export bom -o "$OUT/$BOARD-bom.csv" "$(sch)" >/dev/null
+  # "Off board" marks parts to buy that do not sit on the board, such as a module or a speaker.
+  kcli sch export bom --fields 'Reference,Value,Footprint,QUANTITY,DNP,EXCLUDE_FROM_BOARD' \
+    --labels 'Refs,Value,Footprint,Qty,DNP,Off board' -o "$OUT/$BOARD-bom.csv" "$(sch)" >/dev/null
   say "schematic PDF, SVG, netlist and BOM in build/$BOARD"
 }
 
