@@ -33,27 +33,65 @@ Software references point to files in the RobCo-Core and UOS repositories. "BOAR
 - A 2x9 header carries the 9 Pi pins that stay free, each beside a ground.
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
-```
-                         Raspberry Pi 40-pin header (J1)
-  +3V3  +5V   GPIO2/3 (I2C)  GPIO14/15  GPIO18  buttons  GPIO25  free pins
-    |     |        |            |          |       |        |        |
-    |     |   +----+-----+---+  |          |       |        |        +--> J7 free-pin header
-    |     |   |          |   |  +--> J6 serial (FTDI order, 3.3 V only)  (4,12,13,16,19,20,21,23,24)
-    |     |   v          v   v             |       +--> J5 buttons
-    |     |  U1 PCA9554 U2 PCA9554 U3 DS1338 |              |
-    |     |  0x20       0x21       0x68 + Y1 + BT1         |
-    |     |   |          ^                   v             v
-    |     |   v          |               RC filter     Q2 + Q1 arm switch
-    |     |  U4 ULN2803A U5,U6 LTV-847      + RV1           |
-    |     |   |          ^                   v             |
-    |     |   v          |              M1 class-D module  |
-    |     | J3 outputs  J4 inputs            v             |
-    |     |  OUT0..7     IN0..7          J8 speaker        |
-    |     |   ^                                            |
-    |     +---+-- JP1 (Pi 5 V or terminal) --+             |
-    |                                        |             |
-   J2 load supply -> F1 polyfuse -> D1 reverse diode -> V_PROT -> Q1 -> V_SW
-                                       F2 -> +V_S sensor supply        (load rail)
+```mermaid
+flowchart TB
+    subgraph J1["Raspberry Pi 40-pin header (J1)"]
+        P3V3["+3V3"]
+        P5V["+5V"]
+        I2C["GPIO2/3 (I2C)"]
+        UART["GPIO14/15"]
+        PWM["GPIO18"]
+        BTN["buttons"]
+        ARM["GPIO25"]
+        FREE["free pins"]
+    end
+    subgraph I2CBUS["I2C devices"]
+        U1["U1 PCA9554<br/>0x20"]
+        U2["U2 PCA9554<br/>0x21"]
+        U3["U3 DS1338<br/>0x68 + Y1 + BT1"]
+    end
+    subgraph OUTPUTS["Outputs"]
+        U4["U4 ULN2803A"]
+        J3["J3 outputs<br/>OUT0..7"]
+    end
+    subgraph INPUTS["Inputs"]
+        U5["U5,U6 LTV-847"]
+        J4["J4 inputs<br/>IN0..7"]
+    end
+    subgraph AUDIO["Audio"]
+        RC["RC filter<br/>+ RV1"]
+        M1["M1 class-D module"]
+        J8["J8 speaker"]
+    end
+    J6["J6 serial<br/>(FTDI order, 3.3 V only)"]
+    J5["J5 buttons"]
+    J7["J7 free-pin header<br/>(4,12,13,16,19,20,21,23,24)"]
+    subgraph POWER["Load supply"]
+        J2["J2 load supply"]
+        F1["F1 polyfuse"]
+        D1["D1 reverse diode"]
+        F2["F2"]
+        VS["+V_S sensor supply"]
+        Q2Q1["Q2 + Q1<br/>arm switch"]
+        Q1["Q1"]
+        VSW["V_SW<br/>(load rail)"]
+        JP1["JP1<br/>(Pi 5 V or terminal)"]
+    end
+    I2C --> U1
+    I2C --> U2
+    I2C --> U3
+    U1 --> U4 --> J3
+    J4 --> U5 --> U2
+    UART --> J6
+    PWM --> RC --> M1 --> J8
+    BTN --> J5
+    ARM --> Q2Q1 --> Q1
+    FREE --> J7
+    P5V --- JP1
+    JP1 --> J3
+    J2 --> F1 --> D1 -- "V_PROT" --> Q1 --> VSW
+    D1 --- JP1
+    D1 --> F2 --> VS
 ```
 
 ## 3. The 40-pin header map
