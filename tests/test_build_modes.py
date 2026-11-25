@@ -192,3 +192,18 @@ def test_netlist_tests_run_in_check_and_can_fail(board):
     _write(str(board / "nt.py"), script.format(1))
     r = _run(board, "check")
     assert r.returncode != 0 and "netlist tests failed" in r.stderr
+
+
+def test_picture_check_skips_a_board_without_board_file(board):
+    r = _run(board, "pictcheck")
+    assert r.returncode == 0 and "no board file yet: picture check skipped" in r.stdout
+
+
+@pytest.mark.parametrize("present", [[], ["top"], ["bottom"]])
+def test_picture_check_fails_when_a_picture_is_missing(board, present):
+    _write(str(board / "b" / "kicad" / "b.kicad_pcb"), "board\n")
+    for side in present:
+        _write(str(board / "b" / "img" / f"board-{side}.svg"), "<svg/>\n")
+    r = _run(board, "pictcheck")
+    assert r.returncode != 0 and "needs both pictures" in r.stderr
+    assert "pcb export svg" not in _calls(board)

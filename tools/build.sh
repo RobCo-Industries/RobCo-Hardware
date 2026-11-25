@@ -14,6 +14,8 @@
 #   drc     only DRC
 #   docs    schematic PDF and SVG, netlist, BOM
 #   render  3D renders: top, bottom, isometric
+#   pictures  write the 2D board pictures for the docs into <board>/img/
+#   pictcheck only the check that <board>/img/ equals a fresh export
 #   fab     gerbers and drill files
 #   out     docs, render and fab
 #   test    the Python tests, in a venv under build/
@@ -228,6 +230,7 @@ cmd_check() {
   fi
   cmd_pins
   cmd_pintable
+  cmd_pictcheck
   cmd_nettest
   cmd_drc
 }
@@ -258,6 +261,42 @@ cmd_render() {
   say "renders in build/$BOARD/render"
 }
 
+# 2D board pictures for the docs, top and bottom, from the board file.
+# tools/board_svg.py removes the export date and adds a dark background.
+export_pictures() {
+  local dest="$1" side layers mirror
+  mkdir -p "$dest" "$OUT/pictures"
+  for side in top bottom; do
+    if [ "$side" = top ]; then layers=Edge.Cuts,F.Cu,F.SilkS,F.CrtYd; mirror=""
+    else layers=Edge.Cuts,B.Cu,B.SilkS,B.CrtYd; mirror=yes; fi
+    kcli pcb export svg --mode-single --theme _builtin_default --exclude-drawing-sheet \
+      --page-size-mode 2 ${mirror:+--mirror} -l "$layers" -o "$OUT/pictures/raw-$side.svg" "$(pcb)" >/dev/null
+    "$KICAD_PY" "$REPO/tools/board_svg.py" "$OUT/pictures/raw-$side.svg" "$dest/board-$side.svg" \
+      "$BOARD board, $side side"
+  done
+}
+
+cmd_pictures() {
+  [ -f "$(pcb)" ] || { say "no board file yet: pictures skipped"; return 0; }
+  export_pictures "$BDIR/img"
+  say "pictures in $BOARD/img"
+}
+
+cmd_pictcheck() {
+  [ -f "$(pcb)" ] || { say "no board file yet: picture check skipped"; return 0; }
+  local side
+  for side in top bottom; do
+    [ -f "$BDIR/img/board-$side.svg" ] \
+      || die "$BOARD/img/board-$side.svg missing: a board with a board file needs both pictures, run tools/build.sh pictures $BOARD"
+  done
+  export_pictures "$OUT/pictures/fresh"
+  for side in top bottom; do
+    cmp -s "$OUT/pictures/fresh/board-$side.svg" "$BDIR/img/board-$side.svg" \
+      || die "$BOARD/img/board-$side.svg differs from the board file: run tools/build.sh pictures $BOARD"
+  done
+  say "board pictures match the board file"
+}
+
 cmd_fab() {
   [ -f "$(pcb)" ] || { say "no board file yet, schematic only: gerbers and drill skipped"; return 0; }
   mkdir -p "$OUT/fab"
@@ -285,6 +324,8 @@ case "$CMD" in
   nettest) cmd_nettest ;;
   drc) cmd_drc ;;
   check) cmd_check ;;
+  pictures) cmd_pictures ;;
+  pictcheck) cmd_pictcheck ;;
   docs) cmd_docs ;;
   render) cmd_render ;;
   fab) cmd_fab ;;

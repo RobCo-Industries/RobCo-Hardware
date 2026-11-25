@@ -96,6 +96,8 @@ jobs:
         run: tools/build.sh pins toy
       - name: DRC
         run: tools/build.sh drc toy
+      - name: Board pictures equal a fresh export
+        run: tools/build.sh pictcheck toy
       - name: Toy 2 checks, schematic only
         run: tools/build.sh check toy2
       - name: Terminal controller checks

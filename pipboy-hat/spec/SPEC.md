@@ -35,23 +35,69 @@ Software references:
 - A 6-pin header carries the PL011 serial console at 3.3 V.
 - An optional HAT ID EEPROM footprint is left unpopulated.
 
+```mermaid
+flowchart LR
+    subgraph POWER["5 V input"]
+        J3["J3 5 V in<br/>regulated only"]
+        F1["F1 polyfuse"]
+        Q3["Q3 P-MOSFET<br/>reverse block, D2, R1"]
+        D1["D1 TVS clamp"]
+    end
+    subgraph J1["Pi header J1"]
+        P5V["+5V"]
+        P3V3["+3V3"]
+    end
+    M1["M1 PAM8302A"]
+    J2["J2 display VCC"]
+    BLSW["Q1 backlight<br/>emitter"]
+    U1["U1 DS1338"]
+    U2["U2 ID EEPROM<br/>not fitted"]
+    J3 -- "V_EXT" --> F1 -- "V_F" --> Q3
+    Q3 -- "+5V" --> P5V
+    P5V --- D1
+    P5V --> M1
+    P3V3 --> J2
+    P3V3 --> BLSW
+    P3V3 --> U1
+    P3V3 --> U2
 ```
-                       Raspberry Pi Zero 40-pin header (J1, on the bottom side)
-  +5V   +3V3   GPIO2/3   GPIO7-11, 4, 25   GPIO19   GPIO14/15   GPIO18   9 input pins
-   |      |       |            |              |          |          |          |
-   |      |       v            v              v          v          v          v
-   |      |   U1 DS1338    J2 display      Q2 + Q1    J4 serial   R30, C30   R40-R48
-   |      |   0x68 + Y1    socket, 14 pin  backlight  3.3 V only  filter     1 kOhm
-   |      |   + BT1        DS1 ILI9341     switch                    |         |
-   |      |                  ^   ^           |                       v         v
-   |      +------------------+   +-----------+ TFT_LED           C31 R31 RV1 SW1-SW6 keys
-   |      |                    VCC        LED                        |      SW7 dial + push
-   |      +--> U2 ID EEPROM, not fitted                              v      J5 panel header
-   |                                                            M1 PAM8302A    (not fitted)
-   +-------------------------------------------------------------> Vin |
-   |                                                                   v
-  J3 5 V in -> F1 polyfuse -> Q3 P-MOSFET -> +5V rail, D1 TVS        J6 speaker
-                              reverse block, D2, R1
+
+```mermaid
+flowchart LR
+    subgraph J1["Pi header J1"]
+        SPI["GPIO8-11, 4, 25"]
+        BL["GPIO19"]
+        I2C["GPIO2/3"]
+        IDP["ID_SD, ID_SC"]
+        UART["GPIO14/15"]
+        PWM["GPIO18"]
+        INP["GPIO5, 6, 16, 17,<br/>22, 23, 24, 26, 27"]
+    end
+    subgraph DISPLAY["Display"]
+        BLSW["Q2 + Q1 backlight switch<br/>R20 pull-up"]
+        J2["J2 display socket, 14 pin<br/>DS1 ILI9341"]
+    end
+    U1["U1 DS1338 0x68<br/>Y1, BT1"]
+    U2["U2 ID EEPROM<br/>not fitted"]
+    J4["J4 serial<br/>3.3 V only"]
+    subgraph AUDIO["Audio"]
+        R30["R30, C30<br/>filter"]
+        RV1["C31, R31, RV1<br/>level trimmer"]
+        M1["M1 PAM8302A"]
+        J6["J6 speaker"]
+    end
+    subgraph INPUT["Input"]
+        R40["R40-R48<br/>1 kOhm"]
+        KEYS["SW1-SW6 keys<br/>SW7 dial + push<br/>J5 panel header, not fitted"]
+    end
+    SPI -- "SPI0, CS, DC, RESET" --> J2
+    BL -- "TFT_BL" --> BLSW
+    BLSW -- "TFT_LED" --> J2
+    I2C -- "I2C" --> U1
+    IDP --> U2
+    UART --> J4
+    PWM -- "AUDIO_PWM" --> R30 --> RV1 --> M1 --> J6
+    INP --> R40 --> KEYS
 ```
 
 ## 3. The 40-pin header map
@@ -298,17 +344,18 @@ ESD: the keys sit behind plastic caps. J5 leads to a panel inside the same case.
 
 Layout for a wrist device, worn on the left forearm and used with the right hand. The keys and the dial sit on a strip to the right of the screen, nearest the hand:
 
-```
-  +----------------------------------------------+----------------+
-  |                                              |   (SW7 dial)   |
-  |                                              |   [BACK SW6]   |
-  |            DS1 display, 2.8 inch             |                |
-  |            320 x 240, landscape              |      [UP]      |
-  |                                              | [LEFT][SEL][RT]|
-  |                                              |     [DOWN]     |
-  +----------------------------------------------+----------------+
-       J2 on the module's short edge, left             key strip
-```
+| Item | Face | Position | Note |
+| --- | --- | --- | --- |
+| DS1 display | Top | Left part of the board | 2.8 inch, 320 x 240, landscape |
+| J2 | Top | On the module's short edge, left | Display socket |
+| Key strip | Top | Right of the screen | Nearest the hand |
+| SW7 dial | Top | Key strip, top | |
+| SW6 BACK | Top | Key strip, under the dial | |
+| UP | Top | Key strip, top of the cross | |
+| LEFT, SEL, RT | Top | Key strip, middle row of the cross, left to right | |
+| DOWN | Top | Key strip, bottom of the cross | |
+
+The picture of the layout is exported from the KiCad board file once the placement step has produced it.
 
 UP, DOWN, LEFT and RIGHT form a cross with SELECT in its centre, on a 14 mm grid. The dial sits at the top of the strip, where a thumb turns it, and BACK sits between the dial and the cross.
 
@@ -627,15 +674,15 @@ Rejected:
 
 Proposed outline, all dimensions assumed until the module, the encoder and the case are in hand:
 
-```
-   0                                             92              130 mm
-   +----------------------------------------------+----------------+ 62
-   | top: DS1 module over J2, H1-H4 standoffs     | top: SW7 dial  |
-   |                                              |      SW6 BACK  |
-   | bottom: Pi Zero, 65 x 30 mm, on J1           |      SW1-SW5   |
-   |         M1, J3, J4, J6 beside the Pi         | bottom: BT1    |
-   +----------------------------------------------+----------------+ 0
-```
+| Zone | Face | Position | Items |
+| --- | --- | --- | --- |
+| Board | Both | x = 0 to 130 mm, y = 0 to 62 mm | Outline |
+| Display zone | Top | x = 0 to 92 mm | DS1 module over J2, H1-H4 standoffs |
+| Display zone | Bottom | x = 0 to 92 mm | Pi Zero, 65 x 30 mm, on J1. M1, J3, J4, J6 beside the Pi |
+| Key strip | Top | x = 92 to 130 mm | SW7 dial, SW6 BACK, SW1-SW5 |
+| Key strip | Bottom | x = 92 to 130 mm | BT1 |
+
+The picture of the layout is exported from the KiCad board file once the placement step has produced it.
 
 - Board: 130 by 62 mm, two layers, 1.6 mm.
 - Top side: J2 and the display, four M3 standoffs for the module, the key strip at x = 92 to 130 mm. The cross of SW1 to SW5 on a 14 mm grid takes about 40 by 40 mm. The dial and BACK take the 20 mm above it.
