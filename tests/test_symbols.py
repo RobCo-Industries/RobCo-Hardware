@@ -98,3 +98,13 @@ def test_ili9341_module_has_no_pins():
     sym = _sym("ILI9341_Module")
     props = {p[1]: p[2] for p in sexp.children(sym, "property")}
     assert _pins(sym) == {} and props["Reference"] == "DS"
+
+
+def test_sd_card_socket_pins_match_the_hirose_footprint_pads():
+    sym = _sym("SD_Card_Hirose_DM1AA")
+    assert _pins(sym) == {"1": "DAT3/CS", "2": "CMD/DI", "3": "VSS", "4": "VDD", "5": "CLK", "6": "VSS",
+                          "7": "DAT0/DO", "8": "DAT1", "9": "DAT2", "CP": "CD", "WP": "WP", "SW": "COM",
+                          "SH": "SHELL"}
+    props = {p[1]: p[2] for p in sexp.children(sym, "property")}
+    assert props["Footprint"] == "Connector_Card:SD_Hirose_DM1AA_SF_PEJ82"
+    assert "to check against the data sheet" in props["Description"]

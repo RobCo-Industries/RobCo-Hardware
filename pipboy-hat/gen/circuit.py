@@ -17,7 +17,7 @@ from common import g  # noqa: E402
 from project import write_project  # noqa: E402
 from sch import Hierarchy, Schematic  # noqa: E402
 
-from sheets import audio, clock, display, inputs, pi_header, power, serial  # noqa: E402
+from sheets import audio, clock, display, holotape, inputs, pi_header, power, serial  # noqa: E402
 
 PROJECT = "pipboy-hat"
 BOARD = "Pip-Boy HAT"
@@ -29,7 +29,7 @@ SHEETS = [
     ("Pi header", "pi_header.kicad_sch", "A3", pi_header.draw, (g(100), g(52)),
      "J1 Pi header, bottom side. R10, R11 I2C pull-ups and\nU2 ID EEPROM, not fitted. H1 to H8 holes."),
     ("Display and backlight", "display.kicad_sch", "A4", display.draw, (g(20), g(76)),
-     "J2 socket for the DS1 ILI9341 module, R24, C1, C2.\nQ1, Q2 backlight switch on TFT_BL, R20 default on."),
+     "J2 socket for the DS1 ILI9341 module, R24, C1, C2,\nJP3. Q1, Q2 backlight switch on TFT_BL, R20 on."),
     ("Keys and dial", "inputs.kicad_sch", "A4", inputs.draw, (g(100), g(76)),
      "SW1 to SW6 keys, SW7 dial with push, R40 to R48,\nC40 to C48. J5 front panel header, not fitted."),
     ("Audio", "audio.kicad_sch", "A4", audio.draw, (g(20), g(100)),
@@ -38,6 +38,8 @@ SHEETS = [
      "U1 DS1338 at 0x68, Y1 crystal, BT1 CR1220 holder.\nJP1 VBAT jumper, R15 SQW pull-up, not fitted."),
     ("Serial and test points", "serial.kicad_sch", "A4", serial.draw, (g(20), g(124)),
      "J4 serial console, 3.3 V only.\nTP1 to TP5 on the rails and the I2C bus."),
+    ("Holotape slot", "holotape.kicad_sch", "A3", holotape.draw, (g(100), g(124)),
+     "J7 SD socket behind U4, U5 buffers on SPI0 CE1.\nU3 and Q4 switched card supply. TP9, TP10."),
 ]
 
 
@@ -62,9 +64,9 @@ def root(s: Schematic) -> None:
     s.text("Proposal. Not built, not validated on hardware.\n"
            "J3 takes a REGULATED 5 V source only. No USB cable on the Pi while J3 is powered.\n"
            "Spec: pipboy-hat/spec/SPEC.md. Header map: spec/pins.yaml.\n"
-           "Cross-sheet nets use global labels: I2C_SDA, I2C_SCL, ID_SD, ID_SC, SPI_SCLK, SPI_MOSI,\n"
-           "SPI_MISO, TFT_CS, TFT_DC, TFT_RESET, TFT_BL, BTN_*, DIAL_A, DIAL_B, DIAL_PUSH,\n"
-           "AUDIO_PWM, UART_TX, UART_RX. Rails use power symbols: +3V3, +5V, GND.", (g(20), g(42)))
+           "Cross-sheet nets use global labels: I2C_SDA, I2C_SCL, ID_SD, ID_SC, SPI_SCLK, SPI_MOSI, SPI_MISO,\n"
+           "TFT_CS, TFT_DC, TFT_RESET, TFT_BL, BTN_*, DIAL_A, DIAL_B, DIAL_PUSH, AUDIO_PWM, UART_TX, UART_RX,\n"
+           "HOLO_CS, HOLO_CD, HOLO_WP. Rails use power symbols: +3V3, +5V, GND.", (g(20), g(42)))
     if PENDING:
         s.text("Not drawn yet: " + ", ".join(PENDING) + ".", (g(20), g(146)), size=2.0)
 

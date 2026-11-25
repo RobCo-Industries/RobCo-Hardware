@@ -16,14 +16,15 @@ J1_NETS = {
     1: "+3V3", 2: "+5V", 3: "I2C_SDA", 4: "+5V", 5: "I2C_SCL", 6: "GND", 7: "TFT_RESET", 8: "UART_TX",
     9: "GND", 10: "UART_RX", 11: "BTN_LEFT", 12: "AUDIO_PWM", 13: "BTN_BACK", 14: "GND",
     15: "BTN_RIGHT", 16: "DIAL_A", 17: "+3V3", 18: "DIAL_B", 19: "SPI_MOSI", 20: "GND", 21: "SPI_MISO",
-    22: "TFT_DC", 23: "SPI_SCLK", 24: "TFT_CS", 25: "GND", 26: None, 27: "ID_SD", 28: "ID_SC",
-    29: "BTN_UP", 30: "GND", 31: "BTN_DOWN", 32: None, 33: None, 34: "GND", 35: "TFT_BL",
-    36: "DIAL_PUSH", 37: "BTN_SELECT", 38: None, 39: "GND", 40: None,
+    22: "TFT_DC", 23: "SPI_SCLK", 24: "TFT_CS", 25: "GND", 26: "HOLO_CS", 27: "ID_SD", 28: "ID_SC",
+    29: "BTN_UP", 30: "GND", 31: "BTN_DOWN", 32: "HOLO_CD", 33: "HOLO_WP", 34: "GND", 35: "TFT_BL",
+    36: "DIAL_PUSH", 37: "BTN_SELECT", 38: "HOLO_BUS", 39: "GND", 40: "HOLO_PWR",
 }
 RAILS = ("+3V3", "+5V", "GND")
 # Shape of each global label seen from this sheet: the Pi's direction.
 SHAPES = {"I2C_SDA": "bidirectional", "I2C_SCL": "output", "ID_SD": "bidirectional", "ID_SC": "output",
-          "UART_RX": "input", "UART_TX": "output", "SPI_MISO": "input"}
+          "UART_RX": "input", "UART_TX": "output", "SPI_MISO": "input",
+          "HOLO_CD": "input", "HOLO_WP": "input"}
 
 
 def header(s: Schematic) -> None:
@@ -47,10 +48,10 @@ def header(s: Schematic) -> None:
             s.global_label(j1, p, net, shape=SHAPES.get(net, "input" if net.startswith(("BTN", "DIAL"))
                                                          else "output"), stub=g(3))
     note(s, "Odd pins left, even pins right.\n"
-            "Pin 26, CE1, stays open for a second\n"
-            "SPI device. GPIO 12, 13, 20, 21 stay open.\n"
-            "GPIO 19 is TFT_BL, the only pin that is\n"
-            "not a software default.\n"
+            "Pin 26, CE1, selects the holotape card.\n"
+            "GPIO 12, 13: card detect, write protect.\n"
+            "GPIO 20 HOLO_BUS, 21 HOLO_PWR. No free GPIO.\n"
+            "TFT_BL and the holotape pins: no defaults.\n"
             "Pin map and net names: spec/pins.yaml.\n"
             "The pin check compares this sheet with it.", (g(14), g(88)))
     s.power_flag("+3V3", (g(56), g(94)))

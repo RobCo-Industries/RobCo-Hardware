@@ -4,7 +4,7 @@ The tests read the netlist that `kicad-cli sch export netlist` writes from the
 committed schematic, and compare it with pipboy-hat/spec/SPEC.md: the BOM,
 every signal net that reaches the Pi, the 5 V input path, the rails, the
 backlight switch, the clock's battery jumper, the unfitted pull-ups, the
-display socket's pin order and the serial header.
+display socket's pin order, the serial header and the holotape slot.
 
 Parts that stay off the board, the display module DS1 and the speaker LS1,
 are not in the netlist. The tests read them from the schematic files.
@@ -60,9 +60,14 @@ PI_NETS = {
     "TFT_CS": {("J1", "24"), ("J2", "3")},
     "TFT_RESET": {("J1", "7"), ("J2", "4")},
     "TFT_DC": {("J1", "22"), ("J2", "5")},
-    "SPI_MOSI": {("J1", "19"), ("J2", "6")},
-    "SPI_MISO": {("J1", "21"), ("J2", "9")},
-    "SPI_SCLK": {("J1", "23"), ("R24", "1")},
+    "SPI_MOSI": {("J1", "19"), ("J2", "6"), ("U4", "5")},
+    "SPI_MISO": {("J1", "21"), ("R57", "2"), ("R53", "2"), ("JP3", "1")},
+    "SPI_SCLK": {("J1", "23"), ("R24", "1"), ("U4", "2")},
+    "HOLO_CS": {("J1", "26"), ("U4", "9"), ("U4", "12")},
+    "HOLO_BUS": {("J1", "38"), ("U4", "1"), ("U4", "4"), ("U4", "10"), ("U4", "13"), ("R63", "1")},
+    "HOLO_PWR": {("J1", "40"), ("R65", "1"), ("R64", "1")},
+    "HOLO_CD": {("J1", "32"), ("J7", "CP"), ("R58", "2"), ("R71", "1")},
+    "HOLO_WP": {("J1", "33"), ("J7", "WP"), ("R59", "2")},
     "TFT_BL": {("J1", "35"), ("R20", "2"), ("R21", "1")},
     "AUDIO_PWM": {("J1", "12"), ("R30", "1")},
     "UART_TX": {("J1", "8"), ("J4", "5")},
@@ -72,7 +77,7 @@ PI_NETS = {
     "ID_SD": {("J1", "27"), ("U2", "5"), ("R12", "2")},
     "ID_SC": {("J1", "28"), ("U2", "6"), ("R13", "2")},
 }
-PI_OPEN = ("26", "32", "33", "38", "40")
+PI_OPEN = ()
 
 
 class Skip(Exception):
@@ -344,11 +349,14 @@ def test_power_path_in_order():
 
 def test_rails_carry_only_the_stated_parts():
     assert nodes("+5V") == {("J1", "2"), ("J1", "4"), ("Q3", "2"), ("D2", "1"), ("D1", "1"), ("M1", "1"),
-                            ("C32", "1"), ("C33", "1"), ("TP2", "1")}
+                            ("C32", "1"), ("C33", "1"), ("TP2", "1"), ("U3", "2"), ("C50", "1")}
+    assert ("U4", "14") not in nodes("+3V3"), "U4 runs from SD_3V3; U5 from +3V3 on purpose"
     assert nodes("+3V3") == {("J1", "1"), ("J1", "17"), ("J2", "1"), ("C1", "1"), ("C2", "1"),
                              ("Q1", pin_of("Q1", "E")), ("R20", "1"), ("R23", "1"), ("U1", "8"), ("C10", "1"),
                              ("U2", "8"), ("C11", "1"), ("R10", "1"), ("R11", "1"), ("R12", "1"), ("R13", "1"),
-                             ("R14", "1"), ("R15", "1"), ("TP1", "1")}
+                             ("R14", "1"), ("R15", "1"), ("TP1", "1"),
+                             ("R53", "1"), ("R58", "1"), ("R59", "1"), ("R70", "1"), ("U5", "5"),
+                             ("C56", "1")}
 
 
 # ---------------------------------------------------------------------------
@@ -416,6 +424,217 @@ def test_serial_header_keeps_vcc_open():
     for pin in ("2", "3", "6"):
         assert is_open("J4", pin), f"J4 pin {pin} must stay open"
     assert short(net_of("J4", "4")) == "UART_RX" and short(net_of("J4", "5")) == "UART_TX"
+
+
+# ---------------------------------------------------------------------------
+# Holotape slot, spec section 4.12
+
+
+# J7 pin: (pin name, card-side net, series resistor, buffer net, buffer pin).
+J7_SPI = {
+    "1": ("DAT3/CS", "SD_CS", "R56", "BUF_CS", ("U4", "8")),
+    "2": ("CMD/DI", "SD_DI", "R55", "BUF_DI", ("U4", "6")),
+    "5": ("CLK", "SD_CLK", "R54", "BUF_CLK", ("U4", "3")),
+}
+SOIC14 = "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
+
+
+def test_holotape_socket_footprint_and_card_pins():
+    assert parts()["J7"].footprint == "Connector_Card:SD_Hirose_DM1AA_SF_PEJ82"
+    names = pin_names("J7")
+    for pin, (name, net, ref, buf, (u, upin)) in J7_SPI.items():
+        assert names[pin] == name, f"J7 pin {pin} is {names[pin]}, want {name}"
+        assert ("J7", pin) in nodes(net) and (ref, "2") in nodes(net), net
+        assert nodes(buf) == {(u, upin), (ref, "1")}, buf
+        assert parts()[ref].value == "33" and not parts()[ref].dnp, ref
+    assert names["7"] == "DAT0/DO"
+    assert net_of("J7", "3") == "GND" and net_of("J7", "6") == "GND"
+    assert net_of("J7", "SW") == "GND" and net_of("J7", "SH") == "GND"
+
+
+def test_holotape_buffer_pins_by_number():
+    u4, u5 = parts()["U4"], parts()["U5"]
+    assert (u4.value, u4.footprint) == ("74LVC126A", SOIC14)
+    assert (u5.value, u5.footprint) == ("74LVC1G125", "Package_TO_SOT_SMD:SOT-23-5")
+    want4 = {"1": "HOLO_BUS", "2": "SPI_SCLK", "3": "BUF_CLK", "4": "HOLO_BUS", "5": "SPI_MOSI",
+             "6": "BUF_DI", "7": "GND", "8": "BUF_CS", "9": "HOLO_CS", "10": "HOLO_BUS",
+             "11": "BUF_OE", "12": "HOLO_CS", "13": "HOLO_BUS", "14": "SD_3V3"}
+    for pin, net in want4.items():
+        assert short(net_of("U4", pin)) == net, f"U4 pin {pin} on {net_of('U4', pin)}, want {net}"
+    want5 = {"1": "BUF_OE", "2": "SD_DO", "3": "GND", "4": "BUF_DO", "5": "+3V3"}
+    for pin, net in want5.items():
+        assert short(net_of("U5", pin)) == net, f"U5 pin {pin} on {net_of('U5', pin)}, want {net}"
+    assert nodes("BUF_DO") == {("U5", "4"), ("R57", "1")}
+    assert short(net_of("R57", "2")) == "SPI_MISO" and parts()["R57"].value == "33"
+
+
+def test_no_card_pin_reaches_a_pi_pin_except_through_the_buffer():
+    j1 = {short(n) for (r, _), n in nl().pin_net().items() if r == "J1"}
+    for (ref, pin), net in nl().pin_net().items():
+        if ref == "J7":
+            assert short(net) not in j1 - {"GND", "+3V3"} or pin in ("CP", "WP"), f"J7 pin {pin} on {net}"
+    # Card-side nets carry only card-side parts.
+    allowed = {"J7", "U4", "U5", "R50", "R51", "R52", "R54", "R55", "R56", "R60", "R61", "R62", "D3"}
+    for net in ("SD_CS", "SD_DI", "SD_CLK", "SD_DO", "SD_DAT1", "SD_DAT2"):
+        assert {r for r, _ in nodes(net)} <= allowed, net
+
+
+def test_tft_cs_stays_on_gpio8_and_off_the_card():
+    assert nodes("TFT_CS") == {("J1", "24"), ("J2", "3")}
+    assert short(net_of("J1", "26")) == "HOLO_CS"
+    for ref, pin in nodes("TFT_CS"):
+        assert ref not in ("U4", "U5", "J7")
+
+
+def test_holotape_pull_ups():
+    comps = parts()
+    want = {"R50": ("10k", "SD_3V3", "SD_CS"), "R60": ("47k", "SD_3V3", "SD_DI"),
+            "R61": ("47k", "SD_3V3", "SD_CLK"), "R62": ("47k", "SD_3V3", "SD_DO"),
+            "R51": ("47k", "SD_3V3", "SD_DAT1"), "R52": ("47k", "SD_3V3", "SD_DAT2"),
+            "R53": ("4k7", "+3V3", "SPI_MISO"),
+            "R58": ("10k", "+3V3", "HOLO_CD"), "R59": ("10k", "+3V3", "HOLO_WP"),
+            "R70": ("10k", "+3V3", "BUF_OE")}
+    for ref, (value, rail, net) in want.items():
+        assert comps[ref].value == value and not comps[ref].dnp, f"{ref}: {comps[ref].value}"
+        assert short(net_of(ref, "1")) == rail and short(net_of(ref, "2")) == net, ref
+    assert nodes("SD_DAT1") == {("J7", "8"), ("R51", "2")}
+    assert nodes("SD_DAT2") == {("J7", "9"), ("R52", "2")}
+
+
+def test_holotape_enables_default_off():
+    comps = parts()
+    for ref, net in (("R63", "HOLO_BUS"), ("R64", "HOLO_PWR")):
+        assert comps[ref].value == "100k" and not comps[ref].dnp, ref
+        assert short(net_of(ref, "1")) == net and net_of(ref, "2") == "GND", f"{ref} pulls {net} down"
+    # No pull-up of any kind on the two enables.
+    for net in ("HOLO_BUS", "HOLO_PWR"):
+        assert {r for r, _ in nodes(net)} <= {"J1", "U4", "R63", "R64", "R65"}, net
+
+
+def test_miso_reaches_the_buffer_and_not_the_display_socket():
+    miso = nodes("SPI_MISO")
+    assert not any(ref == "J2" for ref, _ in miso), "J2 must not sit on SPI_MISO"
+    assert nodes("TFT_SDO") == {("J2", "9"), ("JP3", "2")}
+    assert parts()["JP3"].part == "Jumper:SolderJumper_2_Open", "JP3 is open by default"
+
+
+def test_holotape_select_detect_and_protect_pins():
+    j1 = {pin: short(net) for (ref, pin), net in nl().pin_net().items() if ref == "J1"}
+    assert (j1["26"], j1["32"], j1["33"]) == ("HOLO_CS", "HOLO_CD", "HOLO_WP"), "CE1, GPIO 12, GPIO 13"
+    assert (j1["38"], j1["40"]) == ("HOLO_BUS", "HOLO_PWR"), "GPIO 20, GPIO 21"
+    assert net_of("J7", "CP") == net_of("J1", "32") and net_of("J7", "WP") == net_of("J1", "33")
+    assert pin_names("J7")["CP"] == "CD" and pin_names("J7")["WP"] == "WP"
+
+
+def test_holotape_supply_path_in_order():
+    comps = parts()
+    assert comps["U3"].value == "MCP1700-3302E/TO"
+    assert comps["U3"].footprint == "Package_TO_SOT_THT:TO-92_Inline"
+    assert (pin_of("U3", "GND"), pin_of("U3", "VI"), pin_of("U3", "VO")) == ("1", "2", "3")
+    assert net_of("U3", "2") == "+5V" and net_of("U3", "1") == "GND"
+    assert nodes("SD_LDO") == {("U3", "3"), ("C51", "1"), ("C52", "1"), ("TP10", "1"), ("Q4", "2"),
+                               ("R66", "1")}
+    assert comps["Q4"].part == "RobCo:Q_PMOS_GSD_SOT23" and comps["Q4"].footprint == "Package_TO_SOT_SMD:SOT-23"
+    assert (pin_of("Q4", "G"), pin_of("Q4", "S"), pin_of("Q4", "D")) == ("1", "2", "3")
+    assert nodes("SD_3V3") == {("Q4", "3"), ("J7", "4"), ("C53", "1"), ("C57", "1"), ("C54", "1"),
+                               ("C55", "1"), ("R68", "1"), ("TP9", "1"), ("U4", "14"), ("D3", "5"), ("R50", "1"), ("R51", "1"), ("R52", "1"),
+                               ("R60", "1"), ("R61", "1"), ("R62", "1")}
+    assert nodes("HOLO_G") == {("Q4", "1"), ("R66", "2"), ("C54", "2"), ("R67", "1")}
+    q5 = comps["Q5"]
+    assert (q5.value, q5.footprint) == ("2N3904", "Package_TO_SOT_THT:TO-92_Inline")
+    assert nodes("HOLO_SW") == {("R67", "2"), ("Q5", pin_of("Q5", "C"))}
+    assert nodes("HOLO_B") == {("R65", "2"), ("R69", "1"), ("Q5", "2"), ("Q6", "3")}
+    assert net_of("Q5", "1") == "GND" and net_of("R68", "2") == "GND" and net_of("R69", "2") == "GND"
+    values = {r: comps[r].value for r in ("R64", "R65", "R66", "R67", "R68", "R69", "R70", "R71")}
+    assert values == {"R64": "100k", "R65": "22k", "R66": "100k", "R67": "22k", "R68": "1k",
+                      "R69": "10k", "R70": "10k", "R71": "100k"}, values
+
+
+def test_holotape_capacitors_values_ratings_polarity():
+    comps = parts()
+    want = {"C50": ("10u 16V", "Device:C", "+5V"), "C51": ("10u 10V", "Device:C", "SD_LDO"),
+            "C52": ("100u 10V", "Device:C_Polarized", "SD_LDO"), "C53": ("100n", "Device:C", "SD_3V3"),
+            "C54": ("22n", "Device:C", "SD_3V3"), "C55": ("100n", "Device:C", "SD_3V3"),
+            "C56": ("100n", "Device:C", "+3V3"), "C57": ("4.7u 10V", "Device:C", "SD_3V3")}
+    for ref, (value, lib, top) in want.items():
+        c = comps[ref]
+        assert (c.value, c.part) == (value, lib), f"{ref}: {c.value} {c.part}"
+        assert short(net_of(ref, "1")) == top, f"{ref} pin 1 on {net_of(ref, '1')}"
+        if ref != "C54":
+            assert net_of(ref, "2") == "GND", f"{ref} pin 2 to GND"
+    assert comps["C52"].footprint == "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm"
+
+
+def test_holotape_esd_footprint_not_fitted():
+    d3 = parts()["D3"]
+    assert d3.dnp and d3.value == "USBLC6-4SC6" and d3.footprint == "Package_TO_SOT_SMD:SOT-23-6"
+    want = {"1": "SD_CLK", "2": "GND", "3": "SD_DI", "4": "SD_CS", "5": "SD_3V3", "6": "SD_DO"}
+    for pin, net in want.items():
+        assert short(net_of("D3", pin)) == net, f"D3 pin {pin}"
+
+
+def test_holotape_card_bus_nets_exact():
+    assert nodes("SD_DO") == {("J7", "7"), ("U5", "2"), ("R62", "2"), ("D3", "6")}
+    assert nodes("SD_CS") == {("J7", "1"), ("R56", "2"), ("R50", "2"), ("D3", "4")}
+    assert nodes("SD_DI") == {("J7", "2"), ("R55", "2"), ("R60", "2"), ("D3", "3")}
+    assert nodes("SD_CLK") == {("J7", "5"), ("R54", "2"), ("R61", "2"), ("D3", "1")}
+
+
+def test_holotape_transistors_by_pin_number():
+    for ref in ("Q5", "Q6"):
+        q = parts()[ref]
+        assert (q.value, q.footprint) == ("2N3904", "Package_TO_SOT_THT:TO-92_Inline"), ref
+        assert pin_names(ref) == {"1": "E", "2": "B", "3": "C"}, f"{ref}: {pin_names(ref)}"
+    assert (short(net_of("Q5", "3")), short(net_of("Q5", "2")), net_of("Q5", "1")) == ("HOLO_SW", "HOLO_B", "GND")
+    assert (short(net_of("Q6", "3")), short(net_of("Q6", "2")), net_of("Q6", "1")) == ("HOLO_B", "CD_B", "GND")
+
+
+def test_holotape_detect_and_protect_carry_only_their_parts():
+    assert nodes("HOLO_CD") == {("J1", "32"), ("J7", "CP"), ("R58", "2"), ("R71", "1")}
+    assert nodes("HOLO_WP") == {("J1", "33"), ("J7", "WP"), ("R59", "2")}
+
+
+def test_card_detect_interlock_holds_q5_off():
+    # Card out: HOLO_CD high through R58, R71 drives Q6, Q6 shorts the Q5 base.
+    assert nodes("CD_B") == {("R71", "2"), ("Q6", "2")}
+    assert short(net_of("Q6", "3")) == short(net_of("Q5", "2")) == "HOLO_B"
+    assert parts()["R71"].value == "100k" and not parts()["Q6"].dnp
+
+
+def test_q5_turn_on_threshold_window():
+    # Threshold = Vbe x (1 + R65 / R69), Vbe 0.55 V hot to 0.75 V cold (to verify).
+    k = {"22k": 22e3, "10k": 10e3, "4.7k": 4.7e3, "4k7": 4.7e3, "33k": 33e3, "47k": 47e3}
+    r65, r69 = k[parts()["R65"].value], k[parts()["R69"].value]
+    lo, hi = 0.55 * (1 + r65 / r69), 0.75 * (1 + r65 / r69)
+    assert 3.0 - hi >= 0.55, f"margin to a 3.0 V high in the cold corner: {3.0 - hi:.2f} V"
+    assert lo - 0.4 >= 1.3, f"margin over the Pi's 0.4 V low: {lo - 0.4:.2f} V"
+
+
+def test_u4_is_the_126_with_active_high_enables():
+    # A 125 inverts every enable: the bus is on at idle and U5 drives MISO
+    # through every display transfer.
+    u4 = parts()["U4"]
+    assert u4.value == "74LVC126A", u4.value
+    assert u4.part.endswith("126") and "125" not in u4.part, u4.part
+
+
+def test_u5_is_the_1g125_with_an_active_low_enable():
+    u5 = parts()["U5"]
+    assert u5.value == "74LVC1G125", u5.value
+    assert u5.part.endswith("1G125"), u5.part
+
+
+def test_miso_driver_enabled_only_with_holo_bus_and_powered_from_the_pi_rail():
+    assert net_of("U5", "5") == "+3V3", "U5 runs from +3V3: MISO never above the Pi's rail"
+    assert nodes("BUF_OE") == {("U4", "11"), ("U5", "1"), ("R70", "2")}
+    assert short(net_of("U4", "13")) == "HOLO_BUS" and short(net_of("U4", "12")) == "HOLO_CS"
+    assert net_of("R70", "1") == "+3V3"
+
+
+def test_no_card_pin_on_5v_or_on_the_pi_3v3():
+    for (ref, pin), net in nl().pin_net().items():
+        if ref == "J7":
+            assert short(net) not in ("+5V", "+3V3"), f"J7 pin {pin} on {net}"
 
 
 # ---------------------------------------------------------------------------
