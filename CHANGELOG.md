@@ -39,3 +39,4 @@
 - Say that the clock's SQW test point needs its pull-up fitted, on both boards.
 - Name where to probe `AUD_DC` in Pip-Boy bring-up step 18.
 - Draw the block diagrams in Mermaid, describe the Pip-Boy layout in tables, and export the toy board pictures with `tools/build.sh pictures`.
+- Check the edges of the Pip-Boy power and signal diagrams against its schematic in `tests/test_diagrams.py`.
